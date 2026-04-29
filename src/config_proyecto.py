@@ -33,12 +33,16 @@ EMAIL_UJI = "morte@uji.es"
 
 
 # ============================================================================
-# 2. REPOSITORIO GITHUB
+# 2. REPOSITORIO GITHUB Y APP DESPLEGADA
 # ============================================================================
-# Se usa en los HTML generados para enlazar al notebook original.
+# Se usa en los HTML generados para enlazar al notebook original
+# y a la aplicación Streamlit desplegada en Streamlit Cloud.
 
 GITHUB_REPO = "https://github.com/mortemj/AU_UJI"
 GITHUB_NOTEBOOKS = f"{GITHUB_REPO}/blob/main/notebooks"
+GITHUB_PAGES = "https://mortemj.github.io/AU_UJI/"
+
+URL_APP_STREAMLIT = "https://tfm-abandono.streamlit.app/"
 
 
 # ============================================================================
@@ -94,7 +98,7 @@ FASES_CONFIG = {
         "descripcion": "Limpieza y preparación de datos"
     },
     "fase2": {
-        "nombre": "EDA Raw",
+        "nombre": "EDA Datos Originales",
         "descripcion": "Análisis Exploratorio de Datos originales"
     },
     "fase3": {

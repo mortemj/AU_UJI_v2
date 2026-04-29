@@ -80,7 +80,9 @@ BASE_PATH, ENTORNO = detectar_entorno()
 #   ├── 01_interim/      ← Parquets individuales (1 por hoja, Fase 1)
 #   ├── 02_processed/    ← df_alumno.parquet (dataset unificado, Fase 1)
 #   ├── 03_features/     ← df_expediente_features.parquet (Fase 3)
-#   └── automl/          ← Dataset para AutoML (Fase 3.5)
+#   ├── automl/          ← Dataset y resultados AutoML (Fase 3.5)
+#   ├── 05_modelado/     ← X_test, y_test, modelos .pkl, resultados_maestro (Fase 5)
+#   └── 06_evaluacion/   ← meta_test, meta_test_app, metricas_modelo.json (Fase 6)
 
 # --- Datos ---
 RUTA_RAW = BASE_PATH / 'data' / '00_raw'
@@ -88,6 +90,8 @@ RUTA_INTERIM = BASE_PATH / 'data' / '01_interim'
 RUTA_PROCESSED = BASE_PATH / 'data' / '02_processed'
 RUTA_FEATURES = BASE_PATH / 'data' / '03_features'
 RUTA_AUTOML = BASE_PATH / 'data' / 'automl'
+RUTA_MODELADO = BASE_PATH / 'data' / '05_modelado'
+RUTA_EVALUACION = BASE_PATH / 'data' / '06_evaluacion'
 
 # --- Documentación y HTML ---
 RUTA_HTML = BASE_PATH / 'docs' / 'html'

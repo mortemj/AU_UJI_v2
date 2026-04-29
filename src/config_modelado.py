@@ -101,20 +101,24 @@ ESTRATEGIAS_BALANCE: List[Dict[str, Any]] = [
 # 3. MÉTRICAS DE EVALUACIÓN
 # ============================================================================
 # Métricas calculadas para TODOS los modelos. Orden de prioridad:
-#   1. F1-macro: métrica principal — equilibra precisión y recall en ambas clases.
-#      Elegida sobre accuracy porque el dataset está desbalanceado.
+#   1. F1 binario (clase abandono): métrica principal — F1 sobre la clase
+#      positiva. Elegida porque la clase de interés es abandono (29% —
+#      minoritaria). F1-macro promediaría ambas clases por igual y diluiría
+#      el indicador. Estándar académico para clasificación binaria con
+#      clase de interés clara (literatura: detección de abandono escolar).
 #   2. AUC-ROC: capacidad discriminativa del modelo, independiente del umbral.
-#   3. Precision/Recall: para analizar el trade-off en contexto educativo.
-#      (Recall alto = detectar más abandonos; Precision alta = menos falsos positivos)
+#   3. Precision/Recall (clase abandono): para analizar el trade-off en
+#      contexto educativo. (Recall alto = detectar más abandonos;
+#      Precision alta = menos falsos positivos)
 #   4. Kappa de Cohen: acuerdo más allá del azar, útil con desbalance.
 #   5. Tiempo: relevante para despliegue en producción institucional.
 
 METRICAS_EVALUAR: List[Dict[str, Any]] = [
     {
-        'id': 'f1_macro',
-        'nombre': 'F1-macro',
-        'descripcion': 'Media armónica de Precision y Recall sobre ambas clases',
-        'sklearn_key': 'f1_macro',    # Clave para cross_val_score o classification_report
+        'id': 'f1',
+        'nombre': 'F1 (clase abandono)',
+        'descripcion': 'Media armónica de Precision y Recall sobre la clase positiva (abandono)',
+        'sklearn_key': 'f1',          # Clave para cross_val_score o classification_report
         'principal': True,            # Métrica de ranking principal
         'formato': '.4f',
         'emoji': '🎯',
@@ -131,20 +135,20 @@ METRICAS_EVALUAR: List[Dict[str, Any]] = [
         'color': '#38a169',
     },
     {
-        'id': 'precision_macro',
-        'nombre': 'Precision macro',
-        'descripcion': 'Proporción de predicciones positivas correctas',
-        'sklearn_key': 'precision_macro',
+        'id': 'precision',
+        'nombre': 'Precision (clase abandono)',
+        'descripcion': 'Proporción de predicciones de abandono que son correctas',
+        'sklearn_key': 'precision',
         'principal': False,
         'formato': '.4f',
         'emoji': '🔍',
         'color': '#805ad5',
     },
     {
-        'id': 'recall_macro',
-        'nombre': 'Recall macro',
-        'descripcion': 'Proporción de positivos reales detectados',
-        'sklearn_key': 'recall_macro',
+        'id': 'recall',
+        'nombre': 'Recall (clase abandono)',
+        'descripcion': 'Proporción de abandonos reales detectados por el modelo',
+        'sklearn_key': 'recall',
         'principal': False,
         'formato': '.4f',
         'emoji': '🔔',
@@ -187,28 +191,201 @@ METRICA_PRINCIPAL = next(m for m in METRICAS_EVALUAR if m['principal'])
 
 
 # ============================================================================
-# 4. BASELINE AUTOML DE REFERENCIA
+# 4. BASELINE AUTOML DE REFERENCIA — DINÁMICO (sin hardcodes)
 # ============================================================================
-# Resultados del screening AutoML (168 modelos, 4 frameworks).
-# Fase 5 debe superar o igualar este baseline para justificarse.
+# Lee del JSON real generado por la fase AutoML (`automl_comparativa_final.json`).
+# Si la fase AutoML no se ha ejecutado, devuelve None y los notebooks que
+# dependan de esto deben adaptarse.
 #
-# Fuente: fase_automl/m06_comparativa — CatBoost_BAG_L2 sobre D_strict
-# Dataset: dataset_final_tfm.parquet (33.621 × 20)
+# Decisiones metodológicas (sí van en código):
+#   - Caso D_strict: elegido por estricta auditoría de leakage frente a D.
+#   - Selección dentro del caso: mejor F1 binario (clase abandono).
+#   - Color rojo y línea discontinua: estilo gráfico de referencia.
 
-BASELINE_AUTOML: Dict[str, Any] = {
-    'modelo': 'CatBoost_BAG_L2',
-    'framework': 'AutoGluon',
-    'dataset': 'D_strict',
-    'f1_macro': 0.7970,
-    'auc_roc': 0.93,
-    'descripcion': (
-        'Mejor modelo del screening AutoML (168 modelos, 4 frameworks). '
-        'Familia Gradient Boosting confirmada como óptima. '
-        'Fase 5 parte de este baseline como referencia mínima.'
-    ),
-    'color': '#e53e3e',    # Rojo para línea de referencia en gráficos
-    'linestyle': '--',     # Línea discontinua en curvas comparativas
+# Decisiones metodológicas (estáticas)
+BASELINE_CONFIG: Dict[str, Any] = {
+    'caso_objetivo': 'D_strict',     # caso elegido por auditoría de leakage
+    'criterio_seleccion': 'f1',      # F1 binario sobre clase abandono
+    'color': '#e53e3e',              # rojo — línea referencia gráficos
+    'linestyle': '--',               # línea discontinua — curvas comparativas
 }
+
+
+def cargar_baseline_automl(ruta_json=None) -> Dict[str, Any] | None:
+    """
+    Carga dinámicamente el baseline AutoML del JSON real.
+
+    El JSON es la salida de la fase AutoML (m06_comparativa). Esta función
+    selecciona el mejor modelo del caso `D_strict` por F1 binario, sin
+    valores hardcodeados.
+
+    Parameters
+    ----------
+    ruta_json : Path, optional
+        Ruta al JSON. Si None, usa la ruta canónica del proyecto
+        (`data/automl/automl_comparativa_final.json`).
+
+    Returns
+    -------
+    dict | None
+        Diccionario con las métricas del baseline o None si el JSON
+        no existe o no contiene resultados del caso objetivo.
+
+    Examples
+    --------
+    >>> baseline = cargar_baseline_automl()
+    >>> if baseline:
+    ...     print(f"Baseline: {baseline['modelo']} F1={baseline['f1']:.4f}")
+    """
+    import json as _json
+    from pathlib import Path as _Path
+
+    # Resolver ruta del JSON
+    if ruta_json is None:
+        try:
+            from src.config import RUTA_AUTOML
+            ruta_json = _Path(RUTA_AUTOML) / 'automl_comparativa_final.json'
+        except ImportError:
+            return None
+    else:
+        ruta_json = _Path(ruta_json)
+
+    if not ruta_json.exists():
+        return None
+
+    # Cargar y filtrar
+    with open(ruta_json, 'r', encoding='utf-8') as f:
+        datos = _json.load(f)
+
+    candidatos = [r for r in datos
+                  if r.get('caso') == BASELINE_CONFIG['caso_objetivo']]
+    if not candidatos:
+        return None
+
+    # Mejor por F1 (clave del JSON: 'f1' = binario clase positiva)
+    mejor = max(candidatos, key=lambda r: r.get('f1', 0))
+
+    return {
+        'modelo':      mejor['model_name'],
+        'framework':   mejor['framework'],
+        'dataset':     mejor['caso'],
+        'f1':          round(float(mejor['f1']), 4),
+        'auc_roc':     round(float(mejor['auc_roc']), 4),
+        'precision':   round(float(mejor['precision']), 4),
+        'recall':      round(float(mejor['recall']), 4),
+        'descripcion': (
+            f'Mejor modelo del screening AutoML (168 modelos, 4 frameworks). '
+            f'Caso {mejor["caso"]} — selección por F1 binario clase abandono. '
+            f'Fase 5 parte de este baseline como referencia mínima.'
+        ),
+        'color':     BASELINE_CONFIG['color'],
+        'linestyle': BASELINE_CONFIG['linestyle'],
+    }
+
+
+# ============================================================================
+# 4-BIS. CRITERIOS DE SELECCIÓN DE MODELO GANADOR (sistema dinámico opción C)
+# ============================================================================
+# Decisiones metodológicas para elegir el modelo ganador en Fase 5 / Fase 6.
+# El ganador NO se hardcodea — se elige leyendo `resultados_maestro.parquet`
+# generado al final de Fase 5.
+#
+# Justificación de los criterios:
+#   - F1 binario (clase abandono): métrica principal estándar para
+#     clasificación binaria con clase de interés clara.
+#   - Recall como primer desempate: en abandono escolar el coste de FN
+#     (no detectar un abandono real) es mayor que el de FP (alarma falsa).
+#     Ante empate en F1, preferimos el modelo que más abandonos detecta.
+#   - AUC como segundo desempate: capacidad discriminativa global,
+#     independiente del umbral de decisión.
+#   - Tiempo como último desempate: ante empate métrico total, preferimos
+#     el modelo más eficiente (mejor para producción institucional).
+#
+# UMBRAL_EMPATE = 0.001 → empate técnico si diferencia < 1 milésima.
+
+CRITERIO_GANADOR:     str   = 'f1_test'        # columna de resultados_maestro.parquet
+CRITERIO_DESEMPATE_1: str   = 'recall_test'    # primer desempate
+CRITERIO_DESEMPATE_2: str   = 'auc_test'       # segundo desempate
+CRITERIO_DESEMPATE_3: str   = 'tiempo_s'       # tercer desempate (menor = mejor)
+UMBRAL_EMPATE:        float = 0.001            # diff < 0.001 → empate técnico
+
+
+# ============================================================================
+# 4-TER. DESCRIPCIONES DE MODELOS (texto humano para informes y app)
+# ============================================================================
+# Diccionario de descripciones cortas en español para cada algoritmo del
+# proyecto. Se usa en `f6_m00_preparacion.ipynb` para añadir el campo
+# `modelo_descripcion` al JSON `metricas_modelo.json` que lee la app.
+#
+# Si gana un modelo desconocido (futuro algoritmo añadido a Fase 5 sin
+# actualizar este dict), la función `descripcion_modelo()` devuelve un
+# texto genérico para no romper el flujo. La regla absoluta del proyecto
+# (cero hardcodes) sigue cumpliéndose: el NOMBRE del modelo ganador es
+# dinámico; solo la descripción humana asociada está codificada aquí.
+
+DESCRIPCIONES_MODELOS: Dict[str, str] = {
+    # --- Lineales ---
+    'LogReg':        'Regresión logística — modelo lineal probabilístico, baseline interpretable.',
+    'Ridge':         'Regresión lineal con regularización L2 (Tikhonov).',
+    'SGD':           'Clasificador lineal entrenado con descenso de gradiente estocástico.',
+    'SGDElasticNet': 'Lineal SGD con regularización ElasticNet (L1+L2).',
+    'Perceptron':    'Perceptrón clásico — algoritmo lineal de un solo nivel.',
+    'LDA':           'Análisis discriminante lineal — proyecta en hiperplanos por clase.',
+    'SVM_lineal':    'Máquina de vectores soporte con kernel lineal.',
+    'SVM_RBF':       'Máquina de vectores soporte con kernel RBF (no lineal).',
+    # --- Árboles ---
+    'DecisionTree':  'Árbol de decisión simple — interpretable pero propenso a sobreajuste.',
+    'RandomForest':  'Bosque aleatorio — ensemble de árboles con bagging.',
+    'ExtraTrees':    'Extra Trees — bosque con splits aleatorios, menor varianza.',
+    # --- Gradient Boosting ---
+    'GradientBoosting': 'Gradient Boosting clásico de scikit-learn.',
+    'XGBoost':       'Gradient boosting con regularización L1/L2 y manejo nativo de nulos.',
+    'LightGBM':      'Gradient boosting basado en histogramas — rápido y eficiente.',
+    'CatBoost':      'Gradient boosting con manejo nativo de variables categóricas.',
+    # --- MLP + EBM ---
+    'MLP':           'Red neuronal multicapa (perceptrón multicapa).',
+    'EBM':           'Explainable Boosting Machine — modelo aditivo interpretable.',
+    # --- Ensambles ---
+    'Bagging':       'Bagging — ensemble de modelos entrenados con bootstrap.',
+    'AdaBoost':      'AdaBoost — boosting adaptativo con clasificadores débiles.',
+    'Voting':        'Voting Classifier — combinación de modelos por votación.',
+    'Stacking':      'Stacking — combinación de modelos base con un meta-learner.',
+    # --- Otros ---
+    'KNN':           'K-Nearest Neighbors — clasificación por vecinos más cercanos.',
+    'GaussianNB':    'Naive Bayes Gaussiano — asume features con distribución normal.',
+    'BernoulliNB':   'Naive Bayes Bernoulli — para features binarias.',
+}
+
+
+def descripcion_modelo(nombre: str) -> str:
+    """
+    Devuelve la descripción humana de un algoritmo.
+
+    Si el nombre no está en el diccionario, devuelve un texto genérico
+    en lugar de fallar — esto permite añadir nuevos modelos en Fase 5
+    sin romper la generación del JSON.
+
+    Parameters
+    ----------
+    nombre : str
+        Nombre del algoritmo (ej. 'XGBoost', 'Stacking', 'RandomForest').
+
+    Returns
+    -------
+    str
+        Descripción corta del modelo o texto genérico si no se conoce.
+
+    Examples
+    --------
+    >>> descripcion_modelo('XGBoost')
+    'Gradient boosting con regularización L1/L2 y manejo nativo de nulos.'
+    >>> descripcion_modelo('AlgoritmoFuturo')
+    'Modelo de clasificación supervisada.'
+    """
+    return DESCRIPCIONES_MODELOS.get(
+        nombre,
+        'Modelo de clasificación supervisada.'
+    )
 
 
 # ============================================================================
@@ -300,7 +477,8 @@ ALGORITMOS_ARBOLES: List[Dict[str, Any]] = [
 ]
 
 ALGORITMOS_BOOSTING: List[Dict[str, Any]] = [
-    # Familia ganadora del AutoML. Se busca superar F1=0.7970.
+    # Familia ganadora del AutoML. Se busca superar el baseline AutoML
+    # (ver cargar_baseline_automl() en la sección 4).
     {
         'id': 'xgboost',
         'nombre': 'XGBoost',
@@ -539,8 +717,8 @@ MODULOS_FASE5: List[Dict[str, Any]] = [
         'descripcion': (
             f'{len(ALGORITMOS_BOOSTING)} modelos: '
             + ', '.join(a['nombre'] for a in ALGORITMOS_BOOSTING)
-            + f'. Familia ganadora del AutoML. '
-            f'Baseline a superar: F1={BASELINE_AUTOML["f1_macro"]}.'
+            + '. Familia ganadora del AutoML. '
+            'Baseline a superar: ver cargar_baseline_automl().'
         ),
     },
     {
@@ -660,8 +838,13 @@ def resumen_config() -> None:
           f'({", ".join(e["id"] for e in ESTRATEGIAS_BALANCE)})')
     print(f'  Métricas:        {len(METRICAS_EVALUAR)} '
           f'| Principal: {METRICA_PRINCIPAL["nombre"]}')
-    print(f'  Baseline AutoML: {BASELINE_AUTOML["modelo"]} '
-          f'F1={BASELINE_AUTOML["f1_macro"]} | AUC={BASELINE_AUTOML["auc_roc"]}')
+    print(f'  Baseline AutoML: ', end='')
+    _baseline = cargar_baseline_automl()
+    if _baseline:
+        print(f'{_baseline["modelo"]} '
+              f'F1={_baseline["f1"]:.4f} | AUC={_baseline["auc_roc"]:.4f}')
+    else:
+        print('⚠️ JSON no encontrado — ejecuta la fase AutoML primero')
     print(f'  Algoritmos:      {total} en total')
     for modulo in MODULOS_FASE5[:-1]:  # Excluye comparativa
         print(f'    {modulo["emoji"]} {modulo["nombre"]}: '

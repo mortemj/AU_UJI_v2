@@ -21,12 +21,12 @@
     <nav class="nav-fases">
         <a href="index.html" class="active">🏠 Inicio</a>
         <a href="fase1/fase1_index.html">📥 Transformación</a>
-        <a href="fase2/fase2_index.html">📊 EDA Raw</a>
+        <a href="fase2/fase2_index.html">📊 EDA Datos Originales</a>
         <a href="fase3/fase3_index.html">🔧 Features</a>
         <a href="fase4/fase4_index.html">🔬 EDA Final</a>
-        <a href="fase5/fase5_index.html" class="disabled">🤖 Modelado</a>
-        <a href="fase6/fase6_index.html" class="disabled">📈 Evaluación</a>
-        <a href="fase7/fase7_index.html" class="disabled">🚀 Aplicación</a>
+        <a href="fase5/fase5_index.html">🤖 Modelado</a>
+        <a href="fase6/fase6_index.html">📈 Evaluación</a>
+        <a href="fase7/fase7_index.html">🚀 Aplicación</a>
         <a href="fase_automl/fase_automl_index.html">⚡ Pre-Modelado: AutoML</a>
     </nav>
 
@@ -42,7 +42,7 @@
                     <div class="link" style="color:#3182ce">Abrir fase →</div>
                 </a>
                 <a href="fase2/fase2_index.html" class="tarjeta" style="border-left-color:#38a169">
-                    <h3 style="color:#38a169">📊 Fase 2: EDA Raw</h3>
+                    <h3 style="color:#38a169">📊 Fase 2: EDA Datos Originales</h3>
                     <p>Análisis exploratorio de los datos originales.</p>
                     <div class="link" style="color:#38a169">Abrir fase →</div>
                 </a>
@@ -56,20 +56,20 @@
                     <p>Análisis exploratorio del dataset final de features.</p>
                     <div class="link" style="color:#ed8936">Abrir fase →</div>
                 </a>
-                <a href="fase5/fase5_index.html" class="tarjeta" style="border-left-color:#e53e3e; opacity:0.6">
+                <a href="fase5/fase5_index.html" class="tarjeta" style="border-left-color:#e53e3e">
                     <h3 style="color:#e53e3e">🤖 Fase 5: Modelado</h3>
                     <p>Entrenamiento de modelos de clasificación supervisada.</p>
-                    <div class="link" style="color:#e53e3e">Próximamente</div>
+                    <div class="link" style="color:#e53e3e">Abrir fase →</div>
                 </a>
-                <a href="fase6/fase6_index.html" class="tarjeta" style="border-left-color:#319795; opacity:0.6">
+                <a href="fase6/fase6_index.html" class="tarjeta" style="border-left-color:#319795">
                     <h3 style="color:#319795">📈 Fase 6: Evaluación</h3>
                     <p>Comparativa de modelos, métricas e interpretabilidad.</p>
-                    <div class="link" style="color:#319795">Próximamente</div>
+                    <div class="link" style="color:#319795">Abrir fase →</div>
                 </a>
-                <a href="fase7/fase7_index.html" class="tarjeta" style="border-left-color:#2c5282; opacity:0.6">
+                <a href="fase7/fase7_index.html" class="tarjeta" style="border-left-color:#2c5282">
                     <h3 style="color:#2c5282">🚀 Fase 7: Aplicación</h3>
-                    <p>Dashboard, vistas por perfil y documentación final.</p>
-                    <div class="link" style="color:#2c5282">Próximamente</div>
+                    <p>Dashboard, vistas por perfil y documentación final. <br><a href="https://tfm-abandono.streamlit.app/" target="_blank" style="color:#2c5282; text-decoration:underline; font-weight:bold;">🚀 Abrir app desplegada →</a></p>
+                    <div class="link" style="color:#2c5282">Abrir fase →</div>
                 </a>
             </div>
         </section>
@@ -90,8 +90,19 @@
             <h2>📊 Datos del Proyecto</h2>
             <div style="background:#f8fafc; padding:20px; border-radius:10px; border-left:4px solid #3182ce; margin-bottom:20px;">
                 <p><strong>📁 Origen:</strong> 3 archivos Excel con 9 tablas</p>
-                <p><strong>📋 Tablas:</strong> No disponible</p>
-                <p><strong>📊 Registros totales (raw):</strong> 0</p>
+                <p><strong>📋 Tablas:</strong> Titulaciones, Recibos, Domicilios, Expedientes, Nac-Sexo_Nacionalidad, Circunstancias, Trabajo, Notas, Preinscripción</p>
+                <p><strong>📊 Registros totales (originales):</strong> 1.050.793</p>
+            </div>
+        </section>
+
+        <section class="seccion">
+            <h2>🏆 Métricas del Modelo Ganador</h2>
+            <div style="background:#f0f9ff; padding:20px; border-radius:10px; border-left:4px solid #1e4d8c; margin-bottom:20px;">
+                <p><strong>🤖 Modelo:</strong> LightGBM</p>
+                <p><strong>🎯 F1 (clase abandono):</strong> 0,8334</p>
+                <p><strong>📈 AUC-ROC:</strong> 0,9564</p>
+                <p><strong>🔍 Precision:</strong> 0,8641</p>
+                <p><strong>🔔 Recall:</strong> 0,8048</p>
             </div>
         </section>
 
@@ -107,12 +118,16 @@
                     <div class="label">Período</div>
                 </div>
                 <div class="kpi" style="">
-                    <div class="value" style="color:#ed8936">50+</div>
-                    <div class="label">Variables finales</div>
+                    <div class="value" style="color:#ed8936">24</div>
+                    <div class="label">Variables del modelo</div>
                 </div>
-                <div class="kpi" style=" opacity:0.35;">
-                    <div class="value" style="color:#e53e3e">Pendiente</div>
+                <div class="kpi" style="">
+                    <div class="value" style="color:#e53e3e">29,2%</div>
                     <div class="label">Tasa abandono</div>
+                </div>
+                <div class="kpi" style="">
+                    <div class="value" style="color:#3182ce">0,9564</div>
+                    <div class="label">AUC del modelo</div>
                 </div>
             </div>
         </section>
@@ -125,7 +140,7 @@
         <a href="mailto:morte@uji.es">morte@uji.es</a> (UJI)
         <br>
         <a href="https://github.com/mortemj/AU_UJI" target="_blank">📓 GitHub</a>
-        <br>Generado: 12/04/2026
+        <br>Generado: 28/04/2026
     </footer>
 </body>
 </html>

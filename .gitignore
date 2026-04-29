@@ -1,119 +1,101 @@
 # =============================================================================
-# .gitignore — AU_UJI (TFM Predicción Abandono UJI)
+# .gitignore — TFM AU_UJI v2
+# Autora: María José Morte Ruiz
+# Última actualización: 29/04/2026 (v2)
 #
-# Filosofía:
-#   - Datos originales (00_raw): PRIVADOS, nunca subir
-#   - Datos intermedios pesados: no subir, se regeneran
-#   - Modelos: solo el GANADOR (Stacking__balanced.pkl) va al repo
-#   - Resultados pesados de AutoML/EDA/F6: no subir
+# Filosofía v2: REPRODUCIBILIDAD TOTAL
+# - Se suben TODOS los modelos (.pkl comprimidos con joblib compress=3)
+# - Se suben los datos de train/test y el pipeline de preprocesamiento
+# - Se suben los resultados de Fase 5 y Fase 6 (sistema dinámico los usa)
+# - Se ignoran los datos originales (privacidad UJI) y los intermedios
+#   (se regeneran ejecutando las fases 1-3)
 # =============================================================================
 
+
 # -----------------------------------------------------------------------------
-# DATOS — sensibles y pesados
+# DATOS — qué se sube y qué no
 # -----------------------------------------------------------------------------
 
-# Datos originales (privados — protección de datos UJI)
+# Datos originales: NO subir (privacidad UJI, contiene PII de alumnos)
 data/00_raw/
 
-# Datos intermedios y procesados (se regeneran ejecutando notebooks)
+# Datos intermedios: NO subir (se regeneran ejecutando las fases 1-3)
 data/01_interim/
 data/02_processed/
 data/03_features/
 data/04_eda/
 
-# Resultados de AutoML (cientos de MB, se regeneran)
+# AutoML: NO subir (cientos de MB, no es el modelado final del TFM)
 data/automl/
 
-# Modelos: ignorar TODOS los .pkl de la carpeta models/
-# excepto el ganador (Stacking__balanced.pkl)
-data/05_modelado/models/*.pkl
-!data/05_modelado/models/Stacking__balanced.pkl
-
-# Resultados de Fase 5 (no necesarios para la app)
+# Resultados Fase 5 dentro de data/: NO subir (parquet enorme)
 data/05_modelado/results/
-data/05_modelado/X_train.parquet
-data/05_modelado/X_train_prep.parquet
-data/05_modelado/y_train.parquet
-data/05_modelado/X_test.parquet
-data/05_modelado/y_test.parquet
-data/05_modelado/X_test_prep_ids.parquet
-data/05_modelado/pipeline_preprocesamiento.pkl
-data/05_modelado/meta_preparacion.json
 
-# Evaluación: solo se sube lo que necesita la app
-data/06_evaluacion/meta_test.parquet
-data/06_evaluacion/metricas_modelo_old.json
+# Modelos Fase 5: SÍ se suben TODOS (comprimidos con joblib compress=3)
+# Total: 266.8 MB (15 grandes comprimidos + 54 pequeños sin comprimir)
+# Permite reproducibilidad total y selección dinámica del ganador.
+# (Sin regla de exclusión — todos los .pkl de models/ entran al repo)
 
-# Resultados Fase 6 (pesados, se regeneran)
-results/
+# Backups temporales del script de compresión: NO subir
+*.pkl.bak
+
 
 # -----------------------------------------------------------------------------
-# FICHEROS TEMPORALES Y DE PRUEBA EN LA RAÍZ
+# CATBOOST — artifacts automáticos del entrenamiento
 # -----------------------------------------------------------------------------
 
-# Scripts sueltos de diagnóstico/prueba
-check_col.py
-diagnostico_tasas_p05.py
-titulaciones_conteo.xlsx
-datos.txt
-fix_gitignore.bat
-
-# Lanzadores .bat de prueba (mantenemos solo comprimir_modelo_app.bat)
-lanzar_app.bat
-lanzar_app_*.bat
-
-# ZIPs de respaldo en notebooks
-notebooks/**/*.zip
-
-# Notebooks viejos / de prueba
-notebooks/Untitled*.ipynb
-notebooks/**/*_old.ipynb
-notebooks/fase6_evaluacion/f6_m00_preparacion_old.ipynb
-notebooks/fase6_evaluacion/f6_m00c_export_probs.ipynb
-
-# CatBoost / LightGBM info (logs de entrenamiento)
+# CatBoost crea estas carpetas al entrenar (logs, métricas internas).
+# Se regeneran en cada ejecución, no aportan al proyecto.
 catboost_info/
 **/catboost_info/
 
-# Logs de notebooks
-notebooks/**/*.log
 
 # -----------------------------------------------------------------------------
-# PYTHON
+# BACKUPS PERSONALES DE TRABAJO
+# -----------------------------------------------------------------------------
+
+# Backups personales de notebooks (no van al repo público)
+*_BACKUP_*.ipynb
+*_backup_*.ipynb
+
+
+# -----------------------------------------------------------------------------
+# SCRIPTS LEGACY — del v1, ya no se usan en v2
+# -----------------------------------------------------------------------------
+
+# Script viejo de compresión (solo comprimía Stacking — sustituido por
+# comprimir_TODOS_modelos.py que comprime los 69 modelos)
+comprimir_modelo_app.bat
+
+
+# -----------------------------------------------------------------------------
+# PYTHON / JUPYTER
 # -----------------------------------------------------------------------------
 
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
 *.egg-info/
-.eggs/
-build/
-dist/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 
-# Entornos virtuales
-.venv/
+
+# -----------------------------------------------------------------------------
+# ENTORNOS VIRTUALES
+# -----------------------------------------------------------------------------
+
 venv/
 env/
+.venv/
 ENV/
 
-# -----------------------------------------------------------------------------
-# JUPYTER
-# -----------------------------------------------------------------------------
-
-.ipynb_checkpoints/
-*-checkpoint.ipynb
 
 # -----------------------------------------------------------------------------
-# STREAMLIT
-# -----------------------------------------------------------------------------
-
-.streamlit/secrets.toml
-app/.streamlit/secrets.toml
-
-# -----------------------------------------------------------------------------
-# IDE / EDITORES
+# IDEs Y EDITORES
 # -----------------------------------------------------------------------------
 
 .vscode/
@@ -122,43 +104,52 @@ app/.streamlit/secrets.toml
 *.swo
 *~
 
+
+# -----------------------------------------------------------------------------
+# STREAMLIT
+# -----------------------------------------------------------------------------
+
+# Secretos de despliegue (NUNCA subir)
+.streamlit/secrets.toml
+
+
 # -----------------------------------------------------------------------------
 # SISTEMA OPERATIVO
 # -----------------------------------------------------------------------------
 
 # Windows
 Thumbs.db
+ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# OneDrive
-*.tmp
-~$*
+# Linux
+.Trash-*
+
 
 # -----------------------------------------------------------------------------
-# LOGS Y TEMPORALES GENERALES
+# LOGS Y TEMPORALES
 # -----------------------------------------------------------------------------
 
 *.log
+*.tmp
+*.temp
 *.bak
-.cache/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-logs/
+*.backup
+.gitignore.bak.*
 
-# CodeCarbon (notebooks Fase 5)
-emissions.csv
-emissions_base/
 
 # -----------------------------------------------------------------------------
-# SECRETOS
+# ARCHIVOS GRANDES NO RELACIONADOS CON EL TFM
 # -----------------------------------------------------------------------------
 
-.env
-.env.local
-*.key
-*.pem
-credentials.json
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz

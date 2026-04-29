@@ -33,7 +33,7 @@ FASES: Dict[str, Dict[str, Any]] = {
         'estado': 'activo',
         'modulos': [
             {'id': 'indice', 'nombre': 'Índice',          'archivo': 'fase1_index.html',        'emoji': '📋'},
-            {'id': 'm01',    'nombre': 'Reportes Raw',     'archivo': 'm01_reportes_raw.html',   'emoji': '📋'},
+            {'id': 'm01',    'nombre': 'Reportes Datos Originales', 'archivo': 'm01_reportes_raw.html',   'emoji': '📋'},
             {'id': 'm02',    'nombre': 'Limpieza',         'archivo': 'm02_limpieza.html',       'emoji': '🧹'},
             {'id': 'm03',    'nombre': 'Reportes Clean',   'archivo': 'm03_reportes_clean.html', 'emoji': '✨'},
             {'id': 'm04',    'nombre': 'Dataset Final',    'archivo': 'm04_dataset_final.html',  'emoji': '🎯'},
@@ -155,7 +155,7 @@ FASES: Dict[str, Dict[str, Any]] = {
         'emoji': '🚀',
         'archivo': 'fase7_index.html',
         'carpeta': 'fase7',
-        'estado': 'pendiente',
+        'estado': 'pendiente',  # se actualiza dinámicamente al cargar el módulo (ver final del fichero)
         'modulos': [
             {'id': 'indice', 'nombre': 'Índice',           'archivo': 'fase7_index.html',        'emoji': '📋'},
             {'id': 'm01',    'nombre': 'Dashboard Gestor', 'archivo': 'm01_dashboard_gestor.html','emoji': '📊'},
@@ -455,3 +455,42 @@ def generar_html_navegacion_completa(fase_activa: str, modulo_activo: str = None
     nav_modulos = generar_html_nav_modulos(fase_activa, modulo_activo)
 
     return nav_fases, nav_modulos
+
+
+# ============================================================================
+# DETECCIÓN DINÁMICA DEL ESTADO DE FASE 7
+# ============================================================================
+# Fase 7 = app Streamlit. Se detecta su existencia comprobando si hay un
+# main.py en la carpeta app/ del proyecto. Si existe → 'activo'; si no → 'pendiente'.
+# Esto sustituye al estado hardcoded para que el código funcione en cualquier
+# checkout del repositorio (regla absoluta del proyecto: cero hardcodes).
+
+def _detectar_estado_fase7() -> str:
+    """
+    Detecta dinámicamente el estado de la Fase 7 (app Streamlit).
+
+    Sube niveles desde la ubicación de este fichero hasta encontrar la
+    raíz del proyecto (la carpeta que contiene `src/`) y comprueba si
+    existe `app/main.py`.
+
+    Returns
+    -------
+    str
+        'activo' si existe `app/main.py` en la raíz del proyecto.
+        'pendiente' en caso contrario.
+    """
+    from pathlib import Path
+
+    aqui = Path(__file__).resolve()
+    for parent in aqui.parents:
+        # Buscamos la raíz del proyecto (la que tiene src/)
+        if (parent / 'src').exists():
+            # Desde la raíz, comprobamos la app
+            if (parent / 'app' / 'main.py').exists():
+                return 'activo'
+            return 'pendiente'
+    return 'pendiente'
+
+
+# Aplicar detección dinámica al cargar el módulo
+FASES['fase7']['estado'] = _detectar_estado_fase7()
