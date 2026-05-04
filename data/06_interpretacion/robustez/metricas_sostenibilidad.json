@@ -1,0 +1,10 @@
+{
+  "tiempo_predict_proba_ms": 92.29249999771127,
+  "tiempo_por_alumno_ms": 0.013992192237372844,
+  "throughput_alumnos_segundo": 71468.42918074135,
+  "tamano_pkl_bytes": 955053,
+  "tamano_pkl_kb": 932.6689453125,
+  "n_test": 6596,
+  "n_repeticiones_tiempo": 5,
+  "estadistico_tiempo": "mediana"
+}

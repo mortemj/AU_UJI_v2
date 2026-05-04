@@ -1,0 +1,10 @@
+{
+  "auc_min": 0.9167949704901206,
+  "auc_max": 0.9918566132975787,
+  "auc_media": 0.96446426525651,
+  "auc_std": 0.027329948223138268,
+  "auc_rango": 0.07506164280745808,
+  "cohorte_min": 2019,
+  "cohorte_max": 2010,
+  "n_cohortes_evaluadas": 10
+}
