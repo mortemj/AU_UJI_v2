@@ -85,7 +85,7 @@ from utils.loaders import cargar_meta_test_app, cargar_modelo, cargar_pipeline
 # Auditoría p03 (Chat p03): _tarjeta_kpi MOVIDA a utils/ui_helpers.py para
 # que p02 y p03 usen la MISMA función (apariencia idéntica garantizada por
 # construcción). Sustituye las cards inline con border-top:3px que tenía p03.
-from utils.ui_helpers import _tarjeta_kpi, _nombre_titulacion_corto, _clasificar_riesgo, _pie_pagina, _hex_a_rgba
+from utils.ui_helpers import _tarjeta_kpi, _nombre_titulacion_corto, _clasificar_riesgo, _pie_pagina, _hex_a_rgba, _leer_metricas_modelo, fmt
 
 
 # =============================================================================
@@ -311,15 +311,13 @@ def show_pronostico(modo: str = "prospecto"):
         "modo debe ser 'prospecto' o 'en_curso'"
 
     # Textos que cambian según el modo
-    # n_alumnos_unicos — leído de metricas_modelo.json, fallback 30.872
+    # n_alumnos_unicos — leído de metricas_modelo.json (sin fallback numérico:
+    # si JSON falla, mostramos "—" en vez de un valor obsoleto).
     try:
-        import json as _json_sp
-        from config_app import RUTAS as _RUTAS_SP
-        _ruta_sp = _RUTAS_SP.get("metricas_modelo")
-        _m_sp    = _json_sp.loads(_ruta_sp.read_text(encoding="utf-8")) if _ruta_sp and _ruta_sp.exists() else {}
-        _n_alu   = f"{_m_sp.get('n_alumnos_unicos', 30872):,}".replace(",", ".")
+        _m_sp  = _leer_metricas_modelo()
+        _n_alu = fmt(_m_sp.get("n_alumnos_unicos"), "miles")
     except Exception:
-        _n_alu = "30.872"  # fallback documentado
+        _n_alu = "—"  # JSON no disponible
 
     textos = {
         "prospecto": {
@@ -359,7 +357,7 @@ def show_pronostico(modo: str = "prospecto"):
         try:
             df_ref   = cargar_meta_test_app()   # titulaciones fusionadas (para contexto/filtros)
             # Filtro canónico tribunal/memoria (28/04/2026): cohortes 2010-2020.
-            # Antes mostraba 6.725 sin filtrar; ahora 6.596, igual que p01.
+            # El n total del JSON ya viene filtrado por este rango.
             if 'curso_aca_ini' in df_ref.columns:
                 df_ref = df_ref[df_ref['curso_aca_ini'].between(2010, 2020)].copy()
             modelo   = cargar_modelo()
@@ -483,13 +481,30 @@ def show_pronostico(modo: str = "prospecto"):
     with col_scatter:
         _grafico_historico_scatter(prob, contexto, df_ref, perfil=perfil)
 
+    # === SELECTOR GLOBAL: Rapido vs Preciso (PASO 3 Bloque 4) =========
+    # Conexión real activada en PASO 4. Se coloca ANTES del expander del
+    # dot plot para que sea visible cuando el usuario abre el detalle técnico.
+    #
+    # FIX 29/04/2026 (Bloque 4): la key del st.radio interna debe ser
+    # ÚNICA en toda la sesión Streamlit. Usar solo "single" provocaba
+    # DuplicateElementKey en p03 cuando el contexto cambiaba entre rama,
+    # titulación y todas las titulaciones (mismo widget renderizado más
+    # de una vez en la misma sesión). Construimos la key combinando
+    # modo (prospecto/en_curso) + tipo de contexto (todas/rama/
+    # titulacion) + valor concreto, garantizando unicidad global.
+    _ctx_tipo  = contexto.get("tipo",  "sin_tipo")
+    _ctx_valor = str(contexto.get("valor", "all")).replace(" ", "_")[:30]
+    _key_sel   = f"{modo}_{_ctx_tipo}_{_ctx_valor}"
+    _metodo_dotplot = _selector_metodo_global(key_suffix=_key_sel)
+
     # === FILA 2: Detalle técnico (expander con radar + cascada) ======
     with st.expander("📊 Detalle técnico — radar del perfil y factores de riesgo", expanded=False):
         col_radar, col_cascada = st.columns([1, 1])
         with col_radar:
             _grafico_radar(perfil, df_ref, contexto, prob)
         with col_cascada:
-            _grafico_cascada(perfil, df_ctx, prob, modelo, pipeline, modo=modo)
+            _grafico_cascada(perfil, df_ctx, prob, modelo, pipeline,
+                             modo=modo, metodo=_metodo_dotplot)
 
     # === FILA 3: Percentil (expander) =================================
     with st.expander("📏 Tu posición en la distribución histórica", expanded=False):
@@ -1029,12 +1044,24 @@ def _formulario_perfil(modo: str, df_ref: pd.DataFrame,
                 key=f"nota_1er_{modo}",
                 disabled=_no_datos_acad,
             )
+            # Cambio 30/04/2026 (Bug 127):
+            # La columna fuente `cred_superados` del data warehouse UJI es ACUMULADA
+            # (créditos del año + anteriores), no anual. Para alumnos con convalidación
+            # masiva (Adaptación a Grado, Titulados Universitarios, Traslado, segunda
+            # titulación, planes a extinguir) puede llegar a 240+ ECTS en su primer
+            # registro. max_value=80 hacía saltar StreamlitValueAboveMaxError.
+            # Ver: docs/diagnostico_bug127.md y memoria TFM Sec. 5 (Limitaciones).
             perfil['cred_superados_anio_1er'] = np.nan if _no_datos_acad else st.number_input(
-                label="Créditos superados 1º *",
-                min_value=0, max_value=80,
+                label="Créditos superados acumulados al iniciar *",
+                min_value=0, max_value=300,
                 value=int(_med('cred_superados_anio_1er', 40)),
                 step=1,
-                help="Créditos aprobados durante el primer año académico.",
+                help=(
+                    "Créditos totales superados que el alumno aporta al inicio del grado. "
+                    "En alumnos sin trayectoria previa, suelen ser ≤ 60 ECTS (un curso completo). "
+                    "Valores superiores indican convalidación por estudios previos, "
+                    "traslado de expediente, segunda titulación o cambio de plan."
+                ),
                 key=f"cred_1er_{modo}",
                 disabled=_no_datos_acad,
             )
@@ -1839,19 +1866,20 @@ def _kpis_resumen(prob: float, perfil: dict, contexto: dict,
     """Fila de 4 KPIs compactos con lectura rápida del resultado.
 
     KPIs:
-      1. Riesgo personal (%) con delta vs media UJI (29.2%)
+      1. Riesgo personal (%) con delta vs media UJI
       2. Media del contexto (%)
       3. Percentil del alumno en su contexto
       4. Factor clave (variable con mayor peso del perfil)
     """
-    # Tasa media UJI — leída de metricas_modelo.json si está disponible, fallback 29.2
+    # Tasa media UJI — leída de metricas_modelo.json (sin fallback numérico
+    # obsoleto: si JSON falla, fallback con valor real del JSON actual
+    # — main.py ya valida la existencia de tasa_abandono al arrancar).
     try:
-        import json as _json
-        _ruta_m = _RUTAS.get("metricas_modelo")
-        _m_ps   = _json.loads(_ruta_m.read_text(encoding="utf-8")) if _ruta_m and _ruta_m.exists() else {}
-        media_uji = float(_m_ps.get("tasa_abandono", 0.292)) * 100
+        _m_ps     = _leer_metricas_modelo()
+        _tasa_val = _m_ps.get("tasa_abandono")
+        media_uji = float(_tasa_val) * 100 if _tasa_val is not None else 29.25
     except Exception:
-        media_uji = 29.2  # fallback documentado
+        media_uji = 29.25  # red de seguridad — main.py ya hace validación previa
 
     # KPI 2: media del contexto (titulación/rama/todas)
     if df_ctx is not None and 'abandono' in df_ctx.columns and len(df_ctx) > 0:
@@ -2093,17 +2121,17 @@ def _grafico_indicador_riesgo(prob: float, modo: str = "prospecto"):
     """
     Velocímetro semicircular con la probabilidad de abandono.
     La aguja apunta al valor predicho. Verde → amarillo → rojo.
-    Delta muestra la diferencia respecto a la media UJI (29.2%).
+    Delta muestra la diferencia respecto a la media UJI.
     """
-    # media_uji — leída de metricas_modelo.json, fallback 29.2
+    # media_uji — leída de metricas_modelo.json (sin fallback numérico
+    # obsoleto: si JSON falla, fallback con valor real del JSON actual
+    # — main.py ya valida la existencia de tasa_abandono al arrancar).
     try:
-        import json as _json_ig
-        from config_app import RUTAS as _RUTAS_IG
-        _ruta_ig = _RUTAS_IG.get("metricas_modelo")
-        _m_ig    = _json_ig.loads(_ruta_ig.read_text(encoding="utf-8")) if _ruta_ig and _ruta_ig.exists() else {}
-        media_uji = float(_m_ig.get("tasa_abandono", 0.292)) * 100
+        _m_ig     = _leer_metricas_modelo()
+        _tasa_val = _m_ig.get("tasa_abandono")
+        media_uji = float(_tasa_val) * 100 if _tasa_val is not None else 29.25
     except Exception:
-        media_uji = 29.2  # fallback documentado
+        media_uji = 29.25  # red de seguridad — main.py ya hace validación previa
     st.markdown(f"""
     <p style="font-size:0.82rem; color:{COLORES['texto_suave']}; margin:0.3rem 0 0.2rem 0;">
         🎯 Tu riesgo personal
@@ -2314,6 +2342,74 @@ def _grafico_radar(perfil: dict, df_ref: pd.DataFrame,
 
 
 # =============================================================================
+# SELECTOR GLOBAL: metodo de calculo del dot plot (Rapido vs Preciso)
+# Anadido en Bloque 4 PASO 3 (29/04/2026)
+# =============================================================================
+
+def _selector_metodo_global(key_suffix: str = "") -> str:
+    """
+    Renderiza un selector st.radio horizontal con dos opciones:
+      - Rapido (proxy heuristico, instantaneo, default)
+      - Preciso (SHAP exacto agnostico al modelo, opt-in)
+
+    Devuelve "rapido" o "preciso" segun la eleccion del usuario.
+
+    Tooltip explicativo (icono ?) con la justificacion de UX. El selector
+    se renderiza una sola vez por pagina y su valor se aplica a TODOS los
+    dot plots que se pinten despues (Opcion 2 - selector global).
+
+    PASO 3 (Bloque 4): selector decorativo — su valor se pasa a
+    _grafico_cascada pero AUN NO se usa para alternar el metodo. La
+    conexion real con _contribuciones_shap se hace en el PASO 4.
+
+    Parameters
+    ----------
+    key_suffix : str
+        Sufijo unico para la key del st.radio. Necesario porque el
+        selector puede aparecer mas de una vez en la misma sesion
+        (p03 simple vs p03 comparativa) y Streamlit exige keys unicas.
+
+    Returns
+    -------
+    str
+        "rapido" o "preciso"
+    """
+    # Tooltip con la justificacion de UX (decision Bloque 4 - opcion D)
+    tooltip = (
+        "Decisión de diseño UX para una app de despliegue público dirigida "
+        "a estudiantes y orientadores. El método rápido (heurístico) es "
+        "interpretable sin conocimientos técnicos previos y garantiza tiempo "
+        "de respuesta inmediato. El método preciso (SHAP) es matemáticamente "
+        "exacto sobre el modelo entrenado, opt-in para usuarios técnicos. "
+        "Coherente con patrón estándar de UX (rápido por defecto, "
+        "avanzado bajo demanda)."
+    )
+
+    eleccion = st.radio(
+        label="Cómo calcular los factores",
+        options=["⚡ Rápido", "🔬 Preciso"],
+        index=0,                      # default = Rapido
+        horizontal=True,
+        key=f"metodo_dotplot_{key_suffix}",
+        help=tooltip,
+    )
+
+    # Aviso UX honesto: Streamlit dispara rerun al cambiar el radio, lo
+    # que obliga a recalcular el pronóstico. Decisión consciente para
+    # garantizar que el usuario vea siempre valores coherentes con el
+    # método activo, sin caché latente que pudiera mostrar resultados
+    # antiguos. La mejora con cacheo selectivo queda apuntada como
+    # mejora UX para post-defensa.
+    st.caption(
+        "💡 Si cambias el método o cualquier dato del perfil, "
+        "deberás pulsar de nuevo **Calcular mi pronóstico**."
+    )
+
+    # Normalizar a "rapido" / "preciso" (sin emojis ni acentos)
+    return "preciso" if "Preciso" in eleccion else "rapido"
+
+
+# =============================================================================
 # GRÁFICO 3: Cascada de contribuciones
 #            Con selector de método: rápido (proxy) vs preciso (SHAP)
 # =============================================================================
@@ -2321,7 +2417,8 @@ def _grafico_radar(perfil: dict, df_ref: pd.DataFrame,
 def _grafico_cascada(perfil: dict, df_ref: pd.DataFrame,
                      prob: float, modelo, pipeline,
                      key_suffix: str = "",
-                     modo: str = "prospecto"):
+                     modo: str = "prospecto",
+                     metodo: str = "rapido"):
     """
     Dot plot de impacto de factores (antes era cascada/waterfall).
 
@@ -2330,6 +2427,16 @@ def _grafico_cascada(perfil: dict, df_ref: pd.DataFrame,
 
     modo: "prospecto" (excluye variables académicas del 1er año) o
     "en_curso" (las incluye).
+
+    metodo: "rapido" (proxy heurístico, instantáneo, default) o "preciso"
+    (SHAP exacto sobre el modelo entrenado, agnóstico al modelo). El
+    selector se controla globalmente desde la función llamadora — aquí
+    solo se recibe el parámetro.
+
+    PASO 4 (Bloque 4): el parámetro 'metodo' está activo. Bifurca entre
+    _contribuciones_proxy (rápido) y _contribuciones_shap (preciso, agnóstico
+    al modelo). Si SHAP falla, las 3 capas de defensa internas caen
+    automáticamente al método rápido sin cortar la experiencia del usuario.
     """
     st.markdown(f"""
     <h4 style="color:{COLORES['texto']}; margin-bottom:0.3rem;">
@@ -2337,11 +2444,19 @@ def _grafico_cascada(perfil: dict, df_ref: pd.DataFrame,
     </h4>
     """, unsafe_allow_html=True)
 
-    # Método de cálculo: solo Rápido disponible.
-    # El método Preciso (SHAP sobre CatBoost base) produce valores en escala
-    # log-odds no convertibles a % de forma fiable para el Stacking completo.
-    # Se mantiene el código _contribuciones_shap por si se resuelve en el futuro.
-    contribuciones = _contribuciones_proxy(perfil, df_ref, modo=modo)
+    # PASO 4 (Bloque 4): bifurcación según el método elegido por el usuario.
+    # - "rapido"  → proxy heurístico (instantáneo, descripción empírica)
+    # - "preciso" → SHAP exacto sobre el modelo entrenado (TreeExplainer/
+    #   LinearExplainer/EBM nativo según familia detectada)
+    #
+    # Si SHAP falla por cualquier motivo (incompatibilidad de versiones,
+    # NaN/inf, valores anómalos, modelo desconocido…), las 3 capas de
+    # defensa de _contribuciones_shap caen automáticamente a
+    # _contribuciones_proxy. La app NUNCA queda sin contribuciones.
+    if metodo == "preciso":
+        contribuciones = _contribuciones_shap(perfil, df_ref, modelo, pipeline)
+    else:
+        contribuciones = _contribuciones_proxy(perfil, df_ref, modo=modo)
 
     if not contribuciones:
         st.info(
@@ -2369,7 +2484,7 @@ def _contribuciones_proxy(perfil: dict, df_ref: pd.DataFrame,
       - Se descartan contribuciones con magnitud < 0.5 pp (ruido).
     """
     prob_base = df_ref['abandono'].mean() \
-        if 'abandono' in df_ref.columns else 0.292
+        if 'abandono' in df_ref.columns else _leer_metricas_modelo().get("tasa_abandono", 0.2925)
 
     # Variables candidatas según modo
     vars_cascada_base = ['nota_acceso', 'situacion_laboral', 'n_anios_beca',
@@ -2449,22 +2564,58 @@ def _contribuciones_proxy(perfil: dict, df_ref: pd.DataFrame,
 def _contribuciones_shap(perfil: dict, df_ref: pd.DataFrame,
                           modelo, pipeline) -> list[dict]:
     """
-    Método preciso: SHAP TreeExplainer sobre el estimador final del Stacking.
-    Calcula las contribuciones exactas para el perfil del usuario.
+    Metodo PRECISO: SHAP agnostico al modelo (refactor Bloque 4 - opcion D).
+
+    COBERTURA DE SHAP - JUSTIFICACION METODOLOGICA
+    ===============================================
+    Familias con SHAP/explainer EXACTO (~72% de los 69 modelos Fase 5):
+      - Gradient boosting: LightGBM, CatBoost, XGBoost, GradientBoosting
+        (sklearn) -> TreeExplainer
+      - Bosques: RandomForest, ExtraTrees, AdaBoost, DecisionTree, Bagging
+        (con base de arbol) -> TreeExplainer
+      - Lineales: LogisticRegression, SGD, Perceptron, LDA, SVM_lineal,
+        RidgeClassifier, PassiveAggressive -> LinearExplainer
+      - EBM (Explainable Boosting Machine, Nori et al. 2019, Microsoft
+        Research) -> explainer nativo InterpretML
+
+    Familias con HEURISTICA TRANSPARENTE (aviso + metodo rapido):
+      - Stacking, Voting -> SHAP por cadena requiere promediado de
+        estimadores base ponderado por meta-learner; aproximacion no exacta
+        (Lundberg et al., 2020). Ademas Voting quedo en Fase 5 m06 con
+        AUC=0,9254 (por debajo de gradient boosting individuales).
+      - Naive Bayes, KNN, SVM RBF, MLP -> KernelExplainer requerido, lento
+        y no exacto. Modelos descartados en AutoML (M01-M05) y Fase 5 m02-m04
+        por rendimiento por debajo de gradient boosting.
+
+    Decision metodologica: cubrir SHAP exacto solo para familias tecnicamente
+    directas Y competitivas en la fase de seleccion. El resto recibe metodo
+    heuristico con aviso al usuario, preservando la trazabilidad
+    AutoML -> Fase 5 -> Fase 7 (app).
+
+    3 capas de defensa:
+      1. Deteccion de tipo de modelo (whitelist por familia)
+      2. Validacion de salida (NaN, inf, valores anomalos)
+      3. try/except global con fallback a _contribuciones_proxy
     """
+    # -- Capa 0: importacion lazy de SHAP --------------------------------------
     try:
-        import shap  # importación lazy — solo si elige método preciso
+        import shap  # solo se carga si el usuario elige metodo preciso
     except ImportError:
-        st.error("❌ La librería SHAP no está instalada. Usa el método rápido.")
-        return []
+        st.error("❌ La librería SHAP no está instalada. Usando método rápido.")
+        return _contribuciones_proxy(perfil, df_ref)
+
+    # Variable referenciada en el except global (evita NameError si peta antes)
+    modelo_final = modelo
 
     with st.spinner("🔬 Calculando contribuciones SHAP..."):
         try:
-            # Traducir strings a códigos numéricos antes de construir X_usuario
+            # -- Preparar datos del usuario (igual que _calcular_probabilidad) --
             perfil = _traducir_perfil_a_codigos(perfil)
-
-            # Construimos X_usuario como en _calcular_probabilidad
-            cols_features = list(pipeline.feature_names_in_)                 if hasattr(pipeline, 'feature_names_in_') else                 [c for c in df_ref.columns if c not in _COLS_META]
+            cols_features = (
+                list(pipeline.feature_names_in_)
+                if hasattr(pipeline, 'feature_names_in_')
+                else [c for c in df_ref.columns if c not in _COLS_META]
+            )
             fila = {}
             for col in cols_features:
                 if col in perfil:
@@ -2474,99 +2625,204 @@ def _contribuciones_shap(perfil: dict, df_ref: pd.DataFrame,
                         fila[col] = df_ref[col].mean()
                     else:
                         if df_ref[col].notna().any():
-                            # Convertir string de moda a código numérico
                             valor_moda = df_ref[col].mode()[0]
                             fila[col] = _codificar_si_string(col, valor_moda)
                         else:
                             fila[col] = 0
                 else:
                     fila[col] = 0
-
             X_usuario = pd.DataFrame([fila])
             X_prep    = pipeline.transform(X_usuario)
 
-            # Extraemos CatBoost del Stacking para SHAP:
-            # Pipeline → named_steps['model'] (StackingClassifier)
-            #          → estimators_['CatBoost'] → Pipeline → named_steps['model']
-            # TreeExplainer es compatible con CatBoost y devuelve SHAP
-            # sobre las 19 features originales.
-            # NOTA: aproximación — SHAP del estimador base CatBoost,
-            # no del Stacking completo.
-            stacking = modelo
+            # -- Capa 1: detectar tipo de modelo (whitelist por familia) -------
+            modelo_final = modelo
             if hasattr(modelo, 'named_steps'):
-                stacking = modelo.named_steps.get('model', modelo)
+                modelo_final = modelo.named_steps.get('model', modelo)
+            nombre_clase = type(modelo_final).__name__
 
-            # Extraer CatBoost de los estimadores base del Stacking
-            catboost_model = None
-            # estimators_ contiene los estimadores ajustados (sin nombres)
-            # estimators contiene las tuplas (nombre, estimador) originales
-            if hasattr(stacking, 'estimators'):
-                for name, est in stacking.estimators:
-                    if 'CatBoost' in name or 'catboost' in name.lower():
-                        # El estimador puede ser un Pipeline con step 'model'
-                        # Buscamos el estimador ajustado en estimators_
-                        idx = [n for n, _ in stacking.estimators].index(name)
-                        est_fitted = stacking.estimators_[idx]
-                        if hasattr(est_fitted, 'named_steps'):
-                            catboost_model = est_fitted.named_steps.get('model', est_fitted)
-                        else:
-                            catboost_model = est_fitted
-                        break
+            # Whitelists por familia (basadas en clase del estimador)
+            FAMILIAS_TREE = {
+                'LGBMClassifier', 'CatBoostClassifier', 'XGBClassifier',
+                'RandomForestClassifier', 'ExtraTreesClassifier',
+                'GradientBoostingClassifier', 'AdaBoostClassifier',
+                'DecisionTreeClassifier',
+            }
+            FAMILIAS_LINEAR = {
+                'LogisticRegression', 'SGDClassifier', 'Perceptron',
+                'LinearDiscriminantAnalysis', 'LinearSVC',
+                'RidgeClassifier', 'PassiveAggressiveClassifier',
+            }
+            FAMILIAS_EBM = {'ExplainableBoostingClassifier'}
+            FAMILIAS_AVISO = {  # ensembles complejos + descartados Fase 5
+                'StackingClassifier', 'VotingClassifier',
+                'BernoulliNB', 'GaussianNB', 'KNeighborsClassifier',
+                'SVC', 'MLPClassifier',
+            }
 
-            if catboost_model is None:
-                raise ValueError("No se encontró CatBoost en los estimadores del Stacking.")
+            # -- Capa 2: ramificar segun familia -------------------------------
+            vals = None  # SHAP values (clase 1, primera fila)
+            prob_pred = 0.5  # fallback razonable; se sobreescribe en cada rama
 
-            explainer = shap.TreeExplainer(catboost_model)
-            shap_vals = explainer.shap_values(X_prep)
+            # --- Caso A: arboles (gradient boosting + bosques) ----------------
+            if nombre_clase in FAMILIAS_TREE:
+                explainer = shap.TreeExplainer(modelo_final)
+                shap_vals = explainer.shap_values(X_prep)
+                # Normalizar formato (puede ser array o lista segun version)
+                if isinstance(shap_vals, list):
+                    vals = np.asarray(shap_vals[1][0])  # clase 1
+                elif shap_vals.ndim == 3:
+                    vals = np.asarray(shap_vals[0, :, 1])
+                elif shap_vals.ndim == 2:
+                    vals = np.asarray(shap_vals[0])
+                else:
+                    vals = np.asarray(shap_vals)
+                prob_pred = float(modelo.predict_proba(X_usuario)[0, 1])
 
-            # shap_values puede ser array o lista según la versión de SHAP
-            if isinstance(shap_vals, list):
-                vals = shap_vals[1][0]  # clase 1 (abandono), primera fila
-            elif shap_vals.ndim == 2:
-                vals = shap_vals[0]
+            # --- Caso B: Bagging (solo si su base es arbol) -------------------
+            elif nombre_clase == 'BaggingClassifier':
+                base_est = getattr(modelo_final, 'estimator_',
+                          getattr(modelo_final, 'base_estimator_', None))
+                base_clase = type(base_est).__name__ if base_est else ''
+                if base_clase in FAMILIAS_TREE or 'Tree' in base_clase:
+                    explainer = shap.TreeExplainer(modelo_final)
+                    shap_vals = explainer.shap_values(X_prep)
+                    if isinstance(shap_vals, list):
+                        vals = np.asarray(shap_vals[1][0])
+                    elif shap_vals.ndim == 3:
+                        vals = np.asarray(shap_vals[0, :, 1])
+                    elif shap_vals.ndim == 2:
+                        vals = np.asarray(shap_vals[0])
+                    else:
+                        vals = np.asarray(shap_vals)
+                    prob_pred = float(modelo.predict_proba(X_usuario)[0, 1])
+                else:
+                    st.info(
+                        f"ℹ️ Bagging con base no arbórea ({base_clase}) — "
+                        f"SHAP exacto no aplicable. Usando método rápido."
+                    )
+                    return _contribuciones_proxy(perfil, df_ref)
+
+            # --- Caso C: lineales --------------------------------------------
+            elif nombre_clase in FAMILIAS_LINEAR:
+                # Background sample del df_ref (max 100 filas para velocidad)
+                X_bg_raw = df_ref[cols_features].head(100).fillna(0)
+                X_bg     = pipeline.transform(X_bg_raw)
+                explainer = shap.LinearExplainer(modelo_final, X_bg)
+                shap_vals = explainer.shap_values(X_prep)
+                if isinstance(shap_vals, list):
+                    vals = np.asarray(shap_vals[1][0])
+                elif shap_vals.ndim == 2:
+                    vals = np.asarray(shap_vals[0])
+                else:
+                    vals = np.asarray(shap_vals)
+                if hasattr(modelo, 'predict_proba'):
+                    prob_pred = float(modelo.predict_proba(X_usuario)[0, 1])
+
+            # --- Caso D: EBM (explainer nativo InterpretML) -------------------
+            elif nombre_clase in FAMILIAS_EBM:
+                # EBM tiene su propio metodo de explicacion local exacto
+                explanation = modelo_final.explain_local(X_prep)
+                data        = explanation.data(0)
+                # 'names' = features, 'scores' = contribuciones en log-odds
+                names_ebm  = list(data['names'])
+                scores_ebm = np.asarray(data['scores'], dtype=float)
+                # Filtrar la fila "Intercept" si existe (no es feature)
+                mask = np.array([n != 'Intercept' for n in names_ebm])
+                vals = scores_ebm[mask]
+                feature_names_override = [n for n in names_ebm if n != 'Intercept']
+                prob_pred = float(modelo.predict_proba(X_usuario)[0, 1])
+                # EBM usa sus propios feature_names (no los del pipeline)
+                return _construir_contribuciones_shap(
+                    vals, feature_names_override, prob_pred
+                )
+
+            # --- Caso E: aviso explicito (ensembles + descartados) ------------
+            elif nombre_clase in FAMILIAS_AVISO:
+                st.info(
+                    f"ℹ️ El modelo actual es **{nombre_clase}**. "
+                    f"SHAP exacto requeriría análisis específico no implementado "
+                    f"(decisión metodológica documentada). Usando método rápido."
+                )
+                return _contribuciones_proxy(perfil, df_ref)
+
+            # --- Caso F: desconocido (generico) -------------------------------
             else:
-                vals = shap_vals
+                st.info(
+                    f"ℹ️ SHAP no implementado para **{nombre_clase}**. "
+                    f"Usando método rápido."
+                )
+                return _contribuciones_proxy(perfil, df_ref)
 
+            # -- Capa 3: validacion de salida (NaN, inf, anomalos) -------------
+            if vals is None or len(vals) == 0:
+                st.warning("⚠️ SHAP devolvió valores vacíos. Usando método rápido.")
+                return _contribuciones_proxy(perfil, df_ref)
+            if np.isnan(vals).any() or np.isinf(vals).any():
+                st.warning(
+                    "⚠️ SHAP produjo valores anómalos (NaN/inf). "
+                    "Usando método rápido como respaldo."
+                )
+                return _contribuciones_proxy(perfil, df_ref)
+
+            # -- Construir resultado en formato compatible con _proxy ----------
             # Nombres de features tras el pipeline
             try:
-                feature_names = pipeline.get_feature_names_out()
-            except AttributeError:
+                feature_names = list(pipeline.get_feature_names_out())
+            except (AttributeError, ValueError):
                 feature_names = [f"feat_{i}" for i in range(len(vals))]
 
-            # Convertir SHAP values de log-odds a escala de probabilidad
-            # Los SHAP de CatBoost están en log-odds — hay que escalarlos
-            # para que sean comparables con la probabilidad predicha (0-100%).
-            # Usamos la derivada de la sigmoid en el punto de predicción:
-            # dp/d(log-odds) = p * (1 - p)
-            import scipy.special as sp
-            log_odds_total = float(np.sum(vals)) + explainer.expected_value
-            if hasattr(explainer.expected_value, '__len__'):
-                log_odds_total = float(np.sum(vals)) + float(explainer.expected_value[1])
-            prob_pred = float(sp.expit(log_odds_total))
-            escala = prob_pred * (1 - prob_pred) * 100  # factor de escala a %
+            return _construir_contribuciones_shap(vals, feature_names, prob_pred)
 
-            # Construimos contribuciones escaladas a %
-            contribuciones = []
-            for fname, shap_val in zip(feature_names, vals):
-                fname_clean = fname.split('__')[-1] if '__' in fname else fname
-                nombre      = NOMBRES_VARIABLES.get(fname_clean,
-                                                     fname_clean.replace('_', ' ').title())
-                contribuciones.append({
-                    'variable':     nombre,
-                    'valor':        fname_clean,
-                    'contribucion': float(shap_val) * escala,
-                })
-
-            contribuciones.sort(key=lambda x: abs(x['contribucion']), reverse=True)
-            return contribuciones[:6]
-
+        # -- Capa 4: try/except global (fallback de seguridad) -----------------
         except Exception as e:
             st.warning(
-                f"⚠️ No se pudo calcular SHAP: {e}. Usando método rápido. "
-                f"Si persiste: verificar versiones SHAP/sklearn/CatBoost y que "
-                f"stacking.estimators contenga tuplas (nombre, estimador) con 'CatBoost'."
+                f"⚠️ El método SHAP no pudo calcularse para "
+                f"{type(modelo_final).__name__}. "
+                f"Detalle técnico: {type(e).__name__}: {e}. "
+                f"Usando método rápido como respaldo."
             )
             return _contribuciones_proxy(perfil, df_ref)
+
+
+def _construir_contribuciones_shap(vals: np.ndarray,
+                                     feature_names: list,
+                                     prob_pred: float) -> list[dict]:
+    """
+    Construye la lista de contribuciones a partir de valores SHAP.
+
+    Devuelve formato compatible con _contribuciones_proxy:
+      {'variable': str, 'valor': str, 'contribucion': float}
+    Donde 'contribucion' esta en escala 0-1 (NO 0-100), igual que _proxy.
+    _renderizar_waterfall multiplica x100 al pintar.
+
+    Conversion log-odds -> escala probabilidad:
+      delta_prob ~= shap_log_odds * p * (1 - p)   (derivada local de sigmoid)
+    Aproximacion local de primer orden - estandar en literatura SHAP.
+    """
+    # Factor de escala log-odds -> probabilidad (aproximacion local)
+    escala = prob_pred * (1.0 - prob_pred)
+
+    contribuciones = []
+    for fname, shap_val in zip(feature_names, vals):
+        # Limpiar prefijos del ColumnTransformer (ej: "robust__nota_acceso")
+        fname_clean = fname.split('__')[-1] if '__' in fname else fname
+        nombre = NOMBRES_VARIABLES.get(
+            fname_clean,
+            fname_clean.replace('_', ' ').title()
+        )
+        contribuciones.append({
+            'variable':     nombre,
+            'valor':        fname_clean,
+            'contribucion': float(shap_val) * escala,  # escala 0-1 (NO x100)
+        })
+
+    # Filtrar ruido (<0.5pp) - mismo umbral que _contribuciones_proxy
+    contribuciones = [c for c in contribuciones
+                      if abs(c['contribucion']) >= 0.005]
+
+    # Ordenar por magnitud, top 6 (consistente con _proxy)
+    contribuciones.sort(key=lambda x: abs(x['contribucion']), reverse=True)
+    return contribuciones[:6]
 
 
 def _renderizar_waterfall(contribuciones: list[dict], prob: float,
@@ -2585,7 +2841,7 @@ def _renderizar_waterfall(contribuciones: list[dict], prob: float,
     """
 
     prob_base = df_ref['abandono'].mean() \
-        if 'abandono' in df_ref.columns else 0.292
+        if 'abandono' in df_ref.columns else _leer_metricas_modelo().get("tasa_abandono", 0.2925)
 
     # --- KPI grande con el riesgo final y comparativa con la media ---
     _, color_user, _, _ = _clasificar_riesgo(prob)
@@ -2819,7 +3075,11 @@ def _grafico_percentil(prob: float, df_ref: pd.DataFrame,
                     X_prep = np.nan_to_num(X_prep, nan=0.0)
                 probs_grupo   = modelo.predict_proba(X_prep)[:, 1]
         except Exception:
-            probs_grupo = np.array([0.292])
+            # Red de seguridad: si el modelo falla aquí, leer la tasa actual
+            # del JSON. Si también falla, fallback con valor real LightGBM.
+            probs_grupo = np.array([
+                _leer_metricas_modelo().get("tasa_abandono", 0.2925)
+            ])
 
     # Percentil del usuario
     percentil = float((probs_grupo < prob).mean() * 100)
@@ -3215,7 +3475,10 @@ def _mostrar_comparativa(perfil: dict, titulaciones: list,
     n_riesgo_alto_titulaciones = sum(1 for d in datos if d["nivel"] == "Alto")
     pct_alto = (n_riesgo_alto_titulaciones / len(datos) * 100) if datos else 0.0
 
-    # F1 global del modelo — leído desde metricas_modelo.json (patrón de p02)
+    # F1 global del modelo + nombre del modelo — leídos desde metricas_modelo.json
+    # (patrón de p02). FIX 29/04/2026: _nombre_modelo_comp se asigna también en
+    # el except para evitar UnboundLocalError si _RUTAS no tiene la clave o el
+    # JSON no se puede leer (caso reproducible en p03 → comparativa múltiple).
     try:
         import json as _json_comp
         _ruta_m_comp = _RUTAS.get("metricas_modelo")
@@ -3223,8 +3486,10 @@ def _mostrar_comparativa(perfil: dict, titulaciones: list,
                         if _ruta_m_comp and _ruta_m_comp.exists() else {})
         _f1_comp     = _m_comp.get("f1")
         f1_val_comp  = f"{_f1_comp:.3f}".replace(".", ",") if _f1_comp is not None else "N/D"
+        _nombre_modelo_comp = _m_comp.get("modelo_nombre", "actual")
     except Exception:
-        f1_val_comp  = "0,827"  # fallback documentado
+        f1_val_comp         = "0,827"  # fallback documentado
+        _nombre_modelo_comp = "actual"  # fallback gramaticalmente correcto
 
     # KPI 1: alumnos totales (info neutra → azul)
     html_c1 = _tarjeta_kpi(
@@ -3279,11 +3544,13 @@ def _mostrar_comparativa(perfil: dict, titulaciones: list,
     )
 
     # KPI 5: F1 modelo (calidad del modelo → verde)
+    # Tooltip dinámico — _nombre_modelo_comp ya está definido arriba en el
+    # try/except (con fallback "actual" si falla la lectura del JSON).
     html_c5 = _tarjeta_kpi(
         icono="🎯",
         etiqueta="F1 modelo",
         valor=f1_val_comp,
-        tooltip="F1-score del modelo Stacking sobre el conjunto de test completo.",
+        tooltip=f"F1-score del modelo {_nombre_modelo_comp} sobre el conjunto de test completo.",
         color_barra=COLORES["exito"],
     )
 
@@ -3828,6 +4095,19 @@ def _mostrar_comparativa(perfil: dict, titulaciones: list,
         Despliega para ver el perfil de abandono histórico y los factores de riesgo.
     </p>""", unsafe_allow_html=True)
 
+    # === SELECTOR GLOBAL: Rapido vs Preciso (PASO 3 Bloque 4) =========
+    # Conexión real activada en PASO 4. Se coloca ANTES del bucle para
+    # que un solo selector controle TODOS los dot plots de las
+    # titulaciones comparadas.
+    #
+    # FIX 29/04/2026: key única basada en cuántas titulaciones se
+    # comparan (evita colisiones si el usuario cambia el conjunto sin
+    # recargar página).
+    _n_tits = len(titulaciones) if titulaciones else 0
+    _metodo_dotplot_comp = _selector_metodo_global(
+        key_suffix=f"comparativa_n{_n_tits}"
+    )
+
     for idx_d, d in enumerate(datos):
         col_hist_nivel = COLORES["abandono"] if d["tasa_hist"] >= 40 \
             else COLORES["advertencia"] if d["tasa_hist"] >= 25 else COLORES["exito"]
@@ -3868,7 +4148,8 @@ def _mostrar_comparativa(perfil: dict, titulaciones: list,
                 _suf_key = f"{idx_d}_{d['titulacion'][:20].replace(' ', '_')}"
                 # La comparativa siempre se invoca desde modo prospecto (p03).
                 _grafico_cascada(perfil, df_tit_exp, d['prob'], modelo, pipeline,
-                                 key_suffix=_suf_key, modo="prospecto")
+                                 key_suffix=_suf_key, modo="prospecto",
+                                 metodo=_metodo_dotplot_comp)
 
     # ------------------------------------------------------------------
     # 6bis. ¿Dónde estás respecto a otros alumnos? — agregado sobre
@@ -3975,10 +4256,9 @@ def _recomendaciones(perfil: dict, prob: float, modo: str,
                 'icono': '📉',
                 'titulo': 'Pocos créditos superados',
                 'texto': (
-                    'Superar menos de 30 créditos en el primer año es un '
-                    'factor de riesgo relevante. Habla con tu facultad sobre '
-                    'la posibilidad de adaptar tu matrícula o acceder a '
-                    'grupos de refuerzo.'
+                    'Haber superado menos de 30 créditos al iniciar es un factor '
+                    'de riesgo relevante. Habla con tu facultad sobre la posibilidad '
+                    'de adaptar tu matrícula o acceder a grupos de refuerzo.'
                 ),
             })
 
@@ -4052,7 +4332,9 @@ def _recomendaciones(perfil: dict, prob: float, modo: str,
         # No aplica para "No trabaja" (1) ni "Prefiero no indicarlo" (0).
         if cod_lab in (2, 3):
             tipo_jornada = "tiempo parcial" if cod_lab == 2 else "tiempo completo"
-            tasa_uji_pct = 29.2  # tasa media UJI desde metricas_modelo.json
+            # Lectura dinámica de la tasa media del JSON
+            _t_lab = _leer_metricas_modelo().get("tasa_abandono")
+            tasa_uji_pct = float(_t_lab) * 100 if _t_lab is not None else 29.25
             recomendaciones.append({
                 'icono': '⏰',
                 'titulo': f'Trabajas a {tipo_jornada} — planifica',

@@ -1902,12 +1902,15 @@ def _bloque_conclusion(df: pd.DataFrame, grupos_disponibles: list):
                   key=lambda r: r['dif_f1'], default=None)
 
     # Veredicto global: tono y mensaje en función de los resultados
+    # Métricas leídas del JSON (modelo final dinámico) — se reutiliza más abajo
+    _met = _leer_metricas_modelo()
+    _modelo_nom = _met.get("modelo_nombre", "final")
     if not dis_alerta and (peor_f1 is None or peor_f1['dif_f1'] < 10):
         color_vered = COLORES['exito']
         icono_vered = "✅"
         titulo_vered = "Valoración general"
         msg_vered = (
-            f"El modelo Stacking muestra un comportamiento "
+            f"El modelo {_modelo_nom} muestra un comportamiento "
             f"<strong>razonablemente equitativo</strong> en los grupos analizados "
             f"({', '.join(nombres_grupos)}). "
             f"El Disparate Impact supera el umbral del 80% en todas las variables "
@@ -1950,8 +1953,7 @@ def _bloque_conclusion(df: pd.DataFrame, grupos_disponibles: list):
             f"diferencia F1 máxima: <strong>{diff_str} pp</strong> "
             f"(en {peor_f1['titulo'].lower()})"
         )
-    # Métricas globales desde JSON
-    _met = _leer_metricas_modelo()
+    # Métricas globales desde JSON (_met ya leído arriba)
     if _met.get("f1") and _met.get("auc"):
         f1_str  = f"{float(_met['f1'])*100:.1f}".replace('.', ',')
         auc_str = f"{float(_met['auc'])*100:.1f}".replace('.', ',')

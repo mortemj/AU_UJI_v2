@@ -124,12 +124,17 @@ APP_CONFIG = {
     "email_datos":            "morte@uji.es",
     "ciudad":                 "Castellón de la Plana",
     "año":                    "2026",
-    "nombre_modelo_pkl":      "Stacking__balanced.pkl",
+    # nombre_modelo_pkl eliminado (29/04/2026): ahora se lee dinámicamente
+    # del JSON metricas_modelo.json mediante _obtener_ruta_modelo_dinamico().
+    # El sistema dinámico (Bloque 0, opción C) selecciona el ganador en
+    # f6_m00_preparacion.ipynb por criterios F1>Recall>AUC>Tiempo.
     "logo_universidad_datos": "logo_uji.jpg",
     "logo_universidad_master":"logo_uoc.jpg",
     "tab_inicio":             "Inicio",
     "n_ramas":                5,
-    "n_variables":            19,
+    # DEPRECADO (30/04/2026): preferir m.get("n_features") del JSON dinámico.
+    # Se mantiene como fallback si el JSON no se puede leer.
+    "n_variables":            24,
 }
 
 
@@ -141,10 +146,48 @@ APP_CONFIG = {
 #   - Podemos concatenar carpetas con el operador /  (muy legible)
 #   - Tiene métodos útiles: .exists(), .stem, .suffix, etc.
 
+
+def _obtener_ruta_modelo_dinamico() -> Path:
+    """
+    Lee modelo_pkl del JSON metricas_modelo.json y devuelve la ruta
+    completa al .pkl del modelo ganador.
+
+    Sistema dinámico opción C (Bloque 0, abril 2026): el ganador se
+    selecciona automáticamente en f6_m00_preparacion.ipynb por los
+    criterios F1 > Recall > AUC > Tiempo, sin hardcodes.
+
+    Esto permite que cambie el modelo ganador (por ejemplo si se reentrena
+    Fase 5) sin tocar ni una línea de código de la app.
+
+    Returns
+    -------
+    Path
+        Ruta completa al fichero .pkl del modelo ganador.
+        Si el JSON no existe (primera ejecución), devuelve una ruta a un
+        fichero ficticio que activará el error claro de
+        verificar_ficheros_criticos() al arrancar la app.
+    """
+    import json as _json
+    ruta_json = ROOT / "data" / "06_evaluacion" / "metricas_modelo.json"
+    if ruta_json.exists():
+        try:
+            with open(ruta_json, encoding="utf-8") as f:
+                meta = _json.load(f)
+            nombre_pkl = meta.get("modelo_pkl", "modelo_no_definido.pkl")
+            return ROOT / "data" / "05_modelado" / "models" / nombre_pkl
+        except Exception:
+            pass
+    # Fallback: ruta inexistente → activará error en verificar_ficheros_criticos()
+    return ROOT / "data" / "05_modelado" / "models" / "modelo_no_definido.pkl"
+
+
 RUTAS = {
     # --- Modelo y pipeline ---
-    # El modelo ganador de Fase 5 (Stacking con balanceo, AUC=0.9308, F1=0.7882)
-    "modelo": ROOT / "data" / "05_modelado" / "models" / APP_CONFIG["nombre_modelo_pkl"],
+    # El modelo ganador se lee dinámicamente del JSON metricas_modelo.json
+    # generado por f6_m00_preparacion.ipynb (sistema dinámico opción C).
+    # Si quieres cambiar el modelo ganador, regenera el JSON — la app
+    # lo cargará automáticamente al arrancar, sin tocar este fichero.
+    "modelo": _obtener_ruta_modelo_dinamico(),
 
     # El pipeline de preprocesamiento (imputer + encoder + scaler)
     # Se aplica ANTES de pasar datos al modelo
@@ -461,7 +504,16 @@ def verificar_ficheros_criticos() -> list[str]:
     for nombre in criticos:
         ruta = RUTAS[nombre]
         if not ruta.exists():
-            errores.append(f"❌ No encontrado: {ruta}")
+            if nombre == "modelo":
+                errores.append(
+                    f"❌ Modelo no encontrado: {ruta}\n"
+                    f"   Posibles causas:\n"
+                    f"   1) Falta ejecutar f6_m00_preparacion.ipynb (genera metricas_modelo.json).\n"
+                    f"   2) El modelo ganador del JSON no está en data/05_modelado/models/.\n"
+                    f"   3) Falta ejecutar Fase 5 completa para generar los .pkl."
+                )
+            else:
+                errores.append(f"❌ No encontrado: {ruta}")
     return errores
 
 

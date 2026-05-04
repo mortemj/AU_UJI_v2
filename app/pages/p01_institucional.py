@@ -70,7 +70,7 @@ from utils.loaders import cargar_meta_test_app, cargar_modelo, cargar_pipeline
 # local + regex inline + _color_tasa local).
 from utils.ui_helpers import (
     _nombre_titulacion_corto, _clasificar_riesgo, _pie_pagina,
-    _leer_metricas_modelo, _guardia_df_vacio,
+    _leer_metricas_modelo, _guardia_df_vacio, fmt,
 )
 import pandas as _pd
 
@@ -322,20 +322,25 @@ def show():
     #   - Segundo: resumen de la selección actual con fondo amarillo claro,
     #     2 bloques (resultados vs UJI y demografía), comparativa vs global.
     with st.expander("📋 Nota metodológica — haz clic para ampliar", expanded=False):
-        # Métricas leídas dinámicamente desde metricas_modelo.json
+        # Métricas leídas dinámicamente desde metricas_modelo.json.
+        # SIN FALLBACKS NUMÉRICOS: si el JSON falla por cualquier razón,
+        # fmt() devuelve "—" en lugar de números obsoletos del modelo
+        # anterior. Esto preserva el carácter dinámico del proyecto:
+        # el código no contiene métricas hardcodeadas que pudieran
+        # quedar desincronizadas con el modelo activo.
         _m = _leer_metricas_modelo()
-        _n_reg    = f"{_m.get('n_registros', 33621):,}".replace(",", ".")
-        _n_alu    = f"{_m.get('n_alumnos_unicos', 30872):,}".replace(",", ".")
-        _n_test   = f"{_m.get('n_test', 6596):,}".replace(",", ".")
-        _tasa_pct = f"{_m.get('tasa_abandono', 0.292)*100:.1f}".replace(".", ",")
-        _auc      = f"{_m.get('auc', 0.954):.3f}"
-        _f1       = f"{_m.get('f1', 0.827):.3f}"
+        _n_reg    = fmt(_m.get('n_registros'),      'miles')
+        _n_alu    = fmt(_m.get('n_alumnos_unicos'), 'miles')
+        _n_test   = fmt(_m.get('n_test'),           'miles')
+        _tasa_pct = fmt(_m.get('tasa_abandono'),    'proporcion', decimales=1)
+        _auc      = fmt(_m.get('auc'),              'decimal',    decimales=3)
+        _f1       = fmt(_m.get('f1'),               'decimal',    decimales=3)
         st.markdown(f"""
         **Dataset:** {_n_reg} registros de modelado · {_n_alu} alumnos únicos · {APP_CONFIG['universidad_datos']} · Cursos {_m.get('periodo_inicio',2010)}–{_m.get('periodo_fin',2020)}.
 
-        **Variable objetivo:** abandono definitivo del grado (definición estricta). Tasa de abandono en test: **{_tasa_pct} %**.
+        **Variable objetivo:** abandono definitivo del grado (definición estricta). Tasa de abandono en test: **{_tasa_pct}**.
 
-        **Modelo final:** Stacking con CatBoost y Random Forest como modelos base, y regresión logística como meta-learner. AUC = {_auc} · F1 = {_f1}.
+        **Modelo final:** {_m.get('modelo_nombre', 'Modelo de clasificación')} ({_m.get('modelo_familia', '—')}) — {_m.get('modelo_descripcion', 'Modelo entrenado sobre el dataset D_strict.')} AUC = {_auc} · F1 = {_f1}.
 
         **Sobre los gráficos:** los porcentajes de riesgo son predicciones del modelo, no valores reales observados.
         La tasa de abandono real corresponde a los datos históricos del conjunto de test ({_n_test} observaciones).

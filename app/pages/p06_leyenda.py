@@ -27,28 +27,105 @@ from config_app import (
     APP_CONFIG, COLORES, COLORES_RAMAS, COLORES_RIESGO,
     COLORES_SEXO, RAMAS_NOMBRES, RUTAS, UMBRALES,
 )
+# Cambio 30/04/2026 (Bloque 1, Orden 1c): se elimina _leer_metricas LOCAL
+# con fallback hardcoded del modelo Stacking obsoleto. Ahora se usa el helper
+# centralizado de ui_helpers (sin fallback) y fmt() para formatear sin
+# hardcodear separadores.
+from utils.ui_helpers import _leer_metricas_modelo, fmt
 
 
 # =============================================================================
 # HELPERS
 # =============================================================================
 
-def _leer_metricas() -> dict:
-    """Lee metricas_modelo.json. Fallback con valores canónicos."""
-    try:
-        ruta = RUTAS.get("metricas_modelo")
-        if ruta and Path(ruta).exists():
-            return json.loads(Path(ruta).read_text(encoding="utf-8"))
-    except Exception:
-        pass
-    return {
-        "auc": 0.954, "f1": 0.827,
-        "baseline_auc": 0.927, "baseline_f1": 0.797,
-        "n_alumnos_unicos": 30872, "n_registros": 33621,
-        "n_test": 6596, "tasa_abandono": 0.292,
-        "modelo_nombre": "Stacking (CatBoost + RF + LogReg)",
-        "baseline_nombre": "CatBoost AutoML",
-    }
+# DEFINICIONES_FAMILIA — Diccionario dinámico para el glosario.
+#
+# Diseño (decisión 30/04/2026): el glosario NO debe acoplarse al modelo
+# concreto que esté activo HOY. Se mantiene un diccionario con las
+# 6 familias REALES del proyecto (verificadas en resultados_maestro.parquet
+# de Fase 5) y se selecciona la definición que coincida con
+# `modelo_familia` del JSON mediante un matcher por palabra clave.
+# Si mañana el modelo ganador cambia de familia (Gradient Boosting →
+# Ensambles → Lineales → ...), el glosario muestra automáticamente la
+# definición correspondiente sin tocar código.
+#
+# Las claves están en MINÚSCULAS para que el matcher sea case-insensitive.
+# Las 6 familias están definidas en Fase 5 (módulos f5_m01..m07):
+#   - m01: Lineales
+#   - m02: Árboles
+#   - m03: Gradient Boosting
+#   - m04: Otros (Naive Bayes, KNN)
+#   - m05: MLP + EBM
+#   - m06: Ensambles (Stacking, Voting, Bagging, AdaBoost)
+DEFINICIONES_FAMILIA = {
+    "gradient boosting":
+        "Familia de algoritmos que construye un ensamble de árboles "
+        "de decisión secuencialmente, donde cada árbol corrige los "
+        "errores del anterior. En este TFM se entrenaron LightGBM, "
+        "XGBoost, CatBoost y GradientBoosting (scikit-learn).",
+    "ensambles":
+        "Técnicas que combinan varios modelos base para mejorar la "
+        "predicción. En este TFM se entrenaron Stacking (meta-learner "
+        "sobre modelos base), Voting (voto/promedio de modelos), "
+        "Bagging (bootstrap de un mismo modelo) y AdaBoost "
+        "(boosting adaptativo).",
+    "lineales":
+        "Familia de modelos basados en una combinación lineal de las "
+        "variables. En este TFM se entrenaron LogReg (Logistic "
+        "Regression), LDA (Linear Discriminant Analysis), Perceptron, "
+        "SGD, SGDElasticNet, SVM lineal y SVM con kernel RBF. "
+        "Interpretables a través de los coeficientes.",
+    "árboles":
+        "Familia basada en estructuras de decisión jerárquicas (árboles). "
+        "En este TFM se entrenaron DecisionTree (árbol único), "
+        "RandomForest (bosque con bootstrap) y ExtraTrees (variante con "
+        "umbrales aleatorios). Robustos al sobreajuste.",
+    "mlp + ebm":
+        "Combina dos enfoques modernos: MLP (Multi-Layer Perceptron, "
+        "red neuronal feed-forward que aprende representaciones no "
+        "lineales) y EBM (Explainable Boosting Machine, modelo aditivo "
+        "generalizado completamente interpretable con interacciones de "
+        "pares). En este TFM se entrenaron ambos.",
+    "otros":
+        "Familia que agrupa modelos clásicos no incluidos en las demás "
+        "categorías. En este TFM se entrenaron BernoulliNB y GaussianNB "
+        "(Naive Bayes con distribuciones distintas) y KNN (K-Nearest "
+        "Neighbors). Útiles como baseline rápido.",
+}
+
+
+def _matchear_definicion_familia(familia_json: str) -> tuple[str, str]:
+    """
+    Busca una definición de familia por coincidencia de palabra clave.
+
+    Estrategia robusta: el JSON puede traer "Gradient Boosting",
+    "Ensambles", "Lineales", "Árboles", "MLP + EBM" u "Otros" —
+    los 6 valores reales de la columna `familia` en
+    resultados_maestro.parquet de Fase 5. El matcher busca CUALQUIER
+    clave del diccionario dentro del texto recibido (case-insensitive).
+
+    Parameters
+    ----------
+    familia_json : str
+        Valor de `modelo_familia` leído del JSON.
+
+    Returns
+    -------
+    (titulo, definicion) : tuple[str, str]
+        - titulo: el valor del JSON tal cual (mantiene tildes y formato)
+        - definicion: el texto descriptivo correspondiente
+        Si no hay match, devuelve (familia_json, texto genérico).
+    """
+    if not familia_json:
+        return ("Familia de modelos",
+                "Familia de algoritmos de machine learning.")
+    texto = str(familia_json).lower()
+    for clave, defn in DEFINICIONES_FAMILIA.items():
+        if clave in texto:
+            return (str(familia_json), defn)
+    return (str(familia_json),
+            "Familia de algoritmos de machine learning utilizada por "
+            "el modelo activo.")
 
 
 def _chip_color(hex_color: str, label: str, desc: str = "") -> str:
@@ -95,11 +172,16 @@ def _bloque_A_colores():
 
     # --- Riesgo ---
     st.markdown(f"#### 🚦 Niveles de riesgo de abandono")
+    # Tasa de abandono dinámica (antes hardcoded "29,2%")
+    _m_a = _leer_metricas_modelo()
+    _t_val = _m_a.get("tasa_abandono")
+    _tasa_str = fmt(_t_val, "proporcion", decimales=1) if _t_val is not None else "—"
+
     st.markdown(
         f"Los umbrales son: **bajo** < {UMBRALES['riesgo_bajo']*100:.0f}% · "
         f"**medio** {UMBRALES['riesgo_bajo']*100:.0f}–{UMBRALES['riesgo_medio']*100:.0f}% · "
         f"**alto** ≥ {UMBRALES['riesgo_medio']*100:.0f}%. "
-        "Se eligieron para equilibrar sensibilidad y especificidad con una tasa de abandono del 29,2%.",
+        f"Se eligieron para equilibrar sensibilidad y especificidad con una tasa de abandono del {_tasa_str}.",
         unsafe_allow_html=False
     )
     col1, col2, col3 = st.columns(3)
@@ -191,28 +273,41 @@ def _bloque_B_modelo():
     _seccion("📊", "Transparencia del modelo",
              "Métricas reales cargadas dinámicamente desde metricas_modelo.json.")
 
-    m = _leer_metricas()
+    m = _leer_metricas_modelo()
+
+    # Lectura SIN fallbacks numéricos. Si el JSON falla, fmt() devuelve "—"
+    # en lugar de mostrar valores obsoletos del modelo anterior.
+    auc_str  = fmt(m.get("auc"),           "decimal", decimales=3)
+    f1_str   = fmt(m.get("f1"),            "decimal", decimales=3)
+    n_test   = m.get("n_test")
+    nt_str   = fmt(n_test,                 "miles")
+    tasa_pct = fmt(m.get("tasa_abandono"), "proporcion", decimales=1)
+    auc_val  = m.get("auc")
+    auc_pct_str = fmt(auc_val * 100, "decimal", decimales=1) if auc_val is not None else "—"
+    tasa_val = m.get("tasa_abandono")
+    tasa_no_pct  = fmt((1 - tasa_val) * 100, "decimal", decimales=1) if tasa_val is not None else "—"
+    tasa_si_pct  = fmt(tasa_val * 100,       "decimal", decimales=1) if tasa_val is not None else "—"
 
     # KPIs del modelo
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("AUC-ROC", f"{m.get('auc', 0.954):.3f}",
+        st.metric("AUC-ROC", auc_str,
                   help="Área bajo la curva ROC. 1.0 = perfecto, 0.5 = azar.")
     with col2:
-        st.metric("F1-Score test", f"{m.get('f1', 0.827):.3f}",
+        st.metric("F1-Score test", f1_str,
                   help="Media armónica de precisión y recall sobre el conjunto de test.")
     with col3:
-        n_test = m.get("n_test", 6596)
-        st.metric("Alumnos test", f"{n_test:,}".replace(",", "."),
+        st.metric("Alumnos test", nt_str,
                   help="Alumnos en el conjunto de test tras filtro 2010–2020.")
     with col4:
-        tasa = m.get("tasa_abandono", 0.292) * 100
-        st.metric("Tasa abandono", f"{tasa:.1f} %".replace(".", ","),
+        st.metric("Tasa abandono", tasa_pct,
                   help="Tasa real de abandono en el conjunto de test.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
     # Comparativa vs baseline
+    auc_baseline_str = fmt(m.get("baseline_auc"), "decimal", decimales=3)
+    f1_baseline_str  = fmt(m.get("baseline_f1"),  "decimal", decimales=3)
     with st.expander("📈 Comparativa con el baseline AutoML", expanded=True):
         col_a, col_b = st.columns(2)
         with col_a:
@@ -225,10 +320,10 @@ def _bloque_B_modelo():
                     Modelo final</div>
                 <div style="font-size:1.1rem; font-weight:700;
                             color:{COLORES['primario']};">
-                    {m.get('modelo_nombre', 'Stacking')}</div>
+                    {m.get('modelo_nombre', '—')}</div>
                 <div style="font-size:1.4rem; font-weight:800;
                             color:{COLORES['primario']};">
-                    AUC {m.get('auc', 0.954):.3f} · F1 {m.get('f1', 0.827):.3f}</div>
+                    AUC {auc_str} · F1 {f1_str}</div>
             </div>""", unsafe_allow_html=True)
         with col_b:
             st.markdown(f"""
@@ -240,10 +335,10 @@ def _bloque_B_modelo():
                     Baseline AutoML</div>
                 <div style="font-size:1.1rem; font-weight:700;
                             color:{COLORES['texto_suave']};">
-                    {m.get('baseline_nombre', 'CatBoost AutoML')}</div>
+                    {m.get('baseline_nombre', '—')}</div>
                 <div style="font-size:1.4rem; font-weight:800;
                             color:{COLORES['texto_suave']};">
-                    AUC {m.get('baseline_auc', 0.927):.3f} · F1 {m.get('baseline_f1', 0.797):.3f}</div>
+                    AUC {auc_baseline_str} · F1 {f1_baseline_str}</div>
             </div>""", unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
@@ -253,15 +348,15 @@ def _bloque_B_modelo():
         st.markdown(f"""
 **AUC-ROC (Área bajo la curva ROC)**
 Mide la capacidad del modelo para distinguir entre alumnos que van a abandonar y los que no.
-Un AUC de **{m.get('auc', 0.954):.3f}** significa que, dado un alumno que abandona y otro que no,
-el modelo asigna mayor probabilidad de abandono al primero en el {m.get('auc', 0.954)*100:.1f}% de los casos.
-Rango: 0.5 (azar) → 1.0 (perfecto).
+Un AUC de **{auc_str}** significa que, dado un alumno que abandona y otro que no,
+el modelo asigna mayor probabilidad de abandono al primero en el {auc_pct_str}% de los casos.
+Rango: 0,5 (azar) → 1,0 (perfecto).
 
 **F1-Score**
 Media armónica entre precisión (¿de los que predigo que abandonan, cuántos realmente abandonan?)
 y recall (¿de los que realmente abandonan, cuántos detecto?).
-Con una tasa de abandono del {tasa:.1f}%, el F1 es más informativo que la exactitud (accuracy).
-Un F1 de **{m.get('f1', 0.827):.3f}** indica un equilibrio sólido entre los dos errores posibles.
+Con una tasa de abandono del {tasa_si_pct}%, el F1 es más informativo que la exactitud (accuracy).
+Un F1 de **{f1_str}** indica un equilibrio sólido entre los dos errores posibles.
         """)
 
     # Limitaciones
@@ -471,6 +566,26 @@ def _bloque_D_glosario():
     _seccion("🔣", "Glosario de términos y símbolos",
              "Definiciones precisas de los conceptos usados en la app.")
 
+    # Métricas leídas dinámicamente del JSON para entradas que las usan
+    _m = _leer_metricas_modelo()
+    _n_reg  = fmt(_m.get("n_registros"), "miles")
+    _n_feat = _m.get("n_features", 24)
+
+    # Tasa de abandono dinámica para el texto del F1-Score.
+    # Antes estaba hardcoded "29,2% abandono vs 70,8% no abandono".
+    # Si JSON falla, fmt() devuelve "—" en ambos.
+    _tasa_val = _m.get("tasa_abandono")
+    _tasa_si  = fmt(_tasa_val * 100, "decimal", decimales=1) if _tasa_val is not None else "—"
+    _tasa_no  = fmt((1 - _tasa_val) * 100, "decimal", decimales=1) if _tasa_val is not None else "—"
+
+    # Familia del modelo activo (se elige la definición correcta del
+    # diccionario DEFINICIONES_FAMILIA según `modelo_familia` del JSON).
+    # Si el modelo cambia a Stacking, XGBoost, MLP, etc. → la entrada del
+    # glosario se actualiza automáticamente sin tocar este código.
+    _familia_titulo, _familia_def = _matchear_definicion_familia(
+        _m.get("modelo_familia", "")
+    )
+
     terminos = [
         ("Abandono (definición estricta)",
          "Baja definitiva del grado sin traslado ni cambio de titulación. "
@@ -495,12 +610,13 @@ def _bloque_D_glosario():
          "Área bajo la curva ROC. Mide la capacidad discriminativa del modelo "
          "independientemente del umbral de clasificación. Rango: 0,5 (azar) → 1,0 (perfecto)."),
         ("F1-Score",
-         "Media armónica entre precisión y recall. Más informativo que la exactitud "
-         "cuando las clases están desbalanceadas (29,2% abandono vs 70,8% no abandono)."),
-        ("Stacking",
-         "Ensamble de modelos que combina las predicciones de varios modelos base "
-         "(CatBoost + Random Forest) usando un meta-learner (Regresión Logística) "
-         "para obtener la predicción final."),
+         f"Media armónica entre precisión y recall. Más informativo que la exactitud "
+         f"cuando las clases están desbalanceadas ({_tasa_si}% abandono vs {_tasa_no}% no abandono)."),
+        # Entrada DINÁMICA: muestra la familia del modelo ACTUAL leída del JSON.
+        # Cubre Gradient Boosting, Stacking, Random Forest, Logistic Regression,
+        # Neural Network, EBM, etc. Si la familia no está en el diccionario,
+        # muestra texto genérico.
+        (_familia_titulo, _familia_def),
         ("SHAP",
          "SHapley Additive exPlanations. Método para explicar cuánto contribuye "
          "cada variable a la predicción de un alumno concreto. "
@@ -511,7 +627,7 @@ def _bloque_D_glosario():
          "que no han completado el período de observación. "
          "Propuesto como línea de ampliación del TFM."),
         ("D_strict",
-         "Dataset de producción del TFM: 33.621 registros × 19 features. "
+         f"Dataset de producción del TFM: {_n_reg} registros × {_n_feat} features. "
          "Construido con auditoría de leakage estricta — excluye variables "
          "que podrían filtrar información del futuro al modelo."),
     ]
@@ -569,6 +685,10 @@ def _bloque_placeholder_E():
     _seccion("🧠", "Sobre el modelo — decisiones metodológicas",
              "Este bloque se completará al cerrar las fases 1–6 del proyecto.")
 
+    # Número de features leído dinámicamente desde el JSON
+    _m = _leer_metricas_modelo()
+    _n_feat = _m.get("n_features", 24)
+
     st.markdown(f"""
     <div style="padding:1.2rem; border-radius:8px;
                 border:2px dashed {COLORES['borde']};
@@ -577,7 +697,7 @@ def _bloque_placeholder_E():
         <div style="font-weight:600; color:{COLORES['texto_suave']}; margin:0.3rem 0;">
             Pendiente de completar</div>
         <div style="font-size:0.85rem; color:{COLORES['texto_suave']};">
-            Aquí se documentarán: pipeline completo · por qué Stacking · por qué 19 features ·
+            Aquí se documentarán: pipeline completo · selección del modelo final · por qué {_n_feat} features ·
             decisión D_strict · por qué no incluir titulación · Kaplan-Meier como extensión
         </div>
     </div>

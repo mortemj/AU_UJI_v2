@@ -150,8 +150,11 @@ def cargar_modelo():
     if not ruta.exists():
         raise FileNotFoundError(
             f"No se encontró el modelo en:\n{ruta}\n\n"
-            "Verifica que has ejecutado los notebooks de Fase 5 y que "
-            "el fichero Stacking__balanced.pkl está en data/05_modelado/models/"
+            "Posibles causas:\n"
+            "  1) Falta ejecutar f6_m00_preparacion.ipynb (genera metricas_modelo.json\n"
+            "     con el nombre del modelo ganador del sistema dinámico).\n"
+            "  2) El .pkl del modelo ganador no está en data/05_modelado/models/.\n"
+            "  3) Falta ejecutar Fase 5 completa para generar los .pkl."
         )
 
     # joblib.load() deserializa el objeto Python guardado en el .pkl

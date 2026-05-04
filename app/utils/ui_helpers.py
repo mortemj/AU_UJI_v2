@@ -84,7 +84,7 @@ def _leer_metricas_modelo() -> dict:
           - 'tasa_abandono' (float entre 0 y 1)
           - 'f1', 'auc', 'accuracy', 'precision', 'recall' (floats)
           - 'fecha_entrenamiento' (str, opcional)
-          - 'modelo' (str, opcional — p.ej. "Stacking__balanced")
+          - 'modelo' (str, opcional — p.ej. "LightGBM__none", "Stacking__balanced")
           - 'n_alumnos_unicos', 'n_registros', 'n_test' (int, opcional)
         Si el fichero no existe o falla la lectura, devuelve {} (dict vacío).
 
@@ -104,6 +104,375 @@ def _leer_metricas_modelo() -> dict:
     except Exception:
         pass
     return {}
+
+
+# =============================================================================
+# HELPER — Formato numérico al estilo español (fmt)
+# =============================================================================
+# Centralizado en ui_helpers (Chat 30/04/2026) para sustituir los ~145
+# `.replace(",", ".")` y `.replace(".", ",")` ad-hoc dispersos por la app.
+#
+# Convenciones del proyecto:
+#     - Separador de miles:    .  (punto)        → 6.725
+#     - Separador decimal:     ,  (coma)         → 0,9564
+#     - Porcentajes:           29,2% (sin espacio antes del %)
+#     - Nulos / NaN / None:    "—"  (em-dash)
+#
+# La función trabaja con TIPOS EXPLÍCITOS para evitar la ambigüedad sobre
+# si un valor está ya en escala porcentual (29.2) o en proporción (0.292).
+# Esto era una de las fuentes de error más frecuentes en el proyecto.
+#
+# RAZÓN DE EXISTIR (Orden 0 del plan de coherencia):
+# Antes de quitar los fallbacks hardcoded del tipo `m.get("auc", 0.954)`,
+# necesitamos un helper que sepa formatear None/NaN sin romper. El patrón
+# correcto es:
+#     auc = metricas.get("auc")
+#     auc_str = fmt(auc, "decimal", 3)  # devuelve "—" si auc es None
+# En lugar de:
+#     auc = metricas.get("auc", 0.954)  # hardcode obsoleto
+#     auc_str = f"{auc:.3f}".replace(".", ",")
+
+
+def fmt(valor, tipo: str = "auto", decimales=None, sufijo: str = "") -> str:
+    """
+    Formatea un número al estilo español (miles con `.`, decimales con `,`).
+
+    Parameters
+    ----------
+    valor : int | float | None | str-numérico
+        Número a formatear. None, NaN o "" devuelven "—".
+    tipo : str
+        - "auto"        → entero si int, 2 decimales si float
+        - "entero"      → 6.725 (sin decimales)
+        - "decimal"     → 0,954 (decimales con coma)
+        - "porcentaje"  → 29,2% (valor YA en escala 0-100, no multiplica)
+        - "proporcion"  → 29,2% (valor en escala 0-1, multiplica por 100)
+        - "miles"       → 30.872 (alias de "entero", más legible en código)
+    decimales : int, optional
+        Nº de decimales. Si None: 0 para entero/miles, 2 para auto/decimal,
+        1 para porcentaje/proporcion.
+    sufijo : str
+        Texto a añadir al final (" alumnos", " €", etc.). El % de los
+        porcentajes se añade automáticamente, no hace falta pasarlo aquí.
+
+    Returns
+    -------
+    str
+        Número formateado o "—" si valor no es numérico.
+
+    Examples
+    --------
+    >>> fmt(6725, "entero")
+    '6.725'
+    >>> fmt(0.9564, "decimal", 4)
+    '0,9564'
+    >>> fmt(29.25, "porcentaje", 1)
+    '29,3%'
+    >>> fmt(0.2925, "proporcion", 1)
+    '29,3%'
+    >>> fmt(30872, "miles", sufijo=" alumnos")
+    '30.872 alumnos'
+    >>> fmt(None)
+    '—'
+    >>> fmt(float('nan'))
+    '—'
+    """
+    # Guarda contra None, NaN o cadena vacía
+    if valor is None or valor == "":
+        return "—"
+    try:
+        v = float(valor)
+        if v != v:  # NaN check (NaN != NaN)
+            return "—"
+    except (TypeError, ValueError):
+        return "—"
+
+    # Decimales por defecto según tipo
+    if decimales is None:
+        if tipo in ("entero", "miles"):
+            decimales = 0
+        elif tipo in ("porcentaje", "proporcion"):
+            decimales = 1
+        elif tipo == "decimal":
+            decimales = 2
+        else:  # auto
+            decimales = 0 if float(valor).is_integer() else 2
+
+    # Si es proporción, escalar a 0-100
+    if tipo == "proporcion":
+        v = v * 100
+
+    # Formateo: usamos el formato inglés con coma de miles + punto decimal,
+    # y luego intercambiamos los separadores con un placeholder intermedio
+    # para no pisar uno con otro:
+    #   "6,725.00" → "6§725.00" → "6§725,00" → "6.725,00"
+    base = f"{v:,.{decimales}f}"
+    base = base.replace(",", "§").replace(".", ",").replace("§", ".")
+
+    # Sufijo según tipo
+    if tipo in ("porcentaje", "proporcion"):
+        return f"{base}%{sufijo}"
+    return f"{base}{sufijo}"
+
+
+# =============================================================================
+# HELPER — Validación de recursos críticos al arrancar (degradación elegante)
+# =============================================================================
+# Concepto aplicado: GRACEFUL DEGRADATION (degradación elegante)
+#
+# En ingeniería de software se llama "degradación elegante" al patrón por el
+# cual una aplicación que detecta un problema NO se rompe con un error técnico
+# crudo, sino que informa al usuario de forma comprensible:
+#   1. QUÉ está pasando (sin jerga técnica)
+#   2. POR QUÉ es importante (qué función no podrá hacer la app)
+#   3. CÓMO solucionarlo (pasos concretos accionables)
+#
+# Antes (sin degradación elegante):
+#   → La app peta con un Traceback de Python y el usuario no entiende nada
+#
+# Después (con degradación elegante):
+#   → La app muestra un cartel amable en azul/naranja explicando la situación
+#     y los pasos exactos para que el usuario lo arregle por sí mismo.
+#
+# Referencia académica: Nielsen, J. (1994). "Heuristic Evaluation of User
+# Interfaces" — heurística #9: "Help users recognize, diagnose, and recover
+# from errors". Norman, D. (1988). "The Design of Everyday Things" — capítulo
+# sobre error messages.
+
+
+def validar_recursos_app() -> tuple[bool, list[dict]]:
+    """
+    Valida que los recursos críticos de la app estén disponibles y tengan
+    el formato esperado. Devuelve si todo está OK + lista de problemas.
+
+    Aplica el patrón de degradación elegante: si algo falla, no levanta
+    excepciones, sino que devuelve información estructurada para mostrar
+    un mensaje amable al usuario.
+
+    Returns
+    -------
+    (ok, problemas) : tuple[bool, list[dict]]
+        - ok: True si todo está bien, False si hay problemas críticos
+        - problemas: lista de diccionarios con la información de cada
+          problema detectado. Cada diccionario tiene:
+            - "que":     descripción del problema (sin jerga técnica)
+            - "por_que": consecuencia para el usuario
+            - "como":    pasos concretos para solucionarlo
+            - "tecnico": detalle técnico (oculto en expander)
+    """
+    problemas = []
+
+    # 1. metricas_modelo.json existe
+    try:
+        from config_app import RUTAS as _RUTAS
+        ruta_json = _RUTAS.get("metricas_modelo")
+        if not ruta_json or not ruta_json.exists():
+            problemas.append({
+                "que":     "No se encuentra el fichero de métricas del modelo",
+                "por_que": ("La app necesita conocer las métricas del modelo "
+                            "(AUC, F1, tasa de abandono, etc.) para mostrar "
+                            "los indicadores y la guía semántica."),
+                "como":    ("1. Abre Jupyter\n"
+                            "2. Ejecuta el notebook "
+                            "`notebooks/fase6_evaluacion/f6_m00_preparacion.ipynb`\n"
+                            "3. Verifica que se haya generado "
+                            "`data/06_evaluacion/metricas_modelo.json`\n"
+                            "4. Recarga esta página"),
+                "tecnico": f"Ruta esperada: {ruta_json}",
+            })
+            # Si no existe el JSON, no podemos validar las claves; salimos aquí
+            return (False, problemas)
+    except Exception as e:
+        problemas.append({
+            "que":     "No se puede acceder a la configuración de la app",
+            "por_que": ("Hay un problema técnico al cargar las rutas de los "
+                        "ficheros de la app."),
+            "como":    ("1. Comprueba que `app/config_app.py` no esté corrupto\n"
+                        "2. Reinicia Streamlit"),
+            "tecnico": f"{type(e).__name__}: {e}",
+        })
+        return (False, problemas)
+
+    # 2. El JSON tiene las claves obligatorias y son del tipo correcto
+    metricas = _leer_metricas_modelo()
+    claves_obligatorias = {
+        "tasa_abandono":      (float, "Tasa de abandono del dataset (proporción 0-1)"),
+        "auc":                (float, "AUC del modelo"),
+        "f1":                 (float, "F1-Score del modelo"),
+        "n_test":             (int,   "Número de alumnos del conjunto de test"),
+        "n_alumnos_unicos":   (int,   "Número de alumnos únicos del dataset"),
+        "n_registros":        (int,   "Número de registros del dataset"),
+        "modelo_pkl":         (str,   "Nombre del fichero del modelo activo"),
+        "modelo_familia":     (str,   "Familia del modelo (Gradient Boosting, etc.)"),
+    }
+
+    claves_faltantes = []
+    claves_tipo_malo = []
+    for clave, (tipo_esperado, _descripcion) in claves_obligatorias.items():
+        valor = metricas.get(clave)
+        if valor is None:
+            claves_faltantes.append(clave)
+            continue
+        # Validación de tipo (int también acepta float si es entero, etc.)
+        try:
+            if tipo_esperado is int:
+                int(valor)
+            elif tipo_esperado is float:
+                float(valor)
+            elif tipo_esperado is str:
+                str(valor)
+        except (TypeError, ValueError):
+            claves_tipo_malo.append(clave)
+
+    if claves_faltantes:
+        problemas.append({
+            "que":     (f"Faltan datos en el fichero de métricas: "
+                        f"{', '.join(claves_faltantes)}"),
+            "por_que": ("Algunas páginas (Inicio, Visión institucional, "
+                        "Equidad, Guía semántica) no podrán mostrar todos "
+                        "los indicadores correctamente."),
+            "como":    ("1. Abre Jupyter\n"
+                        "2. Ejecuta el notebook "
+                        "`notebooks/fase6_evaluacion/f6_m00_preparacion.ipynb`\n"
+                        "3. Asegúrate de que el notebook se ejecute sin "
+                        "errores hasta el final\n"
+                        "4. Recarga esta página"),
+            "tecnico": (f"Claves faltantes en metricas_modelo.json: "
+                        f"{claves_faltantes}"),
+        })
+
+    if claves_tipo_malo:
+        problemas.append({
+            "que":     (f"Algunas métricas tienen un formato inesperado: "
+                        f"{', '.join(claves_tipo_malo)}"),
+            "por_que": "La app no puede interpretar correctamente esos valores.",
+            "como":    ("1. Comprueba que `metricas_modelo.json` no se haya "
+                        "editado a mano\n"
+                        "2. Re-genera el fichero ejecutando "
+                        "`f6_m00_preparacion.ipynb`\n"
+                        "3. Recarga esta página"),
+            "tecnico": (f"Claves con tipo incorrecto: {claves_tipo_malo}"),
+        })
+
+    # 3. Verificar coherencia con el modelo activo
+    modelo_pkl = metricas.get("modelo_pkl")
+    if modelo_pkl:
+        try:
+            ruta_modelo = _RUTAS.get("modelo")
+            if ruta_modelo and not ruta_modelo.exists():
+                problemas.append({
+                    "que":     f"No se encuentra el fichero del modelo: {modelo_pkl}",
+                    "por_que": ("La app no podrá calcular predicciones para "
+                                "los pronósticos individuales (Futuro estudiante "
+                                "y Alumno en curso)."),
+                    "como":    ("1. Verifica que el fichero existe en "
+                                "`data/05_modelado/models/`\n"
+                                "2. Si has cambiado de modelo, re-ejecuta "
+                                "`f6_m00_preparacion.ipynb` para actualizar "
+                                "el JSON\n"
+                                "3. Recarga esta página"),
+                    "tecnico": f"Ruta esperada: {ruta_modelo}",
+                })
+        except Exception:
+            pass  # Si falla aquí no bloqueamos: el config ya validó modelo
+
+    ok = len(problemas) == 0
+    return (ok, problemas)
+
+
+def mostrar_cartel_problemas(problemas: list[dict]) -> None:
+    """
+    Renderiza el cartel de degradación elegante cuando hay problemas críticos.
+
+    Usa Streamlit para mostrar una pantalla amigable que explica qué falla
+    y cómo arreglarlo, sin tracebacks técnicos.
+
+    Tras renderizar el cartel, llama a st.stop() para que la app no continúe
+    cargando con datos rotos.
+    """
+    import streamlit as _st
+    from config_app import COLORES as _COLORES
+
+    # Cabecera amable (no asustadora)
+    _st.markdown(f"""
+    <div style="
+        background: {_COLORES.get('fondo', '#f7fafc')};
+        border-left: 5px solid {_COLORES.get('primario', '#3182ce')};
+        border-radius: 8px;
+        padding: 1.5rem 1.8rem;
+        margin: 2rem 0 1.5rem 0;
+        font-family: Arial, sans-serif;
+    ">
+        <div style="font-size:1.4rem; font-weight:700;
+                    color:{_COLORES.get('primario', '#3182ce')};
+                    margin-bottom:0.5rem;">
+            💡 La app necesita un poco de ayuda para arrancar
+        </div>
+        <div style="font-size:0.95rem; color:{_COLORES.get('texto', '#2d3748')};
+                    line-height:1.5;">
+            Hemos detectado que faltan algunos datos para que la aplicación
+            funcione correctamente. No te preocupes — abajo te explicamos
+            qué pasa y cómo solucionarlo en pocos pasos.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Cada problema en su tarjeta
+    for i, p in enumerate(problemas, 1):
+        _st.markdown(f"""
+        <div style="
+            background: white;
+            border: 1px solid {_COLORES.get('borde', '#e2e8f0')};
+            border-radius: 8px;
+            padding: 1.2rem 1.4rem;
+            margin: 0.8rem 0;
+            font-family: Arial, sans-serif;
+        ">
+            <div style="font-size:1.05rem; font-weight:700;
+                        color:{_COLORES.get('primario', '#3182ce')};
+                        margin-bottom:0.6rem;">
+                Problema {i}: {p['que']}
+            </div>
+            <div style="font-size:0.92rem; color:{_COLORES.get('texto_suave', '#4a5568')};
+                        margin:0.4rem 0 0.8rem 0; line-height:1.5;">
+                <strong>¿Por qué importa?</strong> {p['por_que']}
+            </div>
+            <div style="font-size:0.92rem; color:{_COLORES.get('texto', '#2d3748')};
+                        background:{_COLORES.get('fondo', '#f7fafc')};
+                        border-radius:6px; padding:0.7rem 1rem; line-height:1.6;">
+                <strong>Cómo solucionarlo:</strong><br>
+                {p['como'].replace(chr(10), '<br>')}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Detalle técnico oculto en expander
+        with _st.expander(f"🔧 Detalle técnico del problema {i} (para developers)",
+                          expanded=False):
+            _st.code(p.get("tecnico", "(sin detalles)"), language="text")
+
+    # Nota final + botón de reintento
+    _st.markdown(f"""
+    <div style="
+        background:{_COLORES.get('fondo', '#f7fafc')};
+        border-radius:8px; padding:1rem 1.4rem; margin:1.2rem 0 0.5rem 0;
+        font-family: Arial, sans-serif;
+        font-size:0.85rem; color:{_COLORES.get('texto_suave', '#4a5568')};
+        line-height:1.5;
+    ">
+        ℹ️ <strong>Nota técnica:</strong> esta pantalla aplica el patrón de
+        <em>degradación elegante</em> (graceful degradation), una buena
+        práctica de ingeniería de software por la cual una aplicación que
+        detecta un problema informa al usuario de forma comprensible en lugar
+        de fallar con errores técnicos crudos.
+    </div>
+    """, unsafe_allow_html=True)
+
+    if _st.button("🔄 Volver a comprobar", type="primary"):
+        _st.rerun()
+
+    _st.stop()
+
 
 
 # =============================================================================
@@ -394,9 +763,9 @@ def _tarjeta_kpi(icono: str, etiqueta: str, valor: str,
         color_barra: hex o COLORES[clave]. Si None, usa COLORES["primario"].
         sparkline: tupla (val_base, val_modelo) en escala 0-1 para mostrar
                    mini-barra comparativa. Si None, no se muestra.
-                   Ejemplo: (0.927, 0.954) para AUC AutoML→Stacking.
+                   Ejemplo: (0.927, 0.954) para AUC baseline→modelo final.
         sparkline_labels: tupla (label_base, label_modelo) — leyenda bajo
-                   la barra. Ejemplo: ("CatBoost", "Stacking").
+                   la barra. Ejemplo: ("CatBoost", "LightGBM").
                    Si None, no se muestra leyenda.
 
     Devuelve:

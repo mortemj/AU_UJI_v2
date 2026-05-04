@@ -29,10 +29,34 @@ st.markdown(f"""
 
 errores = verificar_ficheros_criticos()
 if errores:
-    st.error("❌ Error al arrancar la app")
-    for e in errores:
-        st.markdown(f"- `{e}`")
-    st.stop()
+    # Cartel bonito + degradación elegante para ficheros críticos
+    # (modelo, pipeline, parquet del test). Antes salía un st.error técnico.
+    from utils.ui_helpers import mostrar_cartel_problemas
+    problemas_criticos = [
+        {
+            "que":     "Faltan ficheros esenciales para que la app funcione",
+            "por_que": ("La app necesita el modelo entrenado, el pipeline de "
+                        "preprocesamiento y el parquet de test para mostrar "
+                        "cualquier predicción o métrica."),
+            "como":    ("1. Verifica que la Fase 5 se haya ejecutado completamente\n"
+                        "2. Re-ejecuta `f6_m00_preparacion.ipynb` y "
+                        "`f6_m00b_preparacion_app.ipynb` para regenerar los "
+                        "ficheros derivados\n"
+                        "3. Comprueba que las rutas de `app/config_app.py` "
+                        "apuntan al sitio correcto\n"
+                        "4. Recarga esta página"),
+            "tecnico": "\n".join(errores),
+        }
+    ]
+    mostrar_cartel_problemas(problemas_criticos)  # incluye st.stop()
+
+# Validación adicional del JSON metricas_modelo.json y sus claves obligatorias.
+# Aplica el patrón de degradación elegante: si algo falta, el usuario ve un
+# cartel amable con instrucciones, no un traceback técnico.
+from utils.ui_helpers import validar_recursos_app, mostrar_cartel_problemas
+_ok_recursos, _problemas_recursos = validar_recursos_app()
+if not _ok_recursos:
+    mostrar_cartel_problemas(_problemas_recursos)  # incluye st.stop()
 
 # Banner superior con logos — visible en todas las páginas
 _ROOT = Path(__file__).resolve().parent.parent
@@ -42,7 +66,7 @@ _logo_uoc = _ROOT / "docs" / "assets" / APP_CONFIG["logo_universidad_master"]
 col_uji, col_titulo, col_uoc = st.columns([1, 4, 1])
 with col_uji:
     if _logo_uji.exists():
-        st.image(str(_logo_uji), width='stretch')
+        st.image(str(_logo_uji), use_container_width=True)
 with col_titulo:
     st.markdown(f"""
     <div style="text-align:center; padding:0.3rem 0;">
@@ -56,7 +80,7 @@ with col_titulo:
     """, unsafe_allow_html=True)
 with col_uoc:
     if _logo_uoc.exists():
-        st.image(str(_logo_uoc), width='stretch')
+        st.image(str(_logo_uoc), use_container_width=True)
 
 st.divider()
 

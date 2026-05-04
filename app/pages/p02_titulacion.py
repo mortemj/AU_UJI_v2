@@ -339,7 +339,7 @@ def _bloque_kpis_titulacion(df_tit: pd.DataFrame):
         icono="🎯",
         etiqueta="F1 modelo",
         valor=f1_val,
-        tooltip="F1-score del modelo Stacking sobre el conjunto de test completo.",
+        tooltip=f"F1-score del modelo {_metricas.get('modelo_nombre', 'final')} sobre el conjunto de test completo.",
         color_barra=COLORES["exito"],
     )
 
@@ -1214,7 +1214,7 @@ def _bloque_comparativa_titulaciones(df: pd.DataFrame, titulaciones_sel: list[st
         icono="🎯",
         etiqueta="F1 modelo",
         valor=f1_val_comp,
-        tooltip="F1-score del modelo Stacking sobre el conjunto de test completo.",
+        tooltip=f"F1-score del modelo {_metricas_comp.get('modelo_nombre', 'final')} sobre el conjunto de test completo.",
         color_barra=COLORES["exito"],
     )
 

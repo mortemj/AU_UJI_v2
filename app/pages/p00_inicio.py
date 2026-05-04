@@ -51,13 +51,18 @@ def _cargar_metricas() -> dict:
         with open(ruta, encoding="utf-8") as f:
             return _json.load(f)
     # Fallback si el fichero no existe todavía
+    # Sistema dinámico (Bloque 2, abril 2026): valores genéricos para no
+    # mentir sobre el modelo. Si esto se muestra, es porque falta ejecutar
+    # f6_m00_preparacion.ipynb que genera metricas_modelo.json.
     return {
         "auc": 0.954,  "f1": 0.827,  "baseline_auc": 0.927,  "baseline_f1": 0.797,
         "n_alumnos_unicos": 30872, "n_registros": 33621,
         "tasa_abandono": 0.292, "periodo_inicio": 2010, "periodo_fin": 2020,
         # n_test canónico tribunal/memoria (filtrado 2010-2020)
         "n_test": 6596, "n_test_total": 6725,
-        "modelo_nombre": "Stacking (CatBoost + RF + LogReg)",
+        "modelo_nombre":  "Modelo de clasificación",  # genérico — fallback
+        "modelo_pkl":     "modelo.pkl",
+        "modelo_familia": "—",
         "baseline_nombre": "CatBoost AutoML",
     }
 
@@ -323,7 +328,7 @@ def _metricas_modelo():
             delta_color="green",
             color_barra=COLORES['primario'],
             sparkline=(m['baseline_auc'], m['auc']),
-            sparkline_labels=("CatBoost", "Stacking"),
+            sparkline_labels=("CatBoost", _modelo_corto),  # dinámico (Bloque 2)
         ), unsafe_allow_html=True)
     with c2:
         st.markdown(_tarjeta_kpi(
@@ -332,7 +337,7 @@ def _metricas_modelo():
             delta_color="green",
             color_barra=COLORES['primario'],
             sparkline=(m['baseline_f1'], m['f1']),
-            sparkline_labels=("CatBoost", "Stacking"),
+            sparkline_labels=("CatBoost", _modelo_corto),  # dinámico (Bloque 2)
         ), unsafe_allow_html=True)
     with c3:
         st.markdown(_tarjeta_kpi(
@@ -351,9 +356,16 @@ def _metricas_modelo():
             color_barra=COLORES['abandono'],
         ), unsafe_allow_html=True)
     with c5:
+        # Sistema dinámico (Bloque 2): subtexto leído de modelo_familia del JSON.
+        # Para LightGBM dará "Gradient Boosting", para Stacking "Ensamble de modelos",
+        # para LogReg "Lineal", etc. Así el subtexto se adapta al modelo ganador
+        # sin hardcodes.
         _detalle_modelo = m['modelo_nombre'].replace(_modelo_corto, "").strip("() ")
-        _subtexto_modelo = (f"{_detalle_modelo} · Ensamble"
-                            if _detalle_modelo else "Ensamble de modelos")
+        _familia        = m.get("modelo_familia", "")
+        if _detalle_modelo:
+            _subtexto_modelo = f"{_detalle_modelo} · {_familia}" if _familia else _detalle_modelo
+        else:
+            _subtexto_modelo = _familia if _familia else "—"
         st.markdown(_tarjeta_kpi(
             icono="🏆", etiqueta="Mejor modelo", valor=_modelo_corto,
             delta=_subtexto_modelo,
@@ -401,7 +413,7 @@ def _tarjetas_navegacion():
                         f'<span style="font-size:0.7rem;color:{COLORES["texto_suave"]};"> grados</span>')
             elif pestana["id"] == "prospecto":
                 stat = (f'<span style="font-size:0.78rem;font-weight:600;color:{COLORES["primario"]};"><strong>' +
-                        str(APP_CONFIG["n_variables"]) + '</strong></span>' +
+                        str(m.get("n_features", APP_CONFIG["n_variables"])) + '</strong></span>' +
                         f'<span style="font-size:0.7rem;color:{COLORES["texto_suave"]};"> variables · AUC </span>' +
                         f'<span style="font-size:0.78rem;font-weight:600;color:{COLORES["primario"]};"><strong>' +
                         str(round(m["auc"], 3)).replace(".", ",") + '</strong></span>')
