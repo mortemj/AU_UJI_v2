@@ -68,7 +68,7 @@
                 </a>
                 <a href="fase7/fase7_index.html" class="tarjeta" style="border-left-color:#2c5282">
                     <h3 style="color:#2c5282">🚀 Fase 7: Aplicación</h3>
-                    <p>Dashboard, vistas por perfil y documentación final. <br><a href="https://tfm-abandono.streamlit.app/" target="_blank" style="color:#2c5282; text-decoration:underline; font-weight:bold;">🚀 Abrir app desplegada →</a></p>
+                    <p>Dashboard, vistas por perfil y documentación final. <br><a href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank" style="color:#2c5282; text-decoration:underline; font-weight:bold;">🚀 Abrir app desplegada →</a></p>
                     <div class="link" style="color:#2c5282">Abrir fase →</div>
                 </a>
             </div>
@@ -89,7 +89,7 @@
         <section class="seccion">
             <h2>📊 Datos del Proyecto</h2>
             <div style="background:#f8fafc; padding:20px; border-radius:10px; border-left:4px solid #3182ce; margin-bottom:20px;">
-                <p><strong>📁 Origen:</strong> 3 archivos Excel con 9 tablas</p>
+                <p><strong>📁 Origen:</strong> 2 archivos Excel con 9 tablas</p>
                 <p><strong>📋 Tablas:</strong> Titulaciones, Recibos, Domicilios, Expedientes, Nac-Sexo_Nacionalidad, Circunstancias, Trabajo, Notas, Preinscripción</p>
                 <p><strong>📊 Registros totales (originales):</strong> 1.050.793</p>
             </div>
@@ -99,10 +99,14 @@
             <h2>🏆 Métricas del Modelo Ganador</h2>
             <div style="background:#f0f9ff; padding:20px; border-radius:10px; border-left:4px solid #1e4d8c; margin-bottom:20px;">
                 <p><strong>🤖 Modelo:</strong> LightGBM</p>
+                <p style="margin-left:24px; color:#4a5568; font-size:0.95em;"><strong>Familia:</strong> Gradient Boosting</p>
+                <p style="margin-left:24px; color:#718096; font-size:0.9em; font-style:italic;">Gradient boosting basado en histogramas — rápido y eficiente.</p>
                 <p><strong>🎯 F1 (clase abandono):</strong> 0,8334</p>
                 <p><strong>📈 AUC-ROC:</strong> 0,9564</p>
                 <p><strong>🔍 Precision:</strong> 0,8641</p>
                 <p><strong>🔔 Recall:</strong> 0,8048</p>
+                <p><strong>✅ Accuracy:</strong> 0,9059</p>
+                <p style="margin-top:12px; padding-top:10px; border-top:1px solid #cbd5e0; color:#4a5568; font-size:0.9em;">Evaluado sobre <strong>6.725</strong> casos de test · <strong>24</strong> features (27 técnicas).</p>
             </div>
         </section>
 
@@ -134,13 +138,21 @@
 
     </div>
 
+    <div class="container" style="margin-top:0;">
+        <section class="seccion" style="background:#ebf4ff; border-left:4px solid #3182ce; padding:18px 22px; border-radius:8px;">
+            <h2 style="color:#2c5282; font-size:18px;">🎓 Resumen del proyecto y orquestador</h2>
+            <p style="margin-top:6px; color:#4a5568;">Resumen disponible — pulsa para ver estado actual del proyecto y última ejecución del orquestador.</p>
+            <a href="orquestador_resumen.html" style="display:inline-block; padding:10px 18px; background:#3182ce; color:white; border-radius:6px; text-decoration:none; font-weight:600; margin-top:10px;">🎓 Ver resumen del proyecto</a>
+        </section>
+    </div>
+
     <footer>
         <strong>María José Morte</strong> |
         <a href="mailto:mjmorteruiz@uoc.edu">mjmorteruiz@uoc.edu</a> (UOC) |
         <a href="mailto:morte@uji.es">morte@uji.es</a> (UJI)
         <br>
-        <a href="https://github.com/mortemj/AU_UJI" target="_blank">📓 GitHub</a>
-        <br>Generado: 28/04/2026
+        <a href="https://github.com/mortemj/AU_UJI_v2" target="_blank">📓 GitHub</a>
+        <br>Generado: 04/05/2026
     </footer>
 </body>
 </html>

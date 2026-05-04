@@ -191,7 +191,7 @@
   <a href="../fase4/fase4_index.html" class="">🔬 EDA Final</a>
   <a href="../fase5/fase5_index.html" class="">🤖 Modelado</a>
   <a href="../fase6/fase6_index.html" class="">🔍 Evaluación</a>
-  <a href="../fase7/fase7_index.html" class=" disabled">🚀 Aplicación</a>
+  <a href="../fase7/fase7_index.html" class="">🚀 Aplicación</a>
   <a href="../fase_automl/fase_automl_index.html" class="">⚡ Pre-Modelado: AutoML</a>
 </nav>
     </div>
@@ -199,7 +199,7 @@
     <div class="nav-modulos-wrapper">
         <nav class="nav-modulos">
   <a href="fase1_index.html" class="">📋 Índice</a>
-  <a href="m01_reportes_raw.html" class="">📋 Reportes Raw</a>
+  <a href="m01_reportes_raw.html" class="">📋 Reportes Datos Originales</a>
   <a href="m02_limpieza.html" class="active">🧹 Limpieza</a>
   <a href="m03_reportes_clean.html" class="">✨ Reportes Clean</a>
   <a href="m04_dataset_final.html" class="">🎯 Dataset Final</a>
@@ -211,12 +211,102 @@
     <div class="container">
         
 <div class="intro">
-    <h2>Limpieza de 0 Tablas</h2>
+    <h2>Limpieza de 9 Tablas</h2>
     <p>Selecciona una tabla para ver las transformaciones aplicadas y acceder a los reportes Sweetviz.</p>
     <p><strong>👆 Hover</strong> sobre una tabla para ver sus columnas | <strong>🖱️ Clic</strong> para ver detalles</p>
 </div>
 
 <div class="tablas-grid">
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('titulaciones')">
+        <div class="tooltip-cols">
+            <strong>Titulaciones (6 cols)</strong>
+            <div class="col-list"><div class="col-item">exp_tit_id</div><div class="col-item">titulacion</div><div class="col-item">rama</div><div class="col-item">cred_titulacion</div><div class="col-item">tipo</div><div class="col-item">tipo_estudio</div></div>
+        </div>
+        <div class="icon">🎓</div>
+        <div class="name">Titulaciones</div>
+        <div class="info">45 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('recibos')">
+        <div class="tooltip-cols">
+            <strong>Recibos (5 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">curso_aca</div><div class="col-item">nombre_recibos</div><div class="col-item">forma_de_pago</div><div class="col-item">numero_pagos</div></div>
+        </div>
+        <div class="icon">🧾</div>
+        <div class="name">Recibos</div>
+        <div class="info">114.454 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('domicilios')">
+        <div class="tooltip-cols">
+            <strong>Domicilios (6 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">poblacion</div><div class="col-item">provincia</div><div class="col-item">pais</div><div class="col-item">curso_aca</div><div class="col-item">tipo_domicilio</div></div>
+        </div>
+        <div class="icon">🏠</div>
+        <div class="name">Domicilios</div>
+        <div class="info">210.911 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('expedientes')">
+        <div class="tooltip-cols">
+            <strong>Expedientes (15 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">exp_tit_id</div><div class="col-item">curso_aca_ini</div><div class="col-item">curso_aca</div><div class="col-item">curso_aca_fin</div><div class="col-item">nota</div><div class="col-item">nombre</div><div class="col-item">seguro</div><div class="col-item">nota_selectividad</div><div class="col-item">nota_acceso</div><div class="col-item">cred_matriculados</div><div class="col-item">cred_superados</div><div class="col-item">egresado</div><div class="col-item">nuevo</div><div class="col-item">media_curso</div></div>
+        </div>
+        <div class="icon">📚</div>
+        <div class="name">Expedientes</div>
+        <div class="info">109.568 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('demograficos')">
+        <div class="tooltip-cols">
+            <strong>Demograficos (5 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">sexo</div><div class="col-item">fecha_nacimiento</div><div class="col-item">id_pais</div><div class="col-item">pais_nombre</div></div>
+        </div>
+        <div class="icon">📊</div>
+        <div class="name">Demograficos</div>
+        <div class="info">30.873 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('becas')">
+        <div class="tooltip-cols">
+            <strong>Becas (4 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">id_beca</div><div class="col-item">nombre_beca</div><div class="col-item">mat_curso_aca</div></div>
+        </div>
+        <div class="icon">💰</div>
+        <div class="name">Becas</div>
+        <div class="info">70.524 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('trabajo')">
+        <div class="tooltip-cols">
+            <strong>Trabajo (4 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">exp_tit_id</div><div class="col-item">nombre_trabajo</div><div class="col-item">mat_curso_aca</div></div>
+        </div>
+        <div class="icon">💼</div>
+        <div class="name">Trabajo</div>
+        <div class="info">195.524 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('notas')">
+        <div class="tooltip-cols">
+            <strong>Notas (5 cols)</strong>
+            <div class="col-list"><div class="col-item">per_id_ficticio</div><div class="col-item">curso_aca</div><div class="col-item">exp_tit_id</div><div class="col-item">media_titulacion_curso</div><div class="col-item">media_titulacion_alumno</div></div>
+        </div>
+        <div class="icon">📝</div>
+        <div class="name">Notas</div>
+        <div class="info">107.908 filas</div>
+    </div>
+    
+    <div class="tabla-btn" onclick="mostrarDetalle('preinscripcion')">
+        <div class="tooltip-cols">
+            <strong>Preinscripcion (24 cols)</strong>
+            <div class="col-list"><div class="col-item">ano</div><div class="col-item">universidad</div><div class="col-item">municipio</div><div class="col-item">cp</div><div class="col-item">orden_titulacion</div><div class="col-item">cupo</div><div class="col-item">nom_cupo</div><div class="col-item">estado</div><div class="col-item">nota_txt</div><div class="col-item">solicitud_id</div><div class="col-item">cod_estudios</div><div class="col-item">via_estudios</div><div class="col-item">convocatoria</div><div class="col-item">nota_1</div><div class="col-item">nota_2</div><div class="col-item">ano_1</div><div class="col-item">con_1</div><div class="col-item">titulacion_centro</div><div class="col-item">estado_titulacion</div><div class="col-item">uni_id</div><div class="col-item">nombre_universidad</div><div class="col-item">estudio</div><div class="col-item">per_id_ficticio</div><div class="col-item">matriculado</div></div>
+        </div>
+        <div class="icon">📄</div>
+        <div class="name">Preinscripcion</div>
+        <div class="info">210.986 filas</div>
+    </div>
     
 </div>
 
@@ -228,6 +318,312 @@
 </div>
 
 
+    <div class="detalle-panel" id="panel-titulaciones">
+        <h3>🎓 Titulaciones</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Exp_Tit_Id</td><td class="col-despues">exp_tit_id</td></tr><tr><td class="col-antes">Titulacion</td><td class="col-despues">titulacion</td></tr><tr><td class="col-antes">Rama</td><td class="col-despues">rama</td></tr><tr><td class="col-antes">Cred_Titulacion</td><td class="col-despues">cred_titulacion</td></tr><tr><td class="col-antes">Tipo</td><td class="col-despues">tipo</td></tr><tr><td class="col-antes">Tipo_Estudio</td><td class="col-despues">tipo_estudio</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">6</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">45</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_titulaciones.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_titulaciones.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-recibos">
+        <h3>🧾 Recibos</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Curso_Aca</td><td class="col-despues">curso_aca</td></tr><tr><td class="col-antes">Nombre_recibos</td><td class="col-despues">nombre_recibos</td></tr><tr><td class="col-antes">Forma_De_Pago</td><td class="col-despues">forma_de_pago</td></tr><tr><td class="col-antes">Numero_Pagos</td><td class="col-despues">numero_pagos</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">5</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">114.454</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_recibos.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_recibos.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-domicilios">
+        <h3>🏠 Domicilios</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Poblacion</td><td class="col-despues">poblacion</td></tr><tr><td class="col-antes">Provincia</td><td class="col-despues">provincia</td></tr><tr><td class="col-antes">Pais</td><td class="col-despues">pais</td></tr><tr><td class="col-antes">Curso_Aca</td><td class="col-despues">curso_aca</td></tr><tr><td class="col-antes">Tipo_Domicilio</td><td class="col-despues">tipo_domicilio</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">6</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">210.911</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_domicilios.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_domicilios.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-expedientes">
+        <h3>📚 Expedientes</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Exp_Tit_Id</td><td class="col-despues">exp_tit_id</td></tr><tr><td class="col-antes">Curso_Aca_Ini</td><td class="col-despues">curso_aca_ini</td></tr><tr><td class="col-antes">Curso_Aca</td><td class="col-despues">curso_aca</td></tr><tr><td class="col-antes">Curso_Aca_Fin</td><td class="col-despues">curso_aca_fin</td></tr><tr><td class="col-antes">Nota</td><td class="col-despues">nota</td></tr><tr><td class="col-antes">Nombre</td><td class="col-despues">nombre</td></tr><tr><td class="col-antes">Seguro</td><td class="col-despues">seguro</td></tr><tr><td class="col-antes">Nota_selectividad</td><td class="col-despues">nota_selectividad</td></tr><tr><td class="col-antes">Nota_Acceso</td><td class="col-despues">nota_acceso</td></tr><tr><td class="col-antes">Cred_Matriculados</td><td class="col-despues">cred_matriculados</td></tr><tr><td class="col-antes">Cred_Superados</td><td class="col-despues">cred_superados</td></tr><tr><td class="col-antes">Egresado</td><td class="col-despues">egresado</td></tr><tr><td class="col-antes">Nuevo</td><td class="col-despues">nuevo</td></tr><tr><td class="col-antes">Media_Curso</td><td class="col-despues">media_curso</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">15</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">109.568</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_expedientes.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_expedientes.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-demograficos">
+        <h3>📊 Demograficos</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Sexo</td><td class="col-despues">sexo</td></tr><tr><td class="col-antes">Fecha_nacimiento</td><td class="col-despues">fecha_nacimiento</td></tr><tr><td class="col-antes">Id_Pais</td><td class="col-despues">id_pais</td></tr><tr><td class="col-antes">Pais_Nombre</td><td class="col-despues">pais_nombre</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">5</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">30.873</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_demograficos.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_demograficos.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-becas">
+        <h3>💰 Becas</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_Ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Id_beca</td><td class="col-despues">id_beca</td></tr><tr><td class="col-antes">Nombre_beca</td><td class="col-despues">nombre_beca</td></tr><tr><td class="col-antes">Mat_Curso_Aca</td><td class="col-despues">mat_curso_aca</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">4</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">70.524</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_becas.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_becas.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-trabajo">
+        <h3>💼 Trabajo</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Exp_Tit_Id</td><td class="col-despues">exp_tit_id</td></tr><tr><td class="col-antes">Nombre_trabajo</td><td class="col-despues">nombre_trabajo</td></tr><tr><td class="col-antes">Mat_Curso_Aca</td><td class="col-despues">mat_curso_aca</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">4</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">195.524</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_trabajo.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_trabajo.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-notas">
+        <h3>📝 Notas</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">Curso_Aca</td><td class="col-despues">curso_aca</td></tr><tr><td class="col-antes">Exp_Tit_Id</td><td class="col-despues">exp_tit_id</td></tr><tr><td class="col-antes">Media_Titulacion_Curso</td><td class="col-despues">media_titulacion_curso</td></tr><tr><td class="col-antes">Media_Titulacion_Alumno</td><td class="col-despues">media_titulacion_alumno</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">5</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">107.908</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_notas.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_notas.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="detalle-panel" id="panel-preinscripcion">
+        <h3>📄 Preinscripcion</h3>
+        <div class="detalle-seccion">
+            <h4>🔧 Transformaciones Aplicadas</h4>
+            <ul class="transform-list">
+                <li><span class="badge badge-tipo">TIPO</span> Nombres de columnas convertidos a snake_case</li>
+                <li><span class="badge badge-nulo">NULO</span> Valores "-" reemplazados por NaN</li>
+            </ul>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📝 Columnas Renombradas</h4>
+            <table class="tabla-renombres">
+                <thead><tr><th>Antes (valenciano)</th><th>Después (español)</th></tr></thead>
+                <tbody><tr><td class="col-antes">ANO</td><td class="col-despues">ano</td></tr><tr><td class="col-antes">UNIVERSIDAD</td><td class="col-despues">universidad</td></tr><tr><td class="col-antes">MUNICIPIO</td><td class="col-despues">municipio</td></tr><tr><td class="col-antes">CP</td><td class="col-despues">cp</td></tr><tr><td class="col-antes">ORDEN_TITULACION</td><td class="col-despues">orden_titulacion</td></tr><tr><td class="col-antes">CUPO</td><td class="col-despues">cupo</td></tr><tr><td class="col-antes">NOM_CUPO</td><td class="col-despues">nom_cupo</td></tr><tr><td class="col-antes">ESTADO</td><td class="col-despues">estado</td></tr><tr><td class="col-antes">NOTA_TXT</td><td class="col-despues">nota_txt</td></tr><tr><td class="col-antes">SOLICITUD_ID</td><td class="col-despues">solicitud_id</td></tr><tr><td class="col-antes">COD_ESTUDIOS</td><td class="col-despues">cod_estudios</td></tr><tr><td class="col-antes">VIA_ESTUDIOS</td><td class="col-despues">via_estudios</td></tr><tr><td class="col-antes">CONVOCATORIA</td><td class="col-despues">convocatoria</td></tr><tr><td class="col-antes">NOTA_1</td><td class="col-despues">nota_1</td></tr><tr><td class="col-antes">NOTA_2</td><td class="col-despues">nota_2</td></tr><tr><td class="col-antes">ANO_1</td><td class="col-despues">ano_1</td></tr><tr><td class="col-antes">CON_1</td><td class="col-despues">con_1</td></tr><tr><td class="col-antes">TITULACION_CENTRO</td><td class="col-despues">titulacion_centro</td></tr><tr><td class="col-antes">ESTADO_TITULACION</td><td class="col-despues">estado_titulacion</td></tr><tr><td class="col-antes">UNI_ID</td><td class="col-despues">uni_id</td></tr><tr><td class="col-antes">NOMBRE_UNIVERSIDAD</td><td class="col-despues">nombre_universidad</td></tr><tr><td class="col-antes">ESTUDIO</td><td class="col-despues">estudio</td></tr><tr><td class="col-antes">Per_id_ficticio</td><td class="col-despues">per_id_ficticio</td></tr><tr><td class="col-antes">MATRICULADO</td><td class="col-despues">matriculado</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="detalle-seccion">
+            <h4>📊 Resumen</h4>
+            <div class="resumen-cambios">
+                <div class="cambio-card"><div class="valor">24</div><div class="label">Columnas</div></div>
+                <div class="cambio-card"><div class="valor">210.986</div><div class="label">Filas</div></div>
+            </div>
+        </div>
+        <div class="detalle-seccion">
+            <h4>🔗 Ver Reportes Sweetviz</h4>
+            <div class="enlaces-sweetviz">
+                <a href="reportes_raw/reporte_preinscripcion.html" class="btn-sweetviz btn-raw">📋 Original</a>
+                <a href="reportes_clean/reporte_preinscripcion.html" class="btn-sweetviz btn-clean">✨ Limpio</a>
+            </div>
+        </div>
+    </div>
+    
 
     </div>
 
@@ -239,7 +635,7 @@
         &nbsp;·&nbsp;
         <a href="https://github.com/mortemj/AU_UJI/blob/main/notebooks/fase1_transformacion/f1_m02_limpieza.ipynb" target="_blank">📓 Ver Notebook</a>
         
-        &nbsp;·&nbsp; Generado: 12/04/2026
+        &nbsp;·&nbsp; Generado: 02/05/2026
     </footer>
 
     

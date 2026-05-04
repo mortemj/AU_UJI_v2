@@ -186,12 +186,12 @@
         <nav class="nav-fases">
   <a href="../index.html" class="">🏠 Inicio</a>
   <a href="../fase1/fase1_index.html" class="">📥 Transformación</a>
-  <a href="../fase2/fase2_index.html" class="">📊 EDA Raw</a>
+  <a href="../fase2/fase2_index.html" class="">📊 EDA Datos Originales</a>
   <a href="../fase3/fase3_index.html" class="">🔧 Features</a>
   <a href="../fase4/fase4_index.html" class="active">🔬 EDA Final</a>
   <a href="../fase5/fase5_index.html" class="">🤖 Modelado</a>
   <a href="../fase6/fase6_index.html" class="">🔍 Evaluación</a>
-  <a href="../fase7/fase7_index.html" class=" disabled">🚀 Aplicación</a>
+  <a href="../fase7/fase7_index.html" class="">🚀 Aplicación</a>
   <a href="../fase_automl/fase_automl_index.html" class="">⚡ Pre-Modelado: AutoML</a>
 </nav>
     </div>
@@ -220,7 +220,7 @@
     </div>
     
     <div class="kpi">
-        <div class="value" style="color:#38a169">19</div>
+        <div class="value" style="color:#38a169">24</div>
         <div class="label">Features</div>
     </div>
     
@@ -236,7 +236,7 @@
     </div>
     <section class="seccion">
         <h2>Contexto del Proyecto</h2>
-        <div style="background:#f0f4f8;padding:20px;border-radius:10px;border-left:4px solid #3182ce;"><p><strong>Contexto:</strong> El screening AutoML (168 modelos, 5 frameworks) identifico Gradient Boosting como mejor familia (CatBoost F1=0,81, AUC=0,93). Features mas importantes: cred_superados_anio_1er, n_anios_beca, nota_acceso.</p><p><strong>Objetivo Fase 4:</strong> Analizar el dataset final (19 features) para confirmar hallazgos del AutoML con estadística y justificar decisiones de modelado para la Fase 5.</p></div>
+        <div style="background:#f0f4f8;padding:20px;border-radius:10px;border-left:4px solid #3182ce;"><p><strong>Modelo ganador:</strong> Stacking (CatBoost + Random Forest + LogReg meta-learner). AUC = 0.9308 · F1 = 0.7882 · Dataset D_strict ({fmt(n_filas)} × {n_features} features).</p><p><strong>Objetivo Fase 4:</strong> Analizar las 24 features auditadas con estadística clásica para confirmar hallazgos del AutoML, documentar decisiones de preprocesamiento y preparar el pipeline de Fase 5.</p></div>
     </section>
     
     <section class="seccion">
@@ -245,57 +245,69 @@
 
         <a href="m01_inspeccion.html" class="tarjeta" style="border-left-color: #3182ce">
             <h3 style="color: #3182ce">🔍 M01: Inspección</h3>
-            <p>Shape, dtypes, nulos, estadísticos, outliers. 33.621 registros.</p>
+            <p>Shape 33.621×26, dtypes, nulos, outliers. Visión general del dataset.</p>
             <div class="link" style="color: #3182ce">Ver módulo</div>
         </a>
         
         <a href="m02_target.html" class="tarjeta" style="border-left-color: #e53e3e">
             <h3 style="color: #e53e3e">🎯 M02: Target</h3>
-            <p>Abandono (29.2%). Por rama, sexo, via acceso, titulacion.</p>
+            <p>Abandono (29.2%). Por rama, sexo, beca, vía acceso, titulación.</p>
             <div class="link" style="color: #e53e3e">Ver módulo</div>
         </a>
         
-        <a href="m03_bivariante_num.html" class="tarjeta" style="border-left-color: #38a169">
-            <h3 style="color: #38a169">📈 M03: Bivariante Num</h3>
-            <p>12 numéricas vs target. Violin plots, Mann-Whitney, Effect Size.</p>
+        <a href="m03_distribuciones_num.html" class="tarjeta" style="border-left-color: #38a169">
+            <h3 style="color: #38a169">📈 M03: Distribuciones Numéricas</h3>
+            <p>16 variables numéricas. Histogramas, violines, QQ-plots, semáforo de escalado.</p>
             <div class="link" style="color: #38a169">Ver módulo</div>
         </a>
         
-        <a href="m04_bivariante_cat.html" class="tarjeta" style="border-left-color: #805ad5">
-            <h3 style="color: #805ad5">📊 M04: Bivariante Cat</h3>
-            <p>8 categóricas vs target. Chi-cuadrado, V Cramer.</p>
+        <a href="m04_distribuciones_cat.html" class="tarjeta" style="border-left-color: #805ad5">
+            <h3 style="color: #805ad5">📊 M04: Distribuciones Categóricas</h3>
+            <p>9 variables categóricas. Chi², V Cramér, encoding recomendado, tasas abandono.</p>
             <div class="link" style="color: #805ad5">Ver módulo</div>
         </a>
         
-        <a href="m05_temporal.html" class="tarjeta" style="border-left-color: #d69e2e">
-            <h3 style="color: #d69e2e">⏱ M05: Temporal</h3>
-            <p>Edad, años de gap, situación laboral. Patrones temporales.</p>
+        <a href="m05_bivariante.html" class="tarjeta" style="border-left-color: #d69e2e">
+            <h3 style="color: #d69e2e">🔬 M05: Bivariante vs Target</h3>
+            <p>Mann-Whitney + Cohen d para numéricas. Chi² + V Cramér para categóricas. Ranking global.</p>
             <div class="link" style="color: #d69e2e">Ver módulo</div>
         </a>
         
         <a href="m06_correlaciones.html" class="tarjeta" style="border-left-color: #dd6b20">
-            <h3 style="color: #dd6b20">🔥 M06: Correlaciónes</h3>
-            <p>Pearson. Heatmap interactivo. Correlación con target.</p>
+            <h3 style="color: #dd6b20">🌡️ M06: Correlaciones</h3>
+            <p>Heatmap Pearson, clustermap jerárquico, VIF, información mutua. Multicolinealidad.</p>
             <div class="link" style="color: #dd6b20">Ver módulo</div>
         </a>
         
-        <a href="m07_perfiles.html" class="tarjeta" style="border-left-color: #319795">
-            <h3 style="color: #319795">👤 M07: Perfiles</h3>
-            <p>Perfil medio abandono vs permanencia. Radar, ranking riesgo, bubble chart.</p>
+        <a href="m07_seleccion_features.html" class="tarjeta" style="border-left-color: #319795">
+            <h3 style="color: #319795">🎯 M07: Selección de Features</h3>
+            <p>Cruce de 3 fuentes: estadística + AutoML + VIF. Lista definitiva para Fase 5.</p>
             <div class="link" style="color: #319795">Ver módulo</div>
         </a>
         
-        <a href="m08_conclusiones.html" class="tarjeta" style="border-left-color: #2d3748">
-            <h3 style="color: #2d3748">📝 M08: Conclusiones</h3>
-            <p>Resumen ejecutivo. Estrategia imputación. Recomendaciones modelado.</p>
+        <a href="m08_perfiles_riesgo.html" class="tarjeta" style="border-left-color: #2d3748">
+            <h3 style="color: #2d3748">⚡ M08: Comparativa Grupos</h3>
+            <p>Radar, violín, KDE, semáforo Cohen d. Abandono vs éxito en todas las features.</p>
             <div class="link" style="color: #2d3748">Ver módulo</div>
+        </a>
+        
+        <a href="m08b_reduccion_dimensional.html" class="tarjeta" style="border-left-color: #6b46c1">
+            <h3 style="color: #6b46c1">🔭 M08b: Reducción Dimensional</h3>
+            <p>PCA + t-SNE + UMAP. Separabilidad de grupos en espacio de baja dimensión.</p>
+            <div class="link" style="color: #6b46c1">Ver módulo</div>
+        </a>
+        
+        <a href="m09_conclusiones_eda.html" class="tarjeta" style="border-left-color: #1a365d">
+            <h3 style="color: #1a365d">📋 M09: Conclusiones EDA</h3>
+            <p>Ranking consolidado, semáforo Fase 5, análisis titulación, checklist entrada modelado.</p>
+            <div class="link" style="color: #1a365d">Ver módulo</div>
         </a>
         </div>
     </section>
     
     <section class="seccion">
         <h2>Variables con Valores Faltantes</h2>
-        <table style="width:100%;border-collapse:collapse;"><tr style="background:#3182ce;color:white;"><th style="padding:10px;text-align:left;">Variable</th><th style="text-align:right;padding:10px;">Nulos</th><th style="text-align:right;padding:10px;">%</th></tr><tr style="background:#fed7d7;"><td style="padding:8px;"><code>situacion_laboral</code></td><td style="text-align:right;padding:8px;">12.740</td><td style="text-align:right;padding:8px;">37.9%</td></tr><tr style="background:#fefcbf;"><td style="padding:8px;"><code>orden_preferencia</code></td><td style="text-align:right;padding:8px;">4.699</td><td style="text-align:right;padding:8px;">14.0%</td></tr><tr style="background:#fefcbf;"><td style="padding:8px;"><code>universidad_origen</code></td><td style="text-align:right;padding:8px;">4.699</td><td style="text-align:right;padding:8px;">14.0%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>nota_selectividad</code></td><td style="text-align:right;padding:8px;">3.118</td><td style="text-align:right;padding:8px;">9.3%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>nota_acceso</code></td><td style="text-align:right;padding:8px;">2.567</td><td style="text-align:right;padding:8px;">7.6%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>nota_1er_anio</code></td><td style="text-align:right;padding:8px;">2.353</td><td style="text-align:right;padding:8px;">7.0%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>max_pagos</code></td><td style="text-align:right;padding:8px;">3</td><td style="text-align:right;padding:8px;">0.0%</td></tr></table>
+        <table style="width:100%;border-collapse:collapse;"><tr style="background:#3182ce;color:white;"><th style="padding:10px;text-align:left;">Variable</th><th style="text-align:right;padding:10px;">Nulos</th><th style="text-align:right;padding:10px;">%</th></tr><tr style="background:#fed7d7;"><td style="padding:8px;"><code>situacion_laboral</code></td><td style="text-align:right;padding:8px;">12.740</td><td style="text-align:right;padding:8px;">37.9%</td></tr><tr style="background:#fefcbf;"><td style="padding:8px;"><code>cupo</code></td><td style="text-align:right;padding:8px;">4.699</td><td style="text-align:right;padding:8px;">14.0%</td></tr><tr style="background:#fefcbf;"><td style="padding:8px;"><code>universidad_origen</code></td><td style="text-align:right;padding:8px;">4.699</td><td style="text-align:right;padding:8px;">14.0%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>nota_selectividad</code></td><td style="text-align:right;padding:8px;">3.118</td><td style="text-align:right;padding:8px;">9.3%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>nota_acceso</code></td><td style="text-align:right;padding:8px;">2.567</td><td style="text-align:right;padding:8px;">7.6%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>nota_1er_anio</code></td><td style="text-align:right;padding:8px;">2.353</td><td style="text-align:right;padding:8px;">7.0%</td></tr><tr style="background:#f0fff4;"><td style="padding:8px;"><code>max_pagos</code></td><td style="text-align:right;padding:8px;">3</td><td style="text-align:right;padding:8px;">0.0%</td></tr></table>
     </section>
     
     </div>
@@ -308,7 +320,7 @@
         &nbsp;·&nbsp;
         <a href="https://github.com/mortemj/AU_UJI/blob/main/notebooks/fase4_eda/f4_m00_indice.ipynb" target="_blank">📓 Ver Notebook</a>
         
-        &nbsp;·&nbsp; Generado: 23/03/2026
+        &nbsp;·&nbsp; Generado: 02/05/2026
     </footer>
 
     

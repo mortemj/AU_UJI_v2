@@ -5,38 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lineales - TFM Abandono Universitario</title>
     <link rel="stylesheet" href="../style.css">
+    <style>
+    /* ================================================================
+       RESET Y BASE — garantiza tamaño uniforme en todas las fases
+       ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f7fafc;
+        color: #2d3748;
+        min-width: 320px;
+        /* Sin max-width en body — el .container lo limita */
+    }
+
+    /* ================================================================
+       WRAPPER GLOBAL — ancho fijo idéntico en todas las páginas
+       ================================================================ */
+    .page-wrapper {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ================================================================
+       HEADER
+       ================================================================ */
+    header {
+        background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+        color: white;
+        padding: 14px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .header-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .header-logo {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+    .header-title { flex: 1; }
+    .header-title h1 {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0;
+    }
+    .header-title p {
+        font-size: 12px;
+        opacity: 0.85;
+        margin-top: 2px;
+    }
+
+    /* ================================================================
+       NAVEGACIÓN DE FASES
+       ================================================================ */
+    .nav-fases-wrapper {
+        background: #2d3748;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    nav.nav-fases {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        gap: 2px;
+    }
+    nav.nav-fases a {
+        display: inline-block;
+        padding: 9px 14px;
+        color: #a0aec0;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    nav.nav-fases a:hover { color: #fff; background: rgba(255,255,255,0.07); }
+    nav.nav-fases a.active { color: #fff; border-bottom-color: #3182ce; font-weight: 700; }
+    nav.nav-fases a.disabled { opacity: 0.4; pointer-events: none; }
+
+    /* ================================================================
+       NAVEGACIÓN DE MÓDULOS
+       ================================================================ */
+    .nav-modulos-wrapper {
+        background: #edf2f7;
+        border-bottom: 1px solid #e2e8f0;
+        overflow-x: auto;
+    }
+    nav.nav-modulos {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        gap: 2px;
+    }
+    nav.nav-modulos a {
+        display: inline-block;
+        padding: 7px 12px;
+        color: #4a5568;
+        text-decoration: none;
+        font-size: 12px;
+        border-bottom: 2px solid transparent;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    nav.nav-modulos a:hover { color: #2d3748; background: rgba(0,0,0,0.04); }
+    nav.nav-modulos a.active { color: #2b6cb0; border-bottom-color: #3182ce; font-weight: 700; }
+
+    /* ================================================================
+       CONTENEDOR PRINCIPAL — tamaño uniforme garantizado
+       ================================================================ */
+    .container {
+        max-width: 1280px;
+        margin: 24px auto;
+        padding: 0 24px;
+        /* sin min-height ni height fijo para evitar scroll vacío */
+    }
+
+    /* ================================================================
+       FOOTER
+       ================================================================ */
+    footer {
+        max-width: 1280px;
+        margin: 32px auto 0;
+        padding: 16px 24px;
+        border-top: 1px solid #e2e8f0;
+        font-size: 12px;
+        color: #718096;
+        text-align: center;
+    }
+    footer a { color: #3182ce; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ================================================================
+       UTILIDADES COMUNES (tablas, badges, etc.)
+       ================================================================ */
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; }
+    img { max-width: 100%; height: auto; }
+    code {
+        background: #edf2f7;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    </style>
     
 </head>
 <body>
+
     <header>
         <div class="header-content">
-            <img src="../../assets/logo_uoc.png" alt="UOC" class="header-logo" onerror="this.style.display='none'">
+            <img src="../../assets/logo_uoc.png" alt="UOC" class="header-logo"
+                 onerror="this.style.display='none'">
             <div class="header-title">
                 <h1>Lineales</h1>
                 <p>Fase 5: Modelado | TFM Abandono Universitario</p>
             </div>
-            <img src="../../assets/logo_uji.jpg" alt="UJI" class="header-logo" onerror="this.style.display='none'">
+            <img src="../../assets/logo_uji.jpg" alt="UJI" class="header-logo"
+                 onerror="this.style.display='none'">
         </div>
     </header>
 
-    <nav class="nav-fases">
+    <div class="nav-fases-wrapper">
         <nav class="nav-fases">
   <a href="../index.html" class="">🏠 Inicio</a>
   <a href="../fase1/fase1_index.html" class="">📥 Transformación</a>
-  <a href="../fase2/fase2_index.html" class="">📊 EDA Raw</a>
+  <a href="../fase2/fase2_index.html" class="">📊 EDA Datos Originales</a>
   <a href="../fase3/fase3_index.html" class="">🔧 Features</a>
   <a href="../fase4/fase4_index.html" class="">🔬 EDA Final</a>
   <a href="../fase5/fase5_index.html" class="active">🤖 Modelado</a>
-  <a href="../fase6/fase6_index.html" class=" disabled">📈 Evaluación</a>
-  <a href="../fase7/fase7_index.html" class=" disabled">🚀 Aplicación</a>
+  <a href="../fase6/fase6_index.html" class="">🔍 Evaluación</a>
+  <a href="../fase7/fase7_index.html" class="">🚀 Aplicación</a>
   <a href="../fase_automl/fase_automl_index.html" class="">⚡ Pre-Modelado: AutoML</a>
 </nav>
-    </nav>
+    </div>
 
-    <nav class="nav-modulos">
+    <div class="nav-modulos-wrapper">
         <nav class="nav-modulos">
   <a href="fase5_index.html" class="">📋 Índice</a>
-  <a href="m01_lineales.html" class="active">📈 Modelos Lineales</a>
+  <a href="m01_lineales.html" class="">📈 Modelos Lineales</a>
   <a href="m02_arboles.html" class="">🌲 Árboles</a>
   <a href="m03_boosting.html" class="">🚀 Gradient Boosting</a>
   <a href="m04_otros.html" class="">🧪 Otros Algoritmos</a>
@@ -44,10 +207,10 @@
   <a href="m06_ensambles.html" class="">🔗 Ensambles</a>
   <a href="m07_comparacion.html" class="">🏆 Comparativa Final</a>
 </nav>
-    </nav>
+    </div>
 
     <div class="container">
-        <section class="seccion"><h2>Modelos generativos/otros — LDA · Ridge</h2><div style="display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;"><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">2</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Modelos</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">3</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Estrategias</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">6</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Combinaciones</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">0.885</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Mejor AUC CV</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">0.715</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Mejor F1 CV</div></div></div></section><section class="seccion"><h2>Conclusiones</h2><p>De las <strong>6 combinaciones</strong> evaluadas (2 modelos x 3 estrategias), <strong>Ridge</strong> con estrategia <strong>balanced</strong> obtiene el mejor resultado con <strong>AUC CV = 0.8847 &plusmn; 0.0045</strong> y <strong>F1 = 0.7145</strong>.</p><p>Supera al segundo (Ridge + smote) en <strong>0.0003 puntos de AUC</strong>.</p></section><section class="seccion"><h2>Comparativa por modelo</h2><table class="tabla-datos"><thead><tr><th>Modelo</th><th>Mejor estrategia</th><th>AUC CV (mean&plusmn;std)</th><th>F1 CV</th><th>Precision</th><th>Recall</th></tr></thead><tbody><tr style="background:#ebf8ff;font-weight:600;"><td>Ridge 🏆</td><td>balanced</td><td>0.8847 &plusmn; 0.0045</td><td>0.7145</td><td>0.7652</td><td>0.6705</td></tr><tr style=""><td>LDA</td><td>smote</td><td>0.8843 &plusmn; 0.0044</td><td>0.7250</td><td>0.6600</td><td>0.8043</td></tr></tbody></table></section><section class="seccion"><h2>Resultados completos CV</h2><table class="tabla-datos"><thead><tr><th>Modelo</th><th>Estrategia</th><th>AUC (mean&plusmn;std)</th><th>F1</th><th>Precision</th><th>Recall</th><th>Tiempo</th></tr></thead><tbody><tr style="background:#ebf8ff;font-weight:600;"><td>Ridge</td><td>balanced</td><td>0.8847 &plusmn; 0.0045</td><td>0.7145</td><td>0.7652</td><td>0.6705</td><td>0.4s</td></tr><tr style=""><td>Ridge</td><td>smote</td><td>0.8843 &plusmn; 0.0044</td><td>0.7252</td><td>0.6615</td><td>0.8027</td><td>2.8s</td></tr><tr style=""><td>LDA</td><td>smote</td><td>0.8843 &plusmn; 0.0044</td><td>0.7250</td><td>0.6600</td><td>0.8043</td><td>3.1s</td></tr><tr style=""><td>Ridge</td><td>none</td><td>0.8823 &plusmn; 0.0044</td><td>0.7117</td><td>0.7701</td><td>0.6618</td><td>0.5s</td></tr><tr style=""><td>LDA</td><td>none</td><td>0.8823 &plusmn; 0.0044</td><td>0.7150</td><td>0.7588</td><td>0.6762</td><td>4.4s</td></tr><tr style=""><td>LDA</td><td>balanced</td><td>0.8823 &plusmn; 0.0044</td><td>0.7150</td><td>0.7588</td><td>0.6762</td><td>5.0s</td></tr></tbody></table></section>
+        <section class="seccion"><h2>Modelos generativos/otros — LDA · Ridge</h2><div style="display:flex;flex-wrap:wrap;gap:16px;margin:16px 0;"><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">1</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Modelos</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">3</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Estrategias</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">3</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Combinaciones</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">0.910</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Mejor AUC CV</div></div><div style="background:#f7fafc;border:1px solid #e2e8f0;border-radius:10px;padding:18px 28px;text-align:center;min-width:120px;"><div style="font-size:2rem;font-weight:700;color:#3182ce;">0.753</div><div style="font-size:0.85rem;color:#555;margin-top:4px;">Mejor F1 CV</div></div></div></section><section class="seccion"><h2>Conclusiones</h2><p>De las <strong>3 combinaciones</strong> evaluadas (1 modelos x 3 estrategias), <strong>LDA</strong> con estrategia <strong>smote</strong> obtiene el mejor resultado con <strong>AUC CV = 0.9095 &plusmn; 0.0038</strong> y <strong>F1 = 0.7530</strong>.</p><p>Supera al segundo (LDA + balanced) en <strong>0.0022 puntos de AUC</strong>.</p></section><section class="seccion"><h2>Comparativa por modelo</h2><table class="tabla-datos"><thead><tr><th>Modelo</th><th>Mejor estrategia</th><th>AUC CV (mean&plusmn;std)</th><th>F1 CV</th><th>Precision</th><th>Recall</th></tr></thead><tbody><tr style="background:#ebf8ff;font-weight:600;"><td>LDA 🏆</td><td>smote</td><td>0.9095 &plusmn; 0.0038</td><td>0.7530</td><td>0.6856</td><td>0.8351</td></tr></tbody></table></section><section class="seccion"><h2>Resultados completos CV</h2><table class="tabla-datos"><thead><tr><th>Modelo</th><th>Estrategia</th><th>AUC (mean&plusmn;std)</th><th>F1</th><th>Precision</th><th>Recall</th><th>Tiempo</th></tr></thead><tbody><tr style="background:#ebf8ff;font-weight:600;"><td>LDA</td><td>smote</td><td>0.9095 &plusmn; 0.0038</td><td>0.7530</td><td>0.6856</td><td>0.8351</td><td>0.9s</td></tr><tr style=""><td>LDA</td><td>balanced</td><td>0.9073 &plusmn; 0.0040</td><td>0.7455</td><td>0.7863</td><td>0.7091</td><td>1.7s</td></tr><tr style=""><td>LDA</td><td>none</td><td>0.9073 &plusmn; 0.0040</td><td>0.7455</td><td>0.7863</td><td>0.7091</td><td>2.4s</td></tr></tbody></table></section>
     </div>
 
     <footer>
@@ -55,12 +218,10 @@
         <a href="mailto:mjmorteruiz@uoc.edu">mjmorteruiz@uoc.edu</a> (UOC) |
         <a href="mailto:morte@uji.es">morte@uji.es</a> (UJI)
         
-        <br>
-        <a href="https://github.com/mortemj/AU_UJI/blob/main/notebooks/fase5_modelado/f5_m01_lineales.ipynb" target="_blank">📓 Ver Notebook</a>
-        
-        <br>Generado: 09/03/2026
+        &nbsp;·&nbsp; Generado: 03/05/2026
     </footer>
 
     
+
 </body>
 </html>
