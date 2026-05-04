@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-04-14T03:18:26.207714",
+  "fecha": "2026-05-03T10:35:32.945258",
   "familia": "ensambles",
   "modelos": [
     "Voting",
@@ -45,5 +45,5 @@
     "CatBoost",
     "EBM"
   ],
-  "emisiones_co2_kg": 0.023486790931969308
+  "emisiones_co2_kg": null
 }

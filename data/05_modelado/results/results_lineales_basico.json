@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-04-13T17:50:14.497445",
+  "fecha": "2026-05-03T12:23:08.192885",
   "familia": "lineales",
   "modelos": [
     "LogReg",
@@ -18,8 +18,8 @@
   "random_state": 42,
   "mejor_modelo": "SVM_RBF",
   "mejor_estrategia": "balanced",
-  "mejor_auc_cv": 0.9056,
-  "mejor_f1_cv": 0.7565,
+  "mejor_auc_cv": 0.9406,
+  "mejor_f1_cv": 0.8132,
   "mejores_params": {
     "LogReg": {
       "C": 4.561252356402935,

@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-04-13T18:33:37.511380",
+  "fecha": "2026-05-03T12:08:16.422440",
   "familia": "otros",
   "modelos": [
     "KNN",
@@ -39,5 +39,5 @@
     "GaussianNB": null,
     "BernoulliNB": null
   },
-  "emisiones_co2_kg": 8.101499884847563e-05
+  "emisiones_co2_kg": null
 }

@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-04-13T21:21:01.908645",
+  "fecha": "2026-05-03T12:11:48.599845",
   "familia": "mlp_ebm",
   "modelos": [
     "MLP",
@@ -46,5 +46,5 @@
     "MLP": null,
     "EBM": null
   },
-  "emisiones_co2_kg": 0.004398723404675936
+  "emisiones_co2_kg": null
 }
