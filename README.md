@@ -1,126 +1,217 @@
-# 🎓 Predicción de Abandono y Éxito Académico en la UJI
+# 🎓 Predicción de Abandono Universitario · UJI
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://www.python.org/)
-[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter)](https://jupyter.org/)
-[![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-yellowgreen?logo=scikit-learn)](https://scikit-learn.org/)
-[![Estado](https://img.shields.io/badge/Estado-En%20desarrollo-yellow)]()
-[![Licencia](https://img.shields.io/badge/Licencia-Académica-lightgrey)]()
+[![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![LightGBM](https://img.shields.io/badge/Modelo-LightGBM-success?logo=leaflet)](https://lightgbm.readthedocs.io/)
+[![Streamlit](https://img.shields.io/badge/App-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Estado](https://img.shields.io/badge/Estado-V2%20Sistema%20Din%C3%A1mico-brightgreen)](https://github.com/mortemj/AU_UJI_v2)
+[![Licencia](https://img.shields.io/badge/Licencia-Acad%C3%A9mica-lightgrey)](#-licencia)
 
-> Trabajo Final de Máster (TFM) — Universitat Oberta de Catalunya (UOC)  
-> Datos: Universitat Jaume I (UJI) · Período 2010–2021
+> **Trabajo Final de Máster (TFM)** — Universitat Oberta de Catalunya (UOC)
+> **Datos:** Universitat Jaume I (UJI) · Período 2010–2020
+> **Autora:** María José Morte · Tutor: Raúl Parada (UOC) · Supervisión UJI: Susana Pertegaz
 
 ---
 
 ## 📌 Descripción
 
-Este proyecto desarrolla un sistema de **predicción temprana del abandono universitario** a partir de datos académicos, demográficos y administrativos de la Universitat Jaume I (UJI).
+Sistema de **predicción temprana del abandono universitario** desarrollado a partir de datos académicos, demográficos y administrativos de la Universitat Jaume I (UJI), con el objetivo de identificar al estudiantado en riesgo y facilitar intervenciones institucionales eficaces.
 
-El objetivo es identificar estudiantes en riesgo de abandono antes de que este se produzca, con el fin de facilitar intervenciones institucionales efectivas. El modelo final combina técnicas de machine learning avanzadas con análisis interpretativo para ofrecer resultados accionables.
+El proyecto combina técnicas avanzadas de *machine learning* con análisis interpretativo (SHAP, LIME, DiCE), evaluación de equidad (*fairness*) y una aplicación web interactiva orientada a personal de gestión académica, profesorado y al propio estudiantado.
 
-**Definición de abandono aplicada:**
-> Estudiante que no ha egresado, no ha completado créditos suficientes para considerarse egresado de hecho, y lleva 2 o más años sin actividad académica.
+**Definición operativa de abandono aplicada:**
 
----
-
-## 🌐 Resultados y Web
-
-👉 **[Ver resultados en GitHub Pages](https://mortemj.github.io/AU_UJI/)**
+> Persona estudiante que no ha egresado, no ha completado créditos suficientes para considerarse egresada de hecho, y lleva 2 o más años sin actividad académica.
 
 ---
 
-## 🗂️ Estructura del Proyecto
+## 🆕 Versión V2 — Sistema Dinámico
 
-```
-AU_UJI/
-│
-├── 📁 docs/               # Informes HTML por fase (visualización web)
-├── 📁 notebooks/          # Jupyter Notebooks organizados por fase
-├── 📁 notes/              # Notas y documentación de trabajo
-├── 📁 src/                # Módulos Python reutilizables
-│   ├── config/            # Configuración centralizada
-│   └── utils/             # Funciones auxiliares
-├── 📁 data/
-│   ├── 00_raw/            # Datos originales (sin procesar)
-│   ├── 01_interim/        # Datos intermedios
-│   ├── 02_processed/      # Datos procesados
-│   └── 03_features/       # Dataset final para modelado
-└── README.md
-```
+Esta es la **versión 2** del proyecto, con mejoras sustanciales respecto a V1:
+
+| Aspecto | V1 (legado) | V2 (actual) |
+|---|---|---|
+| Modelo ganador | Stacking (hardcodeado) | **LightGBM** (selección dinámica) |
+| Fuente métricas | Variables fijas en código | `metricas_modelo.json` (fuente única de verdad) |
+| Nº de features | 19 | **24** (+ 3 *missing flags* = 27 técnicas) |
+| Cambio de ganador | Requiere reentrenar y editar código | Recalcula al regenerar el JSON |
+| Evaluación de equidad | Parcial | Completa (sexo, vía acceso, beca, rama, origen) |
+| Aplicación web | No disponible | Streamlit con 7 páginas |
+| Validador de calidad de datos | No disponible | 5 niveles N1–N5 (1.060.292 filas validadas) |
+
+> 🔄 **Filosofía V2:** *Reproducibilidad total y trazabilidad*. Todo modelo, métrica y resultado se regenera ejecutando los notebooks por orden, sin valores numéricos incrustados en código.
 
 ---
 
-## 🔬 Fases del Proyecto
+## 🌐 Recursos del proyecto
+
+| Recurso | URL | Estado |
+|---|---|---|
+| 📂 **Repositorio V2** (este) | [github.com/mortemj/AU_UJI_v2](https://github.com/mortemj/AU_UJI_v2) | ✅ Activo |
+| 🚀 **App Streamlit V2** | [tfm-abandono-dinamico.streamlit.app](https://tfm-abandono-dinamico.streamlit.app/) | 🔜 Despliegue pendiente |
+| 🌍 **GitHub Pages V2** | [mortemj.github.io/AU_UJI_v2](https://mortemj.github.io/AU_UJI_v2) | 🔜 Próximamente |
+| 📦 Repositorio V1 (legado) | [github.com/mortemj/AU_UJI](https://github.com/mortemj/AU_UJI) | 🟡 Archivado |
+| 🚀 App Streamlit V1 (legado) | [tfm-abandono.streamlit.app](https://tfm-abandono.streamlit.app/) | 🟡 No dinámica |
+| 🌍 GitHub Pages V1 (legado) | [mortemj.github.io/AU_UJI](https://mortemj.github.io/AU_UJI/) | 🟡 No actualizada |
+
+---
+
+## 🏆 Modelo y resultados
+
+### Modelo final seleccionado
+
+| Métrica | Valor | Observación |
+|---|---|---|
+| **Algoritmo** | LightGBM (`none`) | Familia: Gradient Boosting |
+| **AUC-ROC** | 0.9564 | Test |
+| **F1-score** | 0.8334 | Criterio de selección |
+| **Precision** | 0.8641 | Test |
+| **Recall** | 0.8048 | Criterio de desempate |
+| **Accuracy** | 0.9059 | Test |
+| **n_test** | 6.725 estudiantes | Tasa abandono = 29,25 % |
+
+### Comparación con baseline AutoML
+
+CatBoost AutoGluon BAG L2 (D_strict): AUC = 0.9365 · F1 = 0.797 · superado por el modelo final.
+
+### Volumen de modelos evaluados
+
+**69 modelos** entrenados en Fase 5 (10 algoritmos × estrategias `none` / `balanced` / `smote`) + **168 modelos AutoML** en 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict).
+
+---
+
+## 🗺️ Fases del proyecto
 
 | Fase | Descripción | Estado |
-|------|-------------|--------|
-| **Fase 1** · Ingesta y Calidad | Carga de 9 tablas fuente, auditoría de calidad, limpieza y trazabilidad de datos | ✅ Completada |
-| **Fase 2** · EDA Inicial | Análisis exploratorio univariante y bivariante con Plotly | ✅ Completada |
-| **Fase 3** · Agregación | Construcción del dataset analítico por estudiante, definición del target `abandono` | ✅ Completada |
-| **Fase 4** · EDA Final | Distribuciones numéricas y categóricas, detección de anomalías, visualizaciones interactivas | ✅ Completada |
-| **Fase 5** · Modelado | Entrenamiento de 21 algoritmos en 7 familias, comparación cruzada, selección del mejor modelo | ✅ Completada |
-| **Fase 6** · Interpretabilidad | SHAP, análisis por subgrupos demográficos (`sexo`, `via_acceso`, `titulacion`) | 🔄 En progreso |
+|---|---|---|
+| **F0** · Configuración | Estructura de proyecto, validador Excel 5 niveles (N1–N5), entorno reproducible | ✅ |
+| **F1** · Ingesta y limpieza | Carga de 9 tablas fuente, auditoría, limpieza, trazabilidad (109.568 × 37) | ✅ |
+| **F2** · EDA inicial | Análisis exploratorio univariante, bivariante y temporal con Plotly | ✅ |
+| **F3** · Feature engineering | Dataset analítico por estudiante, definición del *target* `abandono` (33.621 × 25) | ✅ |
+| **AutoML** | Baseline con 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict) — 168 modelos | ✅ |
+| **F4** · EDA final | Distribuciones, anomalías, correlaciones, perfiles de riesgo | ✅ |
+| **F5** · Modelado | 69 modelos, 7 familias, comparación cruzada, selección por F1+recall | ✅ |
+| **F6** · Interpretabilidad y equidad | SHAP, LIME, DiCE, *fairness*, calibración, robustez, sostenibilidad | ✅ |
+| **F7** · App Streamlit | 7 páginas: institucional, titulación, prospecto, en curso, equidad, leyenda | ✅ |
 
 ---
 
-## 🏆 Resultados del Modelado (Fase 5)
+## 🗂️ Estructura del proyecto
 
-| Modelo | AUC CV | Observaciones |
-|--------|--------|---------------|
-| **Stacking** | **0.9308** | Mejor modelo global |
-| EBM (InterpretML) | 0.9202 | Mejor modelo interpretable |
-| Random Forest | ~0.91 | Baseline robusto |
-
-Dataset de trabajo: **D_strict** · 33.621 registros · 19 features + target `abandono`
+```
+AU_UJI_v2/
+│
+├── app/                    # Aplicación Streamlit (7 páginas)
+│   ├── main.py             # Punto de entrada
+│   ├── pages/              # p00_inicio … p06_leyenda
+│   └── utils/              # loaders, ui_helpers, pronostico_shared
+│
+├── data/
+│   ├── 00_raw/             # Datos originales UJI (no se publica)
+│   ├── 01_interim/         # Datos intermedios (regenerables)
+│   ├── 02_processed/       # df_alumno (109.568 × 37)
+│   ├── 03_features/        # dataset_final_tfm (33.621 × 25)
+│   ├── 04_eda/             # Métricas EDA exportadas
+│   ├── 05_modelado/        # Modelos .pkl + pipeline preprocesamiento
+│   └── 06_evaluacion/      # metricas_modelo.json (fuente única de verdad)
+│
+├── docs/html/              # Informes HTML por fase (visualización web)
+├── notebooks/              # Notebooks Jupyter por fase (F0–F6 + AutoML)
+├── results/fase6/          # SHAP, LIME, fairness, calibración, sostenibilidad
+├── scripts/                # Utilidades de mantenimiento (compresión, diagnóstico)
+├── src/
+│   ├── config_proyecto.py  # Identidad y rutas
+│   ├── config_entorno.py   # Detección entorno (local / Colab / Cloud)
+│   ├── html/               # Generadores HTML (estado_proyecto, render…)
+│   └── validacion/         # Validador Excel N1–N5 (TAREA C)
+├── tests/                  # Tests automáticos pytest (42 tests TAREA C)
+└── tribunal/               # Lanzadores app (Windows + macOS)
+```
 
 ---
 
 ## 🛠️ Tecnologías
 
-### Lenguajes y entornos
-![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white&style=flat)
-![Jupyter](https://img.shields.io/badge/-Jupyter-F37626?logo=jupyter&logoColor=white&style=flat)
-![Anaconda](https://img.shields.io/badge/-Anaconda-44A833?logo=anaconda&logoColor=white&style=flat)
+**Lenguaje y entorno:** Python 3.13 · Anaconda · Jupyter · Conda env `tfm_abandono`
 
-### Machine Learning
-![Scikit-learn](https://img.shields.io/badge/-Scikit--learn-F7931E?logo=scikit-learn&logoColor=white&style=flat)
-![XGBoost](https://img.shields.io/badge/-XGBoost-EC4A28?style=flat)
-![LightGBM](https://img.shields.io/badge/-LightGBM-02569B?style=flat)
-![InterpretML](https://img.shields.io/badge/-InterpretML-5C2D91?style=flat)
+**Machine Learning:** scikit-learn · LightGBM · XGBoost · CatBoost · InterpretML (EBM)
 
-### Visualización
-![Plotly](https://img.shields.io/badge/-Plotly-3F4F75?logo=plotly&logoColor=white&style=flat)
-![Matplotlib](https://img.shields.io/badge/-Matplotlib-11557C?style=flat)
-![Seaborn](https://img.shields.io/badge/-Seaborn-4C72B0?style=flat)
+**Interpretabilidad y equidad:** SHAP · LIME · DiCE · Fairlearn · Shapash
 
-### Infraestructura
-![GitHub](https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white&style=flat)
-![GitHub Pages](https://img.shields.io/badge/-GitHub%20Pages-222222?logo=github&logoColor=white&style=flat)
+**AutoML (baseline):** AutoGluon · PyCaret · H2O · LazyPredict
+
+**Visualización:** Plotly · Matplotlib · Seaborn · D3.js (grafos)
+
+**Aplicación web:** Streamlit · Pandas · joblib (compress=3)
+
+**Sostenibilidad:** CodeCarbon (huella de carbono del entrenamiento)
+
+**Calidad y reproducibilidad:** pytest · validador Excel propio (5 niveles N1–N5)
 
 ---
 
 ## 📊 Datos
 
-- **Fuente:** Universitat Jaume I (UJI) — datos anonimizados
-- **Período:** 2010–2021
+- **Fuente:** Universitat Jaume I (UJI) — datos anonimizados bajo acuerdo de confidencialidad
+- **Período:** cursos académicos 2010–2020
 - **Universo:** ~30.872 estudiantes únicos · 42 titulaciones de grado
-- **Variables originales:** 9 tablas fuente · 37+ columnas
-- **Dataset final:** 33.621 registros · 19 features + target
+- **Tablas fuente:** 9 tablas Excel · ~37 columnas originales
+- **Dataset analítico:** 33.621 registros · 24 *features* + *target* `abandono`
 
-> ⚠️ Los datos son de carácter académico y uso restringido. No se incluyen en el repositorio.
+> ⚠️ **Aviso de privacidad:** los datos contienen información personal y son de uso restringido. **No se incluyen en el repositorio**. Pueden regenerarse las fases intermedias ejecutando los notebooks 1–3 con los datos originales.
+
+---
+
+## 🚀 Uso rápido
+
+### Ejecutar la app Streamlit en local
+
+```bash
+conda activate tfm_abandono
+cd app
+streamlit run main.py
+```
+
+O bien (Windows): doble clic en `tribunal/lanzar_app_windows.bat`
+
+### Ejecutar los tests
+
+```bash
+pytest tests/ -v
+```
+
+Resultado esperado: **42 passed**
+
+### Regenerar las fases (orden)
+
+1. `notebooks/fase0_configuracion/orquestador_maestro.ipynb`
+2. `notebooks/fase1_transformacion/f1_m00_ejecucion.ipynb`
+3. `notebooks/fase2_eda/f2_m00_ejecucion.ipynb`
+4. `notebooks/fase3_features/f3_m00_ejecucion.ipynb`
+5. `notebooks/fase4_eda/f4_m00_ejecucion.ipynb`
+6. `notebooks/fase5_modelado/f5_m00_ejecucion.ipynb`
+7. `notebooks/fase6_evaluacion/f6_m00_ejecucion.ipynb`
 
 ---
 
 ## 👩‍💻 Autora
 
-**María José Morte Ruiz**  
-Máster en Ciencia de Datos — Universitat Oberta de Catalunya (UOC)  
-📧 morte@uji.es
+**María José Morte**
+Máster Universitario en Ciencia de Datos · Universitat Oberta de Catalunya (UOC)
 
-Tutor: Raúl Parada · rparada@uoc.edu
+📧 [mjmorteruiz@uoc.edu](mailto:mjmorteruiz@uoc.edu) · [morte@uji.es](mailto:morte@uji.es)
+🐙 [github.com/mortemj](https://github.com/mortemj)
+
+**Tutor académico:** Raúl Parada · [rparada@uoc.edu](mailto:rparada@uoc.edu)
+**Supervisión institucional UJI:** Susana Pertegaz
 
 ---
 
 ## 📄 Licencia
 
-Proyecto académico. Datos proporcionados por la UJI bajo acuerdo de confidencialidad.  
-Uso restringido a fines de investigación y formación.
+Proyecto académico desarrollado en el marco del TFM de la UOC (curso 2025–2026).
+Datos proporcionados por la Universitat Jaume I bajo acuerdo de confidencialidad.
+Uso restringido a fines de investigación y formación académica.
+
+---
+
+<sub>Última actualización del README: 04/05/2026 · Versión 2 (sistema dinámico)</sub>
