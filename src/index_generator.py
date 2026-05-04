@@ -169,10 +169,16 @@ def actualizar_index(verbose=True):
     # =================================================================
     # PASO 4: Detectar señales de fases hechas (sistema dinámico)
     # =================================================================
-    fase5_done = (RUTA_MODELADO / 'results' /
-                  'resultados_maestro.parquet').exists()
-    fase6_done = ruta_metricas.exists()
-    fase7_done = (BASE_PATH / 'app' / 'main.py').exists()
+    # Fuente única de verdad: src/html/estado_proyecto.py contiene las 9
+    # señales de las fases del proyecto (F0-F7 + AutoML). Aquí solo se
+    # extraen los 3 booleanos que el resto de este fichero ya consume.
+    # Si en el futuro cambia una ruta de fichero señal, se modifica una
+    # vez en estado_proyecto.py — este fichero no requiere cambios.
+    from src.html.estado_proyecto import detectar_estado_fases
+    _estados = {e['id']: e['hecha'] for e in detectar_estado_fases()}
+    fase5_done = _estados['fase5']
+    fase6_done = _estados['fase6']
+    fase7_done = _estados['fase7']
 
     # =================================================================
     # PASO 5: Construir HTML
@@ -392,8 +398,33 @@ def actualizar_index(verbose=True):
         H.append('            <h2>\U0001f3c6 Métricas del Modelo Ganador</h2>')
         H.append('            <div style="background:#f0f9ff; padding:20px; border-radius:10px; '
                  'border-left:4px solid #1e4d8c; margin-bottom:20px;">')
-        modelo_nombre = metricas_modelo.get('modelo_nombre', 'No disponible')
-        H.append(f'                <p><strong>\U0001f916 Modelo:</strong> {modelo_nombre}</p>')
+
+        # --- Identidad del modelo ---
+        # Patrón "if existe → mostrar / else → omitir" siguiendo la
+        # convención del resto del fichero (no inventar valores).
+        modelo_nombre     = metricas_modelo.get('modelo_nombre', 'No disponible')
+        modelo_estrategia = metricas_modelo.get('modelo_estrategia', '')
+        modelo_familia    = metricas_modelo.get('modelo_familia', '')
+        modelo_desc       = metricas_modelo.get('modelo_descripcion', '')
+
+        # Cuando estrategia != 'none', se incluye en el nombre entre paréntesis.
+        # Si es 'none' (sin balanceo de clases), no añadir nada para evitar ruido.
+        if modelo_estrategia and modelo_estrategia != 'none':
+            nombre_a_mostrar = f'{modelo_nombre} ({modelo_estrategia})'
+        else:
+            nombre_a_mostrar = modelo_nombre
+
+        H.append(f'                <p><strong>\U0001f916 Modelo:</strong> {nombre_a_mostrar}</p>')
+
+        if modelo_familia:
+            H.append(f'                <p style="margin-left:24px; color:#4a5568; font-size:0.95em;">'
+                     f'<strong>Familia:</strong> {modelo_familia}</p>')
+
+        if modelo_desc:
+            H.append(f'                <p style="margin-left:24px; color:#718096; font-size:0.9em; '
+                     f'font-style:italic;">{modelo_desc}</p>')
+
+        # --- Métricas de rendimiento ---
         if metricas_modelo.get('f1') is not None:
             H.append(f'                <p><strong>\U0001f3af F1 (clase abandono):</strong> '
                      f'{fmt_es_dec(metricas_modelo["f1"], 4)}</p>')
@@ -406,6 +437,29 @@ def actualizar_index(verbose=True):
         if metricas_modelo.get('recall') is not None:
             H.append(f'                <p><strong>\U0001f514 Recall:</strong> '
                      f'{fmt_es_dec(metricas_modelo["recall"], 4)}</p>')
+        if metricas_modelo.get('accuracy') is not None:
+            H.append(f'                <p><strong>\U00002705 Accuracy:</strong> '
+                     f'{fmt_es_dec(metricas_modelo["accuracy"], 4)}</p>')
+
+        # --- Línea final: contexto de evaluación ---
+        n_test = metricas_modelo.get('n_test')
+        n_feat = metricas_modelo.get('n_features')
+        n_feat_t = metricas_modelo.get('n_features_tecnicas')
+        if n_test is not None or n_feat is not None:
+            partes_ctx = []
+            if n_test is not None:
+                partes_ctx.append(f'<strong>{fmt_es_num(n_test)}</strong> casos de test')
+            if n_feat is not None and n_feat_t is not None and n_feat != n_feat_t:
+                partes_ctx.append(
+                    f'<strong>{n_feat}</strong> features ({n_feat_t} técnicas)'
+                )
+            elif n_feat is not None:
+                partes_ctx.append(f'<strong>{n_feat}</strong> features')
+            ctx_html = ' · '.join(partes_ctx)
+            H.append(f'                <p style="margin-top:12px; padding-top:10px; '
+                     f'border-top:1px solid #cbd5e0; color:#4a5568; font-size:0.9em;">'
+                     f'Evaluado sobre {ctx_html}.</p>')
+
         H.append('            </div>')
         H.append('        </section>')
         H.append('')
@@ -419,6 +473,50 @@ def actualizar_index(verbose=True):
     H.append('')
     H.append('    </div>')
     H.append('')
+
+    # =================================================================
+    # BLOQUE: Resumen del proyecto y orquestador (V2 — AU_UJI Dinámico)
+    # =================================================================
+    # Añade un acceso al HTML resumen del orquestador (orquestador_resumen.html)
+    # generado por src/html/generar_resumen_proyecto.py.
+    # El acceso aparece SIEMPRE, pero el HTML solo existe tras ejecutar:
+    #   - notebooks/fase0_configuracion/orquestador_maestro.ipynb, o
+    #   - notebooks/fase0_configuracion/f0_actualizar_resumen.ipynb
+    # Si el HTML no existe aún, el enlace dará 404 — eso es señal clara
+    # al usuario de que debe regenerarlo.
+    # =================================================================
+    resumen_existe = (RUTA_HTML / 'orquestador_resumen.html').exists()
+    bg_resumen = '#ebf4ff' if resumen_existe else '#fffaf0'
+    border_resumen = '#3182ce' if resumen_existe else '#ed8936'
+    color_titulo = '#2c5282' if resumen_existe else '#7b341e'
+    estado_resumen_txt = (
+        'Resumen disponible — pulsa para ver estado actual del proyecto y última ejecución del orquestador.'
+        if resumen_existe else
+        'Aún no se ha generado el resumen. Ejecuta el orquestador maestro o el notebook <code>f0_actualizar_resumen.ipynb</code>.'
+    )
+    boton_html = (
+        '<a href="orquestador_resumen.html" '
+        'style="display:inline-block; padding:10px 18px; background:#3182ce; color:white; '
+        'border-radius:6px; text-decoration:none; font-weight:600; margin-top:10px;">'
+        '🎓 Ver resumen del proyecto</a>'
+    ) if resumen_existe else (
+        '<span style="display:inline-block; padding:10px 18px; background:#a0aec0; color:white; '
+        'border-radius:6px; font-weight:600; margin-top:10px; opacity:0.7;">'
+        '🎓 Resumen pendiente de generar</span>'
+    )
+
+    H.append('    <div class="container" style="margin-top:0;">')
+    H.append('        <section class="seccion" '
+             f'style="background:{bg_resumen}; border-left:4px solid {border_resumen}; '
+             f'padding:18px 22px; border-radius:8px;">')
+    H.append(f'            <h2 style="color:{color_titulo}; font-size:18px;">'
+             '🎓 Resumen del proyecto y orquestador</h2>')
+    H.append(f'            <p style="margin-top:6px; color:#4a5568;">{estado_resumen_txt}</p>')
+    H.append(f'            {boton_html}')
+    H.append('        </section>')
+    H.append('    </div>')
+    H.append('')
+
     H.append('    <footer>')
     H.append(f'        <strong>{AUTORA}</strong> |')
     H.append(f'        <a href="mailto:{EMAIL_UOC}">{EMAIL_UOC}</a> (UOC) |')

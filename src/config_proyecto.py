@@ -37,12 +37,17 @@ EMAIL_UJI = "morte@uji.es"
 # ============================================================================
 # Se usa en los HTML generados para enlazar al notebook original
 # y a la aplicación Streamlit desplegada en Streamlit Cloud.
+#
+# NOTA V2 — AU_UJI Dinámico (actualizado 2026-05-04):
+# Este proyecto es la versión 2 (dinámica) del TFM. La V1 estable sigue
+# en https://tfm-abandono.streamlit.app y https://github.com/mortemj/AU_UJI
+# Las URLs de aquí abajo apuntan SIEMPRE a V2.
 
-GITHUB_REPO = "https://github.com/mortemj/AU_UJI"
+GITHUB_REPO = "https://github.com/mortemj/AU_UJI_v2"
 GITHUB_NOTEBOOKS = f"{GITHUB_REPO}/blob/main/notebooks"
-GITHUB_PAGES = "https://mortemj.github.io/AU_UJI/"
+GITHUB_PAGES = "https://mortemj.github.io/AU_UJI_v2/"
 
-URL_APP_STREAMLIT = "https://tfm-abandono.streamlit.app/"
+URL_APP_STREAMLIT = "https://tfm-abandono-dinamico.streamlit.app/"
 
 
 # ============================================================================
@@ -81,6 +86,7 @@ class ColoresTFM:
     OK = "#38a169"       # Verde — todo correcto
     ALERTA = "#ed8936"   # Naranja — advertencia
     ERROR = "#e53e3e"    # Rojo — error
+    PENDIENTE = "#a0aec0" # Gris — fase aún no ejecutada
 
 
 # Instancia global para importar directamente
