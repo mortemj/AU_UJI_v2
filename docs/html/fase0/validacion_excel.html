@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Validación de Excel — Fase 0 — TFM Predicción de Abandono UJI</title>
+  
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 32px 16px;
+    background: #f7fafc;
+    color: #2d3748;
+    line-height: 1.55;
+  }
+  .contenedor {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 32px 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+  h1 {
+    color: #3182ce;
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 28px;
+  }
+  h2 {
+    color: #2d3748;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    margin-top: 40px;
+    font-size: 22px;
+  }
+  h3 {
+    color: #2d3748;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+  .meta {
+    color: #718096;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  .resumen-global {
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 24px 0;
+    border-left: 5px solid;
+  }
+  .resumen-global.ok    { background: #f0fff4; border-left-color: #38a169;      color: #22543d; }
+  .resumen-global.aviso { background: #fffaf0; border-left-color: #d69e2e; color: #744210; }
+  .resumen-global.error { background: #fff5f5; border-left-color: #e53e3e;   color: #742a2a; }
+
+  .grid-niveles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .card-nivel {
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    border-left: 4px solid;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .card-nivel.ok      { border-left-color: #38a169;      background: #f0fff4; }
+  .card-nivel.aviso   { border-left-color: #d69e2e; background: #fffaf0; }
+  .card-nivel.error   { border-left-color: #e53e3e;   background: #fff5f5; }
+  .card-nivel.noejec  { border-left-color: #a0aec0; background: #f7fafc; }
+
+  .card-nivel .icono {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+  .card-nivel .nivel-id {
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .card-nivel .titulo {
+    font-size: 13px;
+    color: #4a5568;
+    margin-bottom: 8px;
+  }
+  .card-nivel .stats {
+    font-size: 13px;
+    color: #4a5568;
+  }
+
+  details {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #2d3748;
+    padding: 4px 0;
+  }
+  details summary:hover {
+    color: #3182ce;
+  }
+  details[open] summary {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  ul.mensajes {
+    list-style: none;
+    padding-left: 0;
+    margin: 8px 0;
+  }
+  ul.mensajes li {
+    padding: 6px 10px;
+    margin: 4px 0;
+    border-radius: 4px;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 13px;
+    background: #f7fafc;
+    border-left: 3px solid #e2e8f0;
+  }
+  ul.mensajes li.ok    { border-left-color: #38a169;      }
+  ul.mensajes li.warn  { border-left-color: #d69e2e; }
+  ul.mensajes li.error { border-left-color: #e53e3e;   }
+
+  table.detalle {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  table.detalle th, table.detalle td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  table.detalle th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #4a5568;
+  }
+  table.detalle tr:hover td {
+    background: #f7fafc;
+  }
+
+  .cartel-institucional {
+    background: #ebf8ff;
+    border: 1px solid #90cdf4;
+    border-left: 5px solid #3182ce;
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin-top: 40px;
+  }
+  .cartel-institucional h3 {
+    margin-top: 0;
+    color: #3182ce;
+  }
+  .cartel-institucional p {
+    margin: 8px 0;
+    font-size: 14px;
+  }
+  .cartel-institucional .siglas {
+    font-weight: 600;
+  }
+
+  footer {
+    text-align: center;
+    color: #a0aec0;
+    font-size: 12px;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
+  footer a {
+    color: #3182ce;
+    text-decoration: none;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+</head>
+<body>
+  <div class="contenedor">
+
+    <h1>📋 Validación de Excel originales — Fase 0</h1>
+    <div class="meta">
+      TFM: <em>Pronóstico del Éxito y del Abandono en los Títulos de Grado de
+      la UJI</em><br>
+      Autora: María José Morte<br>
+      Fecha de validación: <strong>04/05/2026 a las 14:41</strong>
+    </div>
+
+    
+        <div class="resumen-global ok">
+          ✅ Validación COMPLETADA con éxito — los 5 niveles han pasado sin
+          incidencias. Los Excel originales cumplen el contrato esperado y
+          el proyecto puede continuar con Fase 1.
+        </div>
+        
+
+    <h2>Resumen por niveles</h2>
+    <p>
+      El validador comprueba 5 niveles. Los niveles 🔴 N1-N3 son
+      <strong>bloqueantes</strong> (un fallo aquí impide continuar con
+      las fases siguientes). 🟡 N4 y N5 son <strong>avisos</strong> que
+      conviene revisar pero no bloquean.
+    </p>
+    <div class="grid-niveles">
+      
+    <div class="card-nivel ok">
+      <div class="icono">✅</div>
+      <div class="nivel-id">N1</div>
+      <div class="titulo">Existencia de ficheros</div>
+      <div class="stats">2 OK · 0 avisos</div>
+    </div>
+    
+
+    <div class="card-nivel ok">
+      <div class="icono">✅</div>
+      <div class="nivel-id">N2</div>
+      <div class="titulo">Estructura de hojas</div>
+      <div class="stats">2 OK · 0 avisos</div>
+    </div>
+    
+
+    <div class="card-nivel ok">
+      <div class="icono">✅</div>
+      <div class="nivel-id">N3</div>
+      <div class="titulo">Columnas obligatorias</div>
+      <div class="stats">9 OK · 0 avisos</div>
+    </div>
+    
+
+    <div class="card-nivel ok">
+      <div class="icono">✅</div>
+      <div class="nivel-id">N4</div>
+      <div class="titulo">Tipos de datos</div>
+      <div class="stats">9 OK · 0 avisos</div>
+    </div>
+    
+
+    <div class="card-nivel ok">
+      <div class="icono">✅</div>
+      <div class="nivel-id">N5</div>
+      <div class="titulo">Volumen y cruces de IDs</div>
+      <div class="stats">12 OK · 0 avisos</div>
+    </div>
+    
+    </div>
+
+    <h2>Detalle por nivel</h2>
+    <p>
+      Despliega cada bloque para ver los mensajes individuales generados
+      durante la validación.
+    </p>
+    
+    <details>
+      <summary>✅ N1 — Existencia de ficheros
+      (2 mensajes OK · 0 avisos/errores)</summary>
+    <ul class="mensajes">
+      <li class="ok">✅ datos_proyecto_sin_preinscrip.xlsx existe, legible, 27,8 MB</li>
+      <li class="ok">✅ preinscripcion_si.xlsx existe, legible, 23,4 MB</li>
+    </ul>
+
+    </details>
+    
+
+    <details>
+      <summary>✅ N2 — Estructura de hojas
+      (2 mensajes OK · 0 avisos/errores)</summary>
+    <ul class="mensajes">
+      <li class="ok">✅ [datos_proyecto_sin_preinscrip.xlsx] Todas las hojas esperadas están presentes (8)</li>
+      <li class="ok">✅ [preinscripcion_si.xlsx] Todas las hojas esperadas están presentes (1)</li>
+    </ul>
+
+    </details>
+    
+
+    <details>
+      <summary>✅ N3 — Columnas obligatorias
+      (9 mensajes OK · 0 avisos/errores)</summary>
+    <ul class="mensajes">
+      <li class="ok">✅ [Titulaciones] 6 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Recibos] 5 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Domicilios] 6 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Expedientes] 15 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Nac-Sexo_Nacionalidad] 5 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Circunstancias] 4 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Trabajo] 4 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Notas] 5 columnas obligatorias presentes</li>
+      <li class="ok">✅ [Hoja1] 24 columnas obligatorias presentes</li>
+    </ul>
+
+    </details>
+    
+
+    <details>
+      <summary>✅ N4 — Tipos de datos
+      (9 mensajes OK · 0 avisos/errores)</summary>
+    <ul class="mensajes">
+      <li class="ok">✅ [Titulaciones] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Recibos] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Domicilios] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Expedientes] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Nac-Sexo_Nacionalidad] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Circunstancias] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Trabajo] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Notas] Todos los tipos coinciden</li>
+      <li class="ok">✅ [Hoja1] Todos los tipos coinciden</li>
+    </ul>
+
+    </details>
+    
+
+    <details>
+      <summary>✅ N5 — Volumen y cruces de IDs
+      (12 mensajes OK · 0 avisos/errores)</summary>
+    <ul class="mensajes">
+      <li class="ok">✅ [Titulaciones] 45 filas (≥ 20)</li>
+      <li class="ok">✅ [Recibos] 114.454 filas (≥ 50.000)</li>
+      <li class="ok">✅ [Domicilios] 210.911 filas (≥ 100.000)</li>
+      <li class="ok">✅ [Expedientes] 109.568 filas (≥ 50.000)</li>
+      <li class="ok">✅ [Nac-Sexo_Nacionalidad] 30.873 filas (≥ 15.000)</li>
+      <li class="ok">✅ [Circunstancias] 70.524 filas (≥ 30.000)</li>
+      <li class="ok">✅ [Trabajo] 195.524 filas (≥ 90.000)</li>
+      <li class="ok">✅ [Notas] 107.908 filas (≥ 50.000)</li>
+      <li class="ok">✅ [Hoja1] 210.986 filas (≥ 100.000)</li>
+      <li class="ok">✅ Cruce Expedientes→Titulaciones por 'Exp_Tit_Id': 100.0% de match (≥99.0%)</li>
+      <li class="ok">✅ Cruce Expedientes→Nac-Sexo_Nacionalidad por 'Per_id_ficticio': 100.0% de match (≥95.0%)</li>
+      <li class="ok">✅ Cruce Expedientes→Domicilios por 'Per_id_ficticio': 100.0% de match (≥90.0%)</li>
+    </ul>
+
+    </details>
+    
+
+    <h2>Ficheros validados</h2>
+    
+    <table class="detalle">
+      <thead>
+        <tr><th>Fichero</th><th>Ruta (relativa al proyecto)</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Excel principal</strong></td>
+          <td><code>data/00_raw/datos_proyecto_sin_preinscrip.xlsx</code></td>
+        </tr>
+        <tr>
+          <td><strong>Excel preinscripción</strong></td>
+          <td><code>data/00_raw/preinscripcion_si.xlsx</code></td>
+        </tr>
+      </tbody>
+    </table>
+    
+
+    
+    <div class="cartel-institucional">
+      <h3>📬 Solicitud de datos adicionales</h3>
+      <p>
+        Los datos validados en este informe corresponden al periodo del TFM y
+        proceden de las siguientes unidades de la Universitat Jaume I:
+      </p>
+      <p>
+        <span class="siglas">OPP</span> — <em>Oficina de Planificació i
+        Prospectiva</em><br>
+        <span class="siglas">UADTI</span> — <em>Unitat d'Anàlisi i
+        Desenvolupament TI</em>
+      </p>
+      <p>
+        Para solicitar datos de otros periodos, otras titulaciones o campos
+        adicionales, las personas investigadoras pueden contactar con OPP y
+        UADTI a través de los canales institucionales habituales (intranet UJI,
+        Confluence/SGD).
+      </p>
+      <p style="margin-top: 12px; font-size: 13px; color: #4a5568;">
+        Si la estructura de los nuevos Excel cambia respecto a la documentada
+        aquí, debe actualizarse el contrato en
+        <code>src/validacion/contrato_excel.py</code> antes de re-ejecutar
+        el validador.
+      </p>
+    </div>
+    
+
+    <footer>
+      Generado automáticamente por
+      <code>src/validacion/generar_html_validacion.py</code><br>
+      <a href="https://github.com/mortemj/AU_UJI_v2"
+         target="_blank">github.com/mortemj/AU_UJI_v2</a>
+    </footer>
+
+  </div>
+</body>
+</html>
