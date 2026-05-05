@@ -128,8 +128,8 @@ APP_CONFIG = {
     # del JSON metricas_modelo.json mediante _obtener_ruta_modelo_dinamico().
     # El sistema dinámico (Bloque 0, opción C) selecciona el ganador en
     # f6_m00_preparacion.ipynb por criterios F1>Recall>AUC>Tiempo.
-    "logo_universidad_datos": "logo_uji.jpg",
-    "logo_universidad_master":"logo_uoc.jpg",
+    "logo_universidad_datos": "logo_uji.png",
+    "logo_universidad_master":"logo_uoc.png",
     "tab_inicio":             "Inicio",
     "n_ramas":                5,
     # DEPRECADO (30/04/2026): preferir m.get("n_features") del JSON dinámico.
