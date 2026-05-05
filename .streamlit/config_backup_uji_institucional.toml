@@ -1,0 +1,29 @@
+# ============================================================
+# .streamlit/config.toml — Tema visual app TFM Abandono UJI V2
+# Estilo: Institucional UJI (azul + blanco, formal, académico)
+# ============================================================
+
+[theme]
+# Color principal — botones, links, checkboxes, sliders
+# Azul UJI institucional
+primaryColor = "#005A9C"
+
+# Fondo principal de la app
+backgroundColor = "#FFFFFF"
+
+# Fondo secundario — sidebar, cards, expanders
+secondaryBackgroundColor = "#F7FAFC"
+
+# Color del texto
+textColor = "#2D3748"
+
+# Tipografía — sans serif moderna y legible
+font = "sans serif"
+
+[server]
+# Tamaño máximo de ficheros subidos por el usuario (MB)
+maxUploadSize = 50
+
+[browser]
+# No enviar estadísticas anónimas a Streamlit
+gatherUsageStats = false
