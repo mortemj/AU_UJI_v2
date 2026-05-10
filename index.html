@@ -388,6 +388,40 @@
     letter-spacing: 0.05em;
   }
 
+  /* Botón "Empezar aquí" — destacado en verde sobre paleta morada */
+  .cta-empezar {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    color: #fff;
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 16px 36px;
+    border-radius: 10px;
+    margin-right: 12px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(34,197,94,0.4);
+  }
+  .cta-empezar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .cta-empezar:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(34,197,94,0.55);
+  }
+  .cta-empezar:hover::before { opacity: 1; }
+
   /* Phase cards */
   .phases {
     display: grid;
@@ -405,12 +439,20 @@
     border-radius: 10px;
     padding: 16px 18px;
     transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    cursor: pointer;
   }
 
   .phase-card:hover {
     border-color: var(--plum-bright);
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(168,85,247,0.2);
+  }
+
+  .phase-card:hover .phase-name {
+    color: var(--plum-bright);
   }
 
   .phase-num {
@@ -550,6 +592,7 @@
     .stat:last-child { border-bottom: none; }
     .apps-grid { grid-template-columns: 1fr; }
     .cta-secondary { margin-left: 0; margin-top: 12px; display: flex; justify-content: center; }
+    .cta-empezar { margin-right: 0; margin-bottom: 12px; display: flex; justify-content: center; width: 100%; }
     .cta-block .cta-btn, .cta-block .cta-secondary { width: 100%; justify-content: center; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -626,6 +669,9 @@
 
   <!-- CTAs principales -->
   <div class="cta-block">
+    <a href="docs/html/manual_inicio.html" class="cta-empezar">
+      ▶️ Empezar aquí (manual paso a paso)
+    </a>
     <a href="docs/html/index.html" class="cta-btn">
       Ver documentación del proyecto
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -635,46 +681,46 @@
     <a href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank" rel="noopener noreferrer" class="cta-secondary">
       Abrir app dinámica ↗
     </a>
-    <p class="cta-hint">Índice completo de fases y notebooks · App interactiva</p>
+    <p class="cta-hint">Manual paso a paso · Índice completo de fases · App interactiva</p>
   </div>
 
   <!-- Fases del proyecto -->
   <div class="phases">
-    <div class="phase-card">
+    <a class="phase-card" href="docs/html/fase1/fase1_index.html">
       <div class="phase-num">Fase 1</div>
       <div class="phase-name">Preparación de Datos</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
-    <div class="phase-card">
+    </a>
+    <a class="phase-card" href="docs/html/fase2/fase2_index.html">
       <div class="phase-num">Fase 2</div>
       <div class="phase-name">EDA Inicial</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
-    <div class="phase-card">
+    </a>
+    <a class="phase-card" href="docs/html/fase3/fase3_index.html">
       <div class="phase-num">Fase 3</div>
       <div class="phase-name">Feature Engineering</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
-    <div class="phase-card">
+    </a>
+    <a class="phase-card" href="docs/html/fase4/fase4_index.html">
       <div class="phase-num">Fase 4</div>
       <div class="phase-name">EDA Final</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
-    <div class="phase-card">
+    </a>
+    <a class="phase-card" href="docs/html/fase5/fase5_index.html">
       <div class="phase-num">Fase 5</div>
       <div class="phase-name">Modelado</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
-    <div class="phase-card">
+    </a>
+    <a class="phase-card" href="docs/html/fase6/fase6_index.html">
       <div class="phase-num">Fase 6</div>
       <div class="phase-name">Interpretabilidad</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
-    <div class="phase-card">
+    </a>
+    <a class="phase-card" href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank" rel="noopener noreferrer">
       <div class="phase-num">Fase 7</div>
-      <div class="phase-name">Despliegue</div>
+      <div class="phase-name">Despliegue ↗</div>
       <span class="phase-status status-done">Completada</span>
-    </div>
+    </a>
   </div>
 
   <!-- Apps y enlaces -->
