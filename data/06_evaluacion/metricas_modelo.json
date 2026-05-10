@@ -27,37 +27,5 @@
   "baseline_dataset": "D_strict",
   "baseline_auc": 0.9644,
   "baseline_f1": 0.8496,
-  "fecha_calculo": "2026-05-03T19:35:26",
-  "probs_modelo_pkl": "LightGBM__none.pkl",
-  "probs_fecha_calculo": "2026-05-03T19:42:39",
-  "robustez_calibracion_sostenibilidad": {
-    "robustez_temporal": {
-      "auc_min": 0.9167949704901206,
-      "auc_max": 0.9918566132975787,
-      "auc_media": 0.96446426525651,
-      "auc_std": 0.027329948223138268,
-      "auc_rango": 0.07506164280745808,
-      "cohorte_min": 2019,
-      "cohorte_max": 2010,
-      "n_cohortes_evaluadas": 10
-    },
-    "calibracion": {
-      "brier_score": 0.07022598435069045,
-      "ece_10_bins": 0.013652523551286381,
-      "n_test": 6596,
-      "tasa_abandono_test": 0.29548211036992117
-    },
-    "sostenibilidad": {
-      "tiempo_predict_proba_ms": 92.29249999771127,
-      "tiempo_por_alumno_ms": 0.013992192237372844,
-      "throughput_alumnos_segundo": 71468.42918074135,
-      "tamano_pkl_bytes": 955053,
-      "tamano_pkl_kb": 932.6689453125,
-      "n_test": 6596,
-      "n_repeticiones_tiempo": 5,
-      "estadistico_tiempo": "mediana"
-    },
-    "fuente": "f6_m08_robustez_calibracion.ipynb",
-    "fecha_calculo": "2026-05-03 23:15:52"
-  }
+  "fecha_calculo": "2026-05-07T17:44:17"
 }

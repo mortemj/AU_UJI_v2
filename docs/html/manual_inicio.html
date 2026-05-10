@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>▶️ Empezar aquí — Manual de inicio · TFM AU_UJI</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* === ESTILOS ESPECÍFICOS DEL MANUAL === */
+        .paso {
+            background: white;
+            border-left: 5px solid #3182ce;
+            border-radius: 8px;
+            padding: 22px 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .paso-titulo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .paso-numero {
+            background: #3182ce;
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .paso-titulo h3 {
+            color: #1a365d;
+            font-size: 1.25em;
+            margin: 0;
+        }
+        .paso ol, .paso ul {
+            margin-left: 25px;
+            margin-top: 10px;
+        }
+        .paso li {
+            margin-bottom: 8px;
+            line-height: 1.7;
+        }
+        .paso code {
+            background: #edf2f7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.92em;
+            color: #2c5282;
+        }
+        .nota {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin: 14px 0;
+            font-size: 0.95em;
+            color: #7b341e;
+        }
+        .nota strong { color: #9c4221; }
+        .exito {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin: 14px 0;
+            font-size: 0.95em;
+            color: #22543d;
+        }
+        .info {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin: 14px 0;
+            font-size: 0.95em;
+            color: #2c5282;
+        }
+        .boton-grande {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #3182ce;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.05em;
+            margin: 8px 6px 8px 0;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .boton-grande:hover { background: #2c5282; }
+        .boton-secundario { background: #718096; }
+        .boton-secundario:hover { background: #4a5568; }
+        .boton-exito { background: #38a169; }
+        .boton-exito:hover { background: #2f855a; }
+        .ruta-archivo {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            display: inline-block;
+            margin: 4px 0;
+        }
+        .indice-pasos {
+            background: #f7fafc;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 28px;
+        }
+        .indice-pasos h3 {
+            color: #1a365d;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+        }
+        .indice-pasos ol {
+            margin-left: 22px;
+            line-height: 1.9;
+        }
+        .indice-pasos a {
+            color: #2c5282;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .indice-pasos a:hover { text-decoration: underline; }
+        .tiempo {
+            background: #e2e8f0;
+            color: #2d3748;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.82em;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+        /* Bloque de comando con botón copiar */
+        .comando-box {
+            position: relative;
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        .comando-box pre {
+            padding: 14px 90px 14px 16px;
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.92em;
+        }
+        .btn-copiar {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #3182ce;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.82em;
+            font-family: inherit;
+            font-weight: 600;
+        }
+        .btn-copiar:hover { background: #2c5282; }
+        .btn-copiar.copiado { background: #38a169; }
+        /* Bloque de "ruta" con dos opciones */
+        .ruta-box {
+            background: white;
+            border: 2px solid #cbd5e0;
+            border-radius: 10px;
+            padding: 22px 26px;
+            margin-bottom: 18px;
+            transition: border-color 0.2s;
+        }
+        .ruta-box.recomendada {
+            border-color: #38a169;
+            background: linear-gradient(135deg, #f0fff4 0%, white 25%);
+        }
+        .ruta-box h3 {
+            color: #1a365d;
+            font-size: 1.18em;
+            margin-bottom: 6px;
+        }
+        .ruta-box .badge-recomendada {
+            display: inline-block;
+            background: #38a169;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="../assets/logo_uoc.png" alt="UOC" class="header-logo" onerror="this.style.display='none'">
+            <div class="header-title">
+                <h1>▶️ Empezar aquí — Manual de inicio</h1>
+                <p>Guía paso a paso para revisar y ejecutar el proyecto AU_UJI</p>
+            </div>
+            <img src="../assets/logo_uji.jpg" alt="UJI" class="header-logo" onerror="this.style.display='none'">
+        </div>
+    </header>
+
+    <nav class="nav-fases">
+        <a href="index.html">🏠 Inicio</a>
+        <a href="manual_inicio.html" class="active">▶️ Empezar aquí</a>
+        <a href="fase1/fase1_index.html">📥 Transformación</a>
+        <a href="fase2/fase2_index.html">📊 EDA Datos Originales</a>
+        <a href="fase3/fase3_index.html">🔧 Features</a>
+        <a href="fase4/fase4_index.html">🔬 EDA Final</a>
+        <a href="fase5/fase5_index.html">🤖 Modelado</a>
+        <a href="fase6/fase6_index.html">📈 Evaluación</a>
+        <a href="fase7/fase7_index.html">🚀 Aplicación</a>
+        <a href="fase_automl/fase_automl_index.html">⚡ AutoML</a>
+    </nav>
+
+    <div class="container">
+
+        <section class="seccion">
+            <h2>🎯 ¿Qué encontrarás en este manual?</h2>
+            <p style="margin-top:10px;">
+                Esta guía explica <strong>paso a paso</strong> cómo descargar el código del proyecto desde GitHub
+                y poner en marcha el orquestador maestro <strong>sin necesidad de conocimientos previos de informática</strong>.
+                Está pensada para el tribunal del TFM, profesorado, compañeras o compañeros de clase, y cualquier persona del ámbito
+                universitario que desee reproducir el pipeline.
+            </p>
+            <div class="info">
+                <strong>💡 Tres formas de revisar el proyecto:</strong>
+                <ul style="margin-top:8px; margin-left:22px;">
+                    <li><strong>Vista rápida (sin descargar nada):</strong> visitar la app desplegada en
+                        <a href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank">tfm-abandono-dinamico.streamlit.app</a></li>
+                    <li><strong>Vista intermedia (sin descargar nada):</strong> navegar la documentación web en
+                        <a href="https://mortemj.github.io/AU_UJI_v2/" target="_blank">mortemj.github.io/AU_UJI_v2</a></li>
+                    <li><strong>Vista detallada (requiere descarga):</strong> seguir este manual y ejecutar el orquestador en local.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="seccion">
+            <h2>📋 Resumen de pasos</h2>
+            <div class="indice-pasos">
+                <h3>Para reproducir el proyecto entero hay que hacer estas 6 cosas:</h3>
+                <ol>
+                    <li><a href="#paso1">Descargar el código desde GitHub</a> <span class="tiempo">~5 min</span></li>
+                    <li><a href="#paso2">Instalar Anaconda (Python + Jupyter)</a> <span class="tiempo">~10 min</span></li>
+                    <li><a href="#paso3">Instalar las librerías necesarias</a> <span class="tiempo">~5 min</span></li>
+                    <li><a href="#paso4">Conseguir los datos: usar los de prueba o los propios</a> <span class="tiempo">~3 min</span></li>
+                    <li><a href="#paso5">Validar que los Excel son correctos</a> <span class="tiempo">~2 min</span></li>
+                    <li><a href="#paso6">Lanzar el orquestador maestro</a> <span class="tiempo">~10 min</span></li>
+                </ol>
+                <p style="margin-top:12px; color:#718096; font-size:0.92em;">
+                    ⏱️ Tiempo total estimado: <strong>~35 min</strong> (la primera vez). Las siguientes ejecuciones son inmediatas.
+                </p>
+            </div>
+        </section>
+
+        <!-- ============= PASO 1 ============= -->
+        <section class="seccion" id="paso1">
+            <h2>1️⃣ Descargar el código desde GitHub</h2>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">A</div>
+                    <h3>Opción fácil — Descargar como ZIP (recomendada)</h3>
+                </div>
+                <ol>
+                    <li>Abre el navegador y entra en
+                        <a href="https://github.com/mortemj/AU_UJI_v2" target="_blank">
+                            <code>https://github.com/mortemj/AU_UJI_v2</code></a>.</li>
+                    <li>En la parte superior derecha verás un botón verde grande que pone <strong>&lt;&gt; Code</strong>. Púlsalo.</li>
+                    <li>Se abrirá un menú desplegable. Al final del menú, pulsa
+                        <strong>📥 Download ZIP</strong>.</li>
+                    <li>Se descargará un fichero <code>AU_UJI_v2-master.zip</code> a tu carpeta de Descargas.</li>
+                    <li>Haz <strong>clic derecho → Extraer todo…</strong> sobre el ZIP, y elige una carpeta sencilla, por ejemplo
+                        <span class="ruta-archivo">C:\AU_UJI_v2</span> (Windows) o
+                        <span class="ruta-archivo">~/AU_UJI_v2</span> (Mac/Linux).</li>
+                </ol>
+            </div>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">B</div>
+                    <h3>Opción avanzada — Clonar con Git (solo si ya conoces Git)</h3>
+                </div>
+                <p>Abre la consola y ejecuta:</p>
+                <div class="comando-box">
+                    <pre>git clone https://github.com/mortemj/AU_UJI_v2.git</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+            </div>
+
+            <a href="https://github.com/mortemj/AU_UJI_v2" target="_blank" class="boton-grande">📥 Ir al repositorio en GitHub</a>
+        </section>
+
+        <!-- ============= PASO 2 ============= -->
+        <section class="seccion" id="paso2">
+            <h2>2️⃣ Instalar Anaconda (Python + Jupyter)</h2>
+
+            <p style="margin-top:10px;">
+                Anaconda es un programa gratuito que instala todo lo necesario: Python, Jupyter y un gestor
+                de librerías. <strong>Si ya tienes Anaconda instalado, salta al paso 3.</strong>
+            </p>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">1</div>
+                    <h3>Descargar e instalar</h3>
+                </div>
+                <ol>
+                    <li>Entra en <a href="https://www.anaconda.com/download" target="_blank"><code>www.anaconda.com/download</code></a>.</li>
+                    <li>La página detecta tu sistema y ofrece el instalador correcto. Pulsa Descargar.</li>
+                    <li>Doble clic sobre el archivo descargado.</li>
+                    <li>Acepta todas las opciones por defecto (Next → I Agree → Just Me → Next → Install).</li>
+                </ol>
+                <div class="exito">
+                    ✅ Al terminar debe aparecer <strong>Anaconda Navigator</strong> en el menú Inicio o Launchpad.
+                </div>
+            </div>
+
+            <a href="https://www.anaconda.com/download" target="_blank" class="boton-grande boton-exito">⬇️ Descargar Anaconda</a>
+        </section>
+
+        <!-- ============= PASO 3 ============= -->
+        <section class="seccion" id="paso3">
+            <h2>3️⃣ Instalar las librerías necesarias</h2>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">1</div>
+                    <h3>Abrir Anaconda Prompt</h3>
+                </div>
+                <ul>
+                    <li><strong>Windows:</strong> menú Inicio → escribe <code>Anaconda Prompt</code> → Enter.</li>
+                    <li><strong>Mac/Linux:</strong> abre la Terminal (conda ya está en el PATH).</li>
+                </ul>
+            </div>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">2</div>
+                    <h3>Crear el entorno y las librerías</h3>
+                </div>
+                <p>Ejecuta estos comandos uno a uno (cambia <code>C:\AU_UJI_v2</code> por la carpeta donde extrajiste el proyecto):</p>
+
+                <div class="comando-box">
+                    <pre>cd C:\AU_UJI_v2</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+
+                <div class="comando-box">
+                    <pre>conda create -n tfm_abandono python=3.11 -y</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+
+                <div class="comando-box">
+                    <pre>conda activate tfm_abandono</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+
+                <div class="comando-box">
+                    <pre>pip install -r notebooks/requirements.txt</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+
+                <div class="nota">
+                    <strong>⚠️ Si aparece un error sobre versiones de paquetes:</strong> probablemente sea por un paquete pesado
+                    (TensorFlow, H2O). Para una revisión rápida no son imprescindibles. Avisa por email a la autora si necesitas el entorno completo.
+                </div>
+            </div>
+        </section>
+
+        <!-- ============= PASO 4 — DOS RUTAS ============= -->
+        <section class="seccion" id="paso4">
+            <h2>4️⃣ Conseguir los datos (elige una de las dos rutas)</h2>
+
+            <p style="margin-top:10px;">
+                El pipeline necesita 2 ficheros Excel en <span class="ruta-archivo">data/00_raw/</span>.
+                <strong>Tienes dos rutas posibles</strong> según los datos que tengas disponibles.
+                Lee las dos y elige la que aplique a tu caso:
+            </p>
+
+            <div class="ruta-box recomendada">
+                <h3>🅰️ Ruta A — Usar los datos DEMO (50 alumnos ficticios)
+                    <span class="badge-recomendada">RECOMENDADA</span>
+                </h3>
+                <p style="color:#4a5568; margin-bottom:12px;">
+                    Esta es la opción por defecto: el repositorio incluye un Excel reducido con 50 alumnos ficticios para que puedas
+                    probar el pipeline sin acceso a los datos reales. <strong>El proceso es automático:</strong>
+                </p>
+
+                <ol>
+                    <li>En Jupyter, abrir <code>notebooks/fase0_configuracion/f0_setup_demo.ipynb</code>.</li>
+                    <li>Pulsar <strong>Cell → Run All</strong>.</li>
+                    <li>El notebook descomprimirá automáticamente <code>data/demo/demo_excel.zip</code> a
+                        <span class="ruta-archivo">data/00_raw/</span> con los nombres correctos.</li>
+                </ol>
+
+                <div class="info">
+                    <strong>🛡️ Protección automática:</strong> el notebook detecta si en <code>data/00_raw/</code>
+                    ya hay datos reales (más de 1.000 filas). Si los detecta, <strong>NO los toca</strong>: solo
+                    instala los DEMO si no hay riesgo.
+                </div>
+
+                <p style="margin-top:14px; font-size:0.9em; color:#718096;">
+                    <em>Nota:</em> los 50 alumnos están seleccionados de forma equilibrada (~25 abandonan, ~25 finalizan).
+                    Las métricas finales serán diferentes a las del informe del TFM porque el modelo entrena con
+                    poquísimos datos. El objetivo es <strong>verificar que el pipeline funciona</strong>, no reproducir resultados.
+                </p>
+            </div>
+
+            <div class="ruta-box">
+                <h3>🅱️ Ruta B — Usar los Excel originales (datos reales)</h3>
+                <p style="color:#4a5568; margin-bottom:12px;">
+                    Solo aplica si has recibido los Excel originales por canal seguro (María José vía Drive, o de la UJI directamente).
+                </p>
+
+                <ol>
+                    <li>Coloca los 2 ficheros recibidos en <span class="ruta-archivo">data/00_raw/</span>.</li>
+                    <li>Verifica que se llaman exactamente:
+                        <ul style="margin-top:6px;">
+                            <li><code>datos_proyecto_sin_preinscrip.xlsx</code></li>
+                            <li><code>preinscripcion_si.xlsx</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>NO ejecutes</strong> <code>f0_setup_demo.ipynb</code> en este caso (está protegido y no
+                        haría nada, pero no es necesario abrirlo).</li>
+                </ol>
+
+                <div class="nota">
+                    <strong>⚠️ Importante:</strong> los datos originales contienen información sensible y están protegidos por RGPD.
+                    No deben compartirse, copiarse a la nube ni enviarse por correo electrónico no cifrado.
+                </div>
+            </div>
+        </section>
+
+        <!-- ============= PASO 5 ============= -->
+        <section class="seccion" id="paso5">
+            <h2>5️⃣ Validar que los Excel son correctos</h2>
+
+            <p style="margin-top:10px;">
+                Antes de lanzar el orquestador, hay un notebook que <strong>valida la estructura de los Excel</strong>
+                en 5 niveles (existencia, hojas, columnas, tipos de datos y cruces de IDs).
+            </p>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">1</div>
+                    <h3>Abrir Jupyter</h3>
+                </div>
+                <p>Opción A: con un solo doble clic, usa el arrancador automático del proyecto:</p>
+
+                <div class="comando-box">
+                    <pre>arrancar_proyecto.bat   (Windows)
+./arrancar_proyecto.sh   (Mac/Linux)</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+
+                <p style="margin-top:10px;">Opción B: manualmente desde Anaconda Prompt:</p>
+
+                <div class="comando-box">
+                    <pre>jupyter notebook notebooks/fase0_configuracion</pre>
+                    <button class="btn-copiar" onclick="copiarComando(this)">📋 Copiar</button>
+                </div>
+            </div>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">2</div>
+                    <h3>Ejecutar el notebook de validación</h3>
+                </div>
+                <ol>
+                    <li>Doble clic sobre <code>f0_validar_excel.ipynb</code>.</li>
+                    <li>Menú superior: <strong>Cell → Run All</strong>.</li>
+                    <li>Espera 2–3 minutos. Al final aparecerá un resumen con los 5 niveles.</li>
+                </ol>
+
+                <div class="exito">
+                    ✅ Resultado esperado: mensaje final <em>"VALIDACIÓN CORRECTA — puedes continuar con F1"</em>.
+                </div>
+                <div class="nota">
+                    ❌ Si falla algún nivel bloqueante (N1–N3): se generará un informe HTML en
+                    <span class="ruta-archivo">docs/html/fase0/validacion_excel.html</span> con el detalle del error.
+                </div>
+            </div>
+        </section>
+
+        <!-- ============= PASO 6 ============= -->
+        <section class="seccion" id="paso6">
+            <h2>6️⃣ Lanzar el orquestador maestro</h2>
+
+            <div class="info">
+                <strong>💡 ¿Qué hace el orquestador maestro?</strong>
+                <ul style="margin-top:8px; margin-left:22px;">
+                    <li>Antes de empezar, valida los Excel (los mismos 5 niveles del paso anterior).</li>
+                    <li>Lanza el orquestador de cada fase (un notebook por fase).</li>
+                    <li>Regenera <strong>todos los HTMLs del proyecto</strong> con los resultados nuevos.</li>
+                    <li><strong>NO reentrena los modelos pesados</strong>: carga los modelos <code>.pkl</code> ya entrenados.</li>
+                </ul>
+            </div>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">1</div>
+                    <h3>Abrir el orquestador y ejecutar las primeras celdas</h3>
+                </div>
+                <ol>
+                    <li>En Jupyter, abre <code>orquestador_maestro.ipynb</code> (en la misma carpeta de F0).</li>
+                    <li>Menú superior: <strong>Cell → Run All</strong>.</li>
+                    <li>Las primeras celdas son rápidas (configuración, imports, validación pre-fase, estilos).</li>
+                </ol>
+            </div>
+
+            <div class="paso">
+                <div class="paso-titulo">
+                    <div class="paso-numero">2</div>
+                    <h3>Pulsar el botón ▶️ Comenzar Fase 1</h3>
+                </div>
+                <ol>
+                    <li>Aparecerá un panel con el botón grande <strong>▶️ Comenzar Fase 1</strong>.</li>
+                    <li>Tras cada fase aparecerán dos botones:
+                        <ul style="margin-top:6px;">
+                            <li><strong>▶️ Continuar siguiente fase</strong></li>
+                            <li><strong>⏸️ Parar aquí</strong> (útil si solo quieres ver una fase)</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <div class="exito">
+                    ✅ Al terminar: abre <span class="ruta-archivo">docs/html/orquestador_resumen.html</span>
+                    en cualquier navegador y verás el resumen completo del proyecto.
+                </div>
+            </div>
+
+            <a href="orquestador_resumen.html" class="boton-grande">🎓 Ver resumen del proyecto</a>
+            <a href="https://github.com/mortemj/AU_UJI_v2" target="_blank" class="boton-grande boton-secundario">📓 Ver código en GitHub</a>
+        </section>
+
+        <!-- ============= AYUDA ============= -->
+        <section class="seccion">
+            <h2>❓ ¿Algo no funciona?</h2>
+            <ul style="margin-left:22px; margin-top:8px; line-height:1.8;">
+                <li>📧 Email a la autora:
+                    <a href="mailto:mjmorteruiz@uoc.edu">mjmorteruiz@uoc.edu</a> ·
+                    <a href="mailto:morte@uji.es">morte@uji.es</a></li>
+                <li>🌐 <strong>App desplegada</strong> (no requiere instalar nada):
+                    <a href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank">tfm-abandono-dinamico.streamlit.app</a></li>
+                <li>📖 <strong>Documentación web</strong>:
+                    <a href="https://mortemj.github.io/AU_UJI_v2/" target="_blank">mortemj.github.io/AU_UJI_v2</a></li>
+            </ul>
+        </section>
+
+    </div>
+
+    <footer>
+        <strong>María José Morte</strong> |
+        <a href="mailto:mjmorteruiz@uoc.edu">mjmorteruiz@uoc.edu</a> (UOC) |
+        <a href="mailto:morte@uji.es">morte@uji.es</a> (UJI)
+        <br>
+        <a href="https://github.com/mortemj/AU_UJI_v2" target="_blank">📓 GitHub</a>
+    </footer>
+
+    <script>
+    function copiarComando(btn) {
+        const pre = btn.parentElement.querySelector('pre');
+        const texto = pre.innerText;
+        navigator.clipboard.writeText(texto).then(() => {
+            const original = btn.innerText;
+            btn.innerText = '✅ Copiado';
+            btn.classList.add('copiado');
+            setTimeout(() => {
+                btn.innerText = original;
+                btn.classList.remove('copiado');
+            }, 1500);
+        }).catch(() => {
+            btn.innerText = '⚠️ Error';
+            setTimeout(() => { btn.innerText = '📋 Copiar'; }, 1500);
+        });
+    }
+    </script>
+</body>
+</html>
