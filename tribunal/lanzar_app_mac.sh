@@ -12,7 +12,7 @@
 echo ""
 echo " ============================================================"
 echo "  TFM — Predicción de Abandono Universitario · UJI"
-echo "  María José Morte Ruiz · UOC + UJI · 2025"
+echo "  María José Morte Ruiz · UOC + UJI · 2026"
 echo " ============================================================"
 echo ""
 echo " Iniciando la aplicación..."
