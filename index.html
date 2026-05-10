@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AU_UJI v2 — Sistema Dinámico de Predicción del Abandono Universitario</title>
+<meta name="description" content="Versión dinámica del TFM sobre predicción del abandono universitario en la Universitat Jaume I. Modelo LightGBM con AUC=0.956 sobre 30.000 estudiantes.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* === PALETA MORADA V2 (diferenciador respecto a V1 azul-dorado) === */
+    --bg: #1a0a25;
+    --bg-deep: #0e0518;
+    --surface: #281138;
+    --surface-soft: #1f0d2e;
+    --border: #3d1f55;
+    --border-bright: #6b21a8;
+
+    --text: #f5e9ff;
+    --muted: #b08bc4;
+    --soft: #cdbed3;
+
+    /* Acentos vivos para diferenciar */
+    --plum: #9333ea;
+    --plum-deep: #6b21a8;
+    --plum-bright: #a855f7;
+    --magenta: #d946ef;
+    --magenta-deep: #be185d;
+    --rose: #ec4899;
+    --pink: #f472b6;
+    --gold: #f59e0b;
+
+    /* Tipografías */
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+
+    /* Gradientes */
+    --grad-text: linear-gradient(120deg, #a855f7 0%, #d946ef 50%, #ec4899 100%);
+    --grad-btn: linear-gradient(135deg, #9333ea 0%, #d946ef 60%, #ec4899 100%);
+    --grad-glow: radial-gradient(ellipse, rgba(217,70,239,0.18) 0%, transparent 70%);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--mono);
+    overflow-x: hidden;
+  }
+
+  /* Grid background MORADO */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb MORADO arriba */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1000px;
+    height: 500px;
+    background: var(--grad-glow);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Blobs animados de fondo */
+  .bg-blobs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.35;
+    will-change: transform;
+  }
+  .blob-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #d946ef 0%, transparent 70%);
+    top: 20%;
+    left: -150px;
+    animation: float-1 22s ease-in-out infinite;
+  }
+  .blob-2 {
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+    top: 50%;
+    right: -100px;
+    animation: float-2 26s ease-in-out infinite;
+  }
+  .blob-3 {
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, #a855f7 0%, transparent 70%);
+    bottom: -100px;
+    left: 30%;
+    animation: float-3 24s ease-in-out infinite;
+  }
+  @keyframes float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(80px, 60px) scale(1.1); }
+  }
+  @keyframes float-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-100px, 80px) scale(1.05); }
+  }
+  @keyframes float-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(120px, -50px) scale(1.12); }
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 60px;
+  }
+
+  /* Badge superior */
+  .badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--magenta);
+    border: 1px solid var(--border-bright);
+    padding: 7px 18px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+    background: rgba(168,85,247,0.08);
+    backdrop-filter: blur(8px);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--magenta);
+    box-shadow: 0 0 0 4px rgba(217,70,239,0.2);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+
+  /* Tag V2 muy visible */
+  .v2-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 100px;
+    background: var(--grad-btn);
+    box-shadow: 0 4px 14px rgba(217,70,239,0.4);
+    margin-bottom: 16px;
+    animation: fadeDown 0.6s 0.05s ease both;
+  }
+
+  /* Título */
+  .title {
+    font-family: var(--serif);
+    font-size: clamp(42px, 8vw, 80px);
+    line-height: 1.05;
+    text-align: center;
+    margin-bottom: 8px;
+    animation: fadeDown 0.6s 0.1s ease both;
+    letter-spacing: -0.5px;
+  }
+  .title em {
+    font-style: italic;
+    background: var(--grad-text);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 6s ease-in-out infinite;
+    display: inline-block;
+    filter: drop-shadow(0 4px 18px rgba(217,70,239,0.3));
+  }
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .subtitle {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.05em;
+    margin-bottom: 56px;
+    animation: fadeDown 0.6s 0.2s ease both;
+    max-width: 600px;
+  }
+
+  /* Stats row con borde morado */
+  .stats {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s 0.3s ease both;
+    background: var(--surface);
+    box-shadow: 0 8px 30px rgba(168,85,247,0.12);
+  }
+
+  .stat {
+    padding: 20px 32px;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    transition: background 0.3s ease;
+  }
+  .stat:last-child { border-right: none; }
+  .stat:hover {
+    background: rgba(168,85,247,0.08);
+  }
+
+  .stat-value {
+    font-family: var(--serif);
+    font-size: 30px;
+    color: var(--text);
+    display: block;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-value.accent {
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* KPIs del modelo (extra V2) */
+  .model-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 40px;
+    animation: fadeDown 0.6s 0.35s ease both;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .model-stat {
+    background: linear-gradient(135deg, rgba(168,85,247,0.12) 0%, rgba(236,72,153,0.06) 100%);
+    border: 1px solid var(--border-bright);
+    border-radius: 10px;
+    padding: 14px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
+  }
+  .model-stat-value {
+    font-family: var(--serif);
+    font-size: 24px;
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .model-stat-label {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+  .model-stat-mono {
+    font-size: 9px;
+    color: var(--magenta);
+    margin-top: 3px;
+    letter-spacing: -0.01em;
+  }
+
+  /* CTA principal */
+  .cta-block {
+    animation: fadeDown 0.6s 0.4s ease both;
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--grad-btn);
+    color: #fff;
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 16px 36px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(217,70,239,0.35);
+  }
+
+  .cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(244,114,182,0.5);
+  }
+  .cta-btn:hover::before { opacity: 1; }
+  .cta-btn svg { transition: transform 0.25s; }
+  .cta-btn:hover svg { transform: translateX(4px); }
+
+  .cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 12px;
+    background: rgba(168,85,247,0.08);
+    color: var(--text);
+    text-decoration: none;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 15px 28px;
+    border-radius: 10px;
+    border: 1px solid var(--border-bright);
+    transition: all 0.25s ease;
+  }
+  .cta-secondary:hover {
+    background: rgba(168,85,247,0.15);
+    border-color: var(--plum-bright);
+    transform: translateY(-2px);
+  }
+
+  .cta-hint {
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Phase cards */
+  .phases {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    max-width: 1000px;
+    width: 100%;
+    margin-top: 24px;
+    animation: fadeDown 0.6s 0.5s ease both;
+  }
+
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: all 0.3s ease;
+  }
+
+  .phase-card:hover {
+    border-color: var(--plum-bright);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(168,85,247,0.2);
+  }
+
+  .phase-num {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .phase-name {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+
+  .phase-status {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .status-done {
+    background: rgba(34,197,94,0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.3);
+  }
+
+  /* Sección apps */
+  .apps-section {
+    margin-top: 56px;
+    width: 100%;
+    max-width: 1000px;
+    animation: fadeDown 0.6s 0.55s ease both;
+  }
+  .section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--magenta);
+    margin-bottom: 18px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    justify-content: center;
+  }
+  .section-title::before, .section-title::after {
+    content: "";
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  }
+
+  .apps-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .app-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .app-card:hover {
+    border-color: var(--magenta);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(217,70,239,0.18);
+  }
+  .app-card .label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--magenta);
+    font-weight: 500;
+  }
+  .app-card .name {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .app-card .url {
+    font-size: 11px;
+    color: var(--muted);
+    word-break: break-all;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 60px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-align: center;
+    animation: fadeDown 0.6s 0.6s ease both;
+    line-height: 1.7;
+  }
+  .footer .nav {
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+  .footer .nav a {
+    color: var(--soft);
+    text-decoration: none;
+    margin: 0 12px;
+    transition: color 0.2s;
+  }
+  .footer .nav a:hover { color: var(--magenta); }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 700px) {
+    .stats { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+    .apps-grid { grid-template-columns: 1fr; }
+    .cta-secondary { margin-left: 0; margin-top: 12px; display: flex; justify-content: center; }
+    .cta-block .cta-btn, .cta-block .cta-secondary { width: 100%; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .blob { animation: none; }
+    .badge .dot { animation: none; }
+    .title em { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Blobs animados -->
+<div class="bg-blobs" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="wrapper">
+
+  <span class="v2-tag">★ V2 · Sistema dinámico</span>
+
+  <div class="badge">
+    <span class="dot"></span>
+    <span>Trabajo Final de Máster · UOC</span>
+  </div>
+
+  <h1 class="title">AU_UJI<br><em>Abandono Universitario</em></h1>
+  <p class="subtitle">Universitat Jaume I &nbsp;·&nbsp; 2010–2020 &nbsp;·&nbsp; LightGBM &nbsp;·&nbsp; Sistema dinámico</p>
+
+  <!-- Estadísticas del proyecto -->
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-value">109K</span>
+      <span class="stat-label">Registros</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">30K</span>
+      <span class="stat-label">Estudiantes</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">42</span>
+      <span class="stat-label">Titulaciones</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">7</span>
+      <span class="stat-label">Fases</span>
+    </div>
+  </div>
+
+  <!-- KPIs del modelo (extra V2) -->
+  <div class="model-stats">
+    <div class="model-stat">
+      <span class="model-stat-value">0,956</span>
+      <span class="model-stat-label">AUC test</span>
+      <span class="model-stat-mono">// roc-auc</span>
+    </div>
+    <div class="model-stat">
+      <span class="model-stat-value">0,833</span>
+      <span class="model-stat-label">F1 test</span>
+      <span class="model-stat-mono">// criterio elegido</span>
+    </div>
+    <div class="model-stat">
+      <span class="model-stat-value">69</span>
+      <span class="model-stat-label">Modelos comparados</span>
+      <span class="model-stat-mono">// AutoML + manual</span>
+    </div>
+    <div class="model-stat">
+      <span class="model-stat-value">LightGBM</span>
+      <span class="model-stat-label">Modelo ganador</span>
+      <span class="model-stat-mono">// none balancing</span>
+    </div>
+  </div>
+
+  <!-- CTAs principales -->
+  <div class="cta-block">
+    <a href="docs/html/index.html" class="cta-btn">
+      Ver documentación del proyecto
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+    <a href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank" rel="noopener noreferrer" class="cta-secondary">
+      Abrir app dinámica ↗
+    </a>
+    <p class="cta-hint">Índice completo de fases y notebooks · App interactiva</p>
+  </div>
+
+  <!-- Fases del proyecto -->
+  <div class="phases">
+    <div class="phase-card">
+      <div class="phase-num">Fase 1</div>
+      <div class="phase-name">Preparación de Datos</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Fase 2</div>
+      <div class="phase-name">EDA Inicial</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Fase 3</div>
+      <div class="phase-name">Feature Engineering</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Fase 4</div>
+      <div class="phase-name">EDA Final</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Fase 5</div>
+      <div class="phase-name">Modelado</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Fase 6</div>
+      <div class="phase-name">Interpretabilidad</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+    <div class="phase-card">
+      <div class="phase-num">Fase 7</div>
+      <div class="phase-name">Despliegue</div>
+      <span class="phase-status status-done">Completada</span>
+    </div>
+  </div>
+
+  <!-- Apps y enlaces -->
+  <div class="apps-section">
+    <div class="section-title">Recursos del proyecto</div>
+    <div class="apps-grid">
+      <a href="https://tfm-abandono-dinamico.streamlit.app/" target="_blank" rel="noopener noreferrer" class="app-card">
+        <span class="label">★ App V2 · Dinámica</span>
+        <span class="name">Predicción interactiva</span>
+        <span class="url">tfm-abandono-dinamico.streamlit.app</span>
+      </a>
+      <a href="https://github.com/mortemj/AU_UJI_v2" target="_blank" rel="noopener noreferrer" class="app-card">
+        <span class="label">Repositorio</span>
+        <span class="name">Código fuente V2</span>
+        <span class="url">github.com/mortemj/AU_UJI_v2</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="nav">
+      <a href="https://mortemj.github.io/">← Portfolio</a>
+      <a href="https://mortemj.github.io/AU_UJI/">Versión V1 (original)</a>
+      <a href="https://mortemj.github.io/tfm.html">Landing TFM</a>
+    </div>
+    María José Morte Ruiz &nbsp;·&nbsp; Director: Raúl Parada &nbsp;·&nbsp; Máster Ciencia de Datos · UOC
+  </div>
+
+</div>
+</body>
+</html>
