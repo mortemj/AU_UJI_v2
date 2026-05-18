@@ -391,7 +391,7 @@ UMBRALES_MUESTRA = {
 #
 # Referencias:
 #   - PRECIO_CREDITO_UJI_DEFAULT = 18 €/crédito:
-#     Grado primera matrícula (DOGV 2024-2025, pendiente confirmar con Susana).
+#     Grado primera matrícula (DOGV 2024-2025, pendiente confirmar con el Servicio de Planificación de la UJI).
 #
 #   - CREDITOS_MEDIOS_ABANDONO_DEFAULT = 60 créditos:
 #     Supuesto basado en 1 año académico completo según EEES (60 ECTS = 1 curso).

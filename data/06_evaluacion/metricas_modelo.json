@@ -18,7 +18,7 @@
   "periodo_inicio": 2010,
   "periodo_fin": 2020,
   "n_test_total": 6725,
-  "n_test": 6725,
+  "n_test": 6596,
   "n_features": 24,
   "n_features_tecnicas": 27,
   "n_features_missing": 3,
@@ -27,5 +27,37 @@
   "baseline_dataset": "D_strict",
   "baseline_auc": 0.9644,
   "baseline_f1": 0.8496,
-  "fecha_calculo": "2026-05-07T17:44:17"
+  "fecha_calculo": "2026-05-14T16:04:18",
+  "probs_modelo_pkl": "LightGBM__none.pkl",
+  "probs_fecha_calculo": "2026-05-14T18:42:52",
+  "robustez_calibracion_sostenibilidad": {
+    "robustez_temporal": {
+      "auc_min": 0.9167949704901206,
+      "auc_max": 0.9918566132975787,
+      "auc_media": 0.96446426525651,
+      "auc_std": 0.027329948223138268,
+      "auc_rango": 0.07506164280745808,
+      "cohorte_min": 2019,
+      "cohorte_max": 2010,
+      "n_cohortes_evaluadas": 10
+    },
+    "calibracion": {
+      "brier_score": 0.07022598435069045,
+      "ece_10_bins": 0.013652523551286381,
+      "n_test": 6596,
+      "tasa_abandono_test": 0.29548211036992117
+    },
+    "sostenibilidad": {
+      "tiempo_predict_proba_ms": 120.21890000323765,
+      "tiempo_por_alumno_ms": 0.018226030928325903,
+      "throughput_alumnos_segundo": 54866.58087723612,
+      "tamano_pkl_bytes": 955053,
+      "tamano_pkl_kb": 932.6689453125,
+      "n_test": 6596,
+      "n_repeticiones_tiempo": 5,
+      "estadistico_tiempo": "mediana"
+    },
+    "fuente": "f6_m04d_robustez_temporal.ipynb",
+    "fecha_calculo": "2026-05-18 14:05:26"
+  }
 }

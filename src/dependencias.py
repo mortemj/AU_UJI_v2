@@ -47,7 +47,7 @@ def _get_dependencias() -> Dict[str, Dict]:
     return {
         # === FASE 1 ===
         'f1_m01_reportes_raw': {
-            'descripcion': 'Reportes Sweetviz de datos crudos',
+            'descripcion': 'Reportes Sweetviz de datos originales',
             'requiere': {
                 'archivos': [EXCEL_PRINCIPAL],
                 'notebooks': []
@@ -58,7 +58,7 @@ def _get_dependencias() -> Dict[str, Dict]:
             }
         },
         'f1_m02_limpieza': {
-            'descripcion': 'Limpieza de datos crudos',
+            'descripcion': 'Limpieza de datos originales',
             'requiere': {
                 'archivos': [
                     EXCEL_PRINCIPAL,

@@ -45,6 +45,7 @@ from .components import (
 from .render import (
     render_base_html,
     render_pagina_desde_fichero,
+    render_pagina,
 )
 
 __all__ = [
@@ -78,4 +79,5 @@ __all__ = [
     # Render
     'render_base_html',
     'render_pagina_desde_fichero',
+    'render_pagina',
 ]

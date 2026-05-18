@@ -131,8 +131,8 @@ FASES: Dict[str, Dict[str, Any]] = {
             {'id': 'm01',        'nombre': 'SHAP',                      'archivo': 'm01_interpretabilidad_shap.html', 'emoji': '🔍'},
             {'id': 'm02',        'nombre': 'Interp. Alternativa',       'archivo': 'm02_interpretabilidad_alternativa.html', 'emoji': '🧩'},
             {'id': 'm03',        'nombre': 'Fairness y Errores',        'archivo': 'm03_fairness_errores.html', 'emoji': '⚖️'},
-            {'id': 'm04',        'nombre': 'Robustez y Calibración',    'archivo': 'm04_robustez_calibracion.html', 'emoji': '🛡️'},
-            {'id': 'm05',        'nombre': 'Informe Final',             'archivo': 'm05_informe_final.html',                  'emoji': '📝'},
+            {'id': 'm04',        'nombre': 'Robustez y Sostenibilidad', 'archivo': 'm04_robustez.html',                       'emoji': '🛡️'},
+            {'id': 'm06',        'nombre': 'Informe Final',             'archivo': 'm06_informe_final.html',                  'emoji': '📝'},
             # --- Submodulos SHAP ---
             {'id': 'm01a',       'nombre': 'SHAP Global',               'archivo': 'm01a_shap_global.html',                  'emoji': '🌍'},
             {'id': 'm01b',       'nombre': 'SHAP Local',                'archivo': 'm01b_shap_local.html',                   'emoji': '🔬'},
@@ -144,10 +144,11 @@ FASES: Dict[str, Dict[str, Any]] = {
             # --- Submodulos Fairness y Errores ---
             {'id': 'm03a',       'nombre': 'Fairness',                  'archivo': 'm03a_fairness.html',                     'emoji': '⚖️'},
             {'id': 'm03b',       'nombre': 'Errores FP/FN',             'archivo': 'm03b_errores_fpfn.html',                 'emoji': '❌'},
-            # --- Submodulos Robustez y Calibración ---
+            # --- Submodulos Robustez y Sostenibilidad ---
             {'id': 'm04a',       'nombre': 'Stress Testing',            'archivo': 'm04a_stress.html',                       'emoji': '💪'},
             {'id': 'm04b',       'nombre': 'Calibración',               'archivo': 'm04b_calibracion.html',                  'emoji': '🎯'},
             {'id': 'm04c',       'nombre': 'Sostenibilidad',            'archivo': 'm04c_sostenibilidad.html',               'emoji': '🌱'},
+            {'id': 'm04d',       'nombre': 'Robustez Temporal',         'archivo': 'm04d_robustez_temporal.html',            'emoji': '⏱️'},
         ]
     },
     'fase7': {

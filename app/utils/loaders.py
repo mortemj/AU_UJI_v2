@@ -165,7 +165,7 @@ def cargar_modelo():
 # =============================================================================
 # FUNCIÓN 2: Cargar el pipeline de preprocesamiento
 # =============================================================================
-# El pipeline transforma los datos brutos del usuario (con missing values,
+# El pipeline transforma los datos originales del usuario (con missing values,
 # variables categóricas, escalas distintas) al formato que espera el modelo.
 # SIEMPRE hay que aplicar el pipeline ANTES de llamar al modelo.
 

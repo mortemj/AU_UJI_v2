@@ -1,6 +1,6 @@
 {
-  "fecha_preparacion": "2026-05-03T12:21:26.116777",
-  "dataset_origen": "C:\\FF\\AU_UJI_v2\\data\\03_features\\dataset_final_tfm.parquet",
+  "fecha_preparacion": "2026-05-18T13:24:02.019436",
+  "dataset_origen": "c:\\PRUEBAS\\AU_UJI_v2_RUTA_B\\data\\03_features\\dataset_final_tfm.parquet",
   "random_state": 42,
   "test_size": 0.2,
   "n_total": 33621,

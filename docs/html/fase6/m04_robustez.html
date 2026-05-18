@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robustez Indice - TFM Abandono Universitario</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+    /* ================================================================
+       RESET Y BASE — garantiza tamaño uniforme en todas las fases
+       ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f7fafc;
+        color: #2d3748;
+        min-width: 320px;
+        /* Sin max-width en body — el .container lo limita */
+    }
+
+    /* ================================================================
+       WRAPPER GLOBAL — ancho fijo idéntico en todas las páginas
+       ================================================================ */
+    .page-wrapper {
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    /* ================================================================
+       HEADER
+       ================================================================ */
+    header {
+        background: linear-gradient(135deg, #1a365d 0%, #2b6cb0 100%);
+        color: white;
+        padding: 14px 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .header-content {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .header-logo {
+        height: 40px;
+        width: auto;
+        object-fit: contain;
+        flex-shrink: 0;
+    }
+    .header-title { flex: 1; }
+    .header-title h1 {
+        font-size: 18px;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0;
+    }
+    .header-title p {
+        font-size: 12px;
+        opacity: 0.85;
+        margin-top: 2px;
+    }
+
+    /* ================================================================
+       NAVEGACIÓN DE FASES
+       ================================================================ */
+    .nav-fases-wrapper {
+        background: #2d3748;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    nav.nav-fases {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        gap: 2px;
+    }
+    nav.nav-fases a {
+        display: inline-block;
+        padding: 9px 14px;
+        color: #a0aec0;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+        border-bottom: 3px solid transparent;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    nav.nav-fases a:hover { color: #fff; background: rgba(255,255,255,0.07); }
+    nav.nav-fases a.active { color: #fff; border-bottom-color: #3182ce; font-weight: 700; }
+    nav.nav-fases a.disabled { opacity: 0.4; pointer-events: none; }
+
+    /* ================================================================
+       NAVEGACIÓN DE MÓDULOS
+       ================================================================ */
+    .nav-modulos-wrapper {
+        background: #edf2f7;
+        border-bottom: 1px solid #e2e8f0;
+        overflow-x: auto;
+    }
+    nav.nav-modulos {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 0 24px;
+        display: flex;
+        gap: 2px;
+    }
+    nav.nav-modulos a {
+        display: inline-block;
+        padding: 7px 12px;
+        color: #4a5568;
+        text-decoration: none;
+        font-size: 12px;
+        border-bottom: 2px solid transparent;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+    nav.nav-modulos a:hover { color: #2d3748; background: rgba(0,0,0,0.04); }
+    nav.nav-modulos a.active { color: #2b6cb0; border-bottom-color: #3182ce; font-weight: 700; }
+
+    /* ================================================================
+       CONTENEDOR PRINCIPAL — tamaño uniforme garantizado
+       ================================================================ */
+    .container {
+        max-width: 1280px;
+        margin: 24px auto;
+        padding: 0 24px;
+        /* sin min-height ni height fijo para evitar scroll vacío */
+    }
+
+    /* ================================================================
+       FOOTER
+       ================================================================ */
+    footer {
+        max-width: 1280px;
+        margin: 32px auto 0;
+        padding: 16px 24px;
+        border-top: 1px solid #e2e8f0;
+        font-size: 12px;
+        color: #718096;
+        text-align: center;
+    }
+    footer a { color: #3182ce; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ================================================================
+       UTILIDADES COMUNES (tablas, badges, etc.)
+       ================================================================ */
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; }
+    img { max-width: 100%; height: auto; }
+    code {
+        background: #edf2f7;
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    </style>
+    
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <img src="../../assets/logo_uoc.png" alt="UOC" class="header-logo"
+                 onerror="this.style.display='none'">
+            <div class="header-title">
+                <h1>Robustez Indice</h1>
+                <p>Fase 6: Evaluación | TFM Abandono Universitario</p>
+            </div>
+            <img src="../../assets/logo_uji.jpg" alt="UJI" class="header-logo"
+                 onerror="this.style.display='none'">
+        </div>
+    </header>
+
+    <div class="nav-fases-wrapper">
+        <nav class="nav-fases">
+  <a href="../index.html" class="">🏠 Inicio</a>
+  <a href="../fase1/fase1_index.html" class="">📥 Transformación</a>
+  <a href="../fase2/fase2_index.html" class="">📊 EDA Datos Originales</a>
+  <a href="../fase3/fase3_index.html" class="">🔧 Features</a>
+  <a href="../fase4/fase4_index.html" class="">🔬 EDA Final</a>
+  <a href="../fase5/fase5_index.html" class="">🤖 Modelado</a>
+  <a href="../fase6/fase6_index.html" class="active">🔍 Evaluación</a>
+  <a href="../fase7/fase7_index.html" class="">🚀 Aplicación</a>
+  <a href="../fase_automl/fase_automl_index.html" class="">⚡ Pre-Modelado: AutoML</a>
+</nav>
+    </div>
+
+    <div class="nav-modulos-wrapper">
+        <nav class="nav-modulos">
+  <a href="fase6_index.html" class="">📋 Índice</a>
+  <a href="m00_ejecucion.html" class="">▶️ Ejecución</a>
+  <a href="m01_interpretabilidad_shap.html" class="">🔍 SHAP</a>
+  <a href="m02_interpretabilidad_alternativa.html" class="">🧩 Interp. Alternativa</a>
+  <a href="m03_fairness_errores.html" class="">⚖️ Fairness y Errores</a>
+  <a href="m04_robustez.html" class="active">🛡️ Robustez y Sostenibilidad</a>
+  <a href="m06_informe_final.html" class="">📝 Informe Final</a>
+</nav>
+    </div>
+
+    <div class="container">
+        <h2 style="color:#2d3748;margin-bottom:8px">Fase 6 — M04: Robustez y Sostenibilidad (Índice de grupo)</h2>
+<p style="color:#4a5568;font-size:14px;max-width:800px;margin-bottom:24px">
+Grupo de módulos de evaluación de robustez y sostenibilidad del modelo.
+Stress testing evalúa la degradación ante datos adversos.
+Calibración verifica que las probabilidades predichas reflejan la realidad.
+Sostenibilidad mide el coste computacional y la huella de carbono.
+Robustez temporal analiza la estabilidad del modelo cohorte a cohorte (2010-2020).
+</p>
+<table style="width:100%;border-collapse:collapse;font-size:13px">
+<thead><tr style="background:#edf2f7">
+  <th style="padding:10px 14px;width:50px"></th>
+  <th style="padding:10px 14px;text-align:left">Submódulo</th>
+  <th style="padding:10px 14px;width:80px"></th>
+</tr></thead>
+<tbody>
+<tr style="cursor:pointer" onclick="window.location='m04a_stress.html'">
+  <td style="padding:12px 14px;font-size:20px;text-align:center">🔨</td>
+  <td style="padding:12px 14px">
+    <a href="m04a_stress.html" style="font-weight:600;color:#2d3748;text-decoration:none">M04a — Stress Testing</a>
+    <div style="font-size:12px;color:#718096;margin-top:3px">Robustez ante ruido gaussiano, valores extremos y features ausentes. Degradación relativa vs baseline.</div>
+  </td>
+  <td style="padding:12px 14px;text-align:right;color:#1e4d8c;font-size:13px">Ver →</td>
+</tr>
+<tr style="cursor:pointer" onclick="window.location='m04b_calibracion.html'">
+  <td style="padding:12px 14px;font-size:20px;text-align:center">📐</td>
+  <td style="padding:12px 14px">
+    <a href="m04b_calibracion.html" style="font-weight:600;color:#2d3748;text-decoration:none">M04b — Calibración</a>
+    <div style="font-size:12px;color:#718096;margin-top:3px">Reliability diagram, Brier Score y umbral óptimo de decisión. Con 29% de abandono el umbral 0.5 no es óptimo.</div>
+  </td>
+  <td style="padding:12px 14px;text-align:right;color:#1e4d8c;font-size:13px">Ver →</td>
+</tr>
+<tr style="cursor:pointer" onclick="window.location='m04c_sostenibilidad.html'">
+  <td style="padding:12px 14px;font-size:20px;text-align:center">🌱</td>
+  <td style="padding:12px 14px">
+    <a href="m04c_sostenibilidad.html" style="font-weight:600;color:#2d3748;text-decoration:none">M04c — Sostenibilidad</a>
+    <div style="font-size:12px;color:#718096;margin-top:3px">Tiempo de inferencia, memoria y CO2 por modelo. Ratio F1/CO2 como métrica de eficiencia ambiental.</div>
+  </td>
+  <td style="padding:12px 14px;text-align:right;color:#1e4d8c;font-size:13px">Ver →</td>
+</tr>
+<tr style="cursor:pointer" onclick="window.location='m04d_robustez_temporal.html'">
+  <td style="padding:12px 14px;font-size:20px;text-align:center">⏱️</td>
+  <td style="padding:12px 14px">
+    <a href="m04d_robustez_temporal.html" style="font-weight:600;color:#2d3748;text-decoration:none">M04d — Robustez Temporal</a>
+    <div style="font-size:12px;color:#718096;margin-top:3px">Análisis longitudinal del rendimiento del modelo año a año (cohortes 2010-2020). AUC por cohorte, deriva temporal y curva de fiabilidad.</div>
+  </td>
+  <td style="padding:12px 14px;text-align:right;color:#1e4d8c;font-size:13px">Ver →</td>
+</tr>
+</tbody></table>
+    </div>
+
+    <footer>
+        <strong>María José Morte</strong> |
+        <a href="mailto:mjmorteruiz@uoc.edu">mjmorteruiz@uoc.edu</a> (UOC) |
+        <a href="mailto:morte@uji.es">morte@uji.es</a> (UJI)
+        
+        &nbsp;·&nbsp;
+        <a href="https://github.com/mortemj/AU_UJI_v2/blob/main/notebooks/fase6_evaluacion/f6_m04_robustez_indice.ipynb" target="_blank">📓 Ver Notebook</a>
+        
+        &nbsp;·&nbsp; Generado: 18/05/2026
+    </footer>
+
+    
+
+</body>
+</html>

@@ -103,7 +103,6 @@ MODULOS_FASE1 = [
     {'id': 'm04c',     'nombre': 'Corrección Notas',    'emoji': '📊'},
     {'id': 'm04d',     'nombre': 'Corrección Vía Acceso','emoji': '🔧'},
     {'id': 'm05',      'nombre': 'Dashboard',           'emoji': '📊'},
-    {'id': 'm05m06',   'nombre': 'Trazabilidad',        'emoji': '🔍'},
     {'id': 'm06',      'nombre': 'Grafo',               'emoji': '🕸️'},
     {'id': 'm06b',     'nombre': 'Grafo Pyvis',         'emoji': '🌐'},
 ]
@@ -201,7 +200,7 @@ MODULOS_FASE6 = [
 # EJECUCIÓN DE NOTEBOOKS (helper opcional)
 # ============================================================================
 
-def ejecutar_notebook(ruta_notebook: str | Path, timeout: int = 3600) -> bool:
+def ejecutar_notebook(ruta_notebook: str | Path, timeout: int = -1) -> bool:
     """
     Ejecuta un notebook con nbconvert y devuelve True si tuvo éxito.
 
@@ -215,7 +214,7 @@ def ejecutar_notebook(ruta_notebook: str | Path, timeout: int = 3600) -> bool:
     ruta_notebook : str | Path
         Ruta al fichero .ipynb (absoluta o relativa al CWD).
     timeout : int
-        Tiempo máximo en segundos por celda (por defecto 3600 = 1h).
+        Tiempo máximo en segundos por celda (por defecto -1 = sin límite).
 
     Returns
     -------
@@ -232,7 +231,10 @@ def ejecutar_notebook(ruta_notebook: str | Path, timeout: int = 3600) -> bool:
         str(ruta)
     ]
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
+        # NOTA: capture_output desactivado para ver progreso en tiempo real
+        # en el orquestador. Si quieres silenciar la salida, vuelve a poner
+        # capture_output=True.
+        result = subprocess.run(cmd, text=True)
         return result.returncode == 0
     except Exception as e:
         print(f"❌ Error ejecutando {ruta.name}: {e}")

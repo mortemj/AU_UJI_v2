@@ -94,7 +94,7 @@
 
   <rect x="130" y="705" width="490" height="120" class="box-final"/>
   <text x="375" y="732" text-anchor="middle" font-size="20" font-weight="bold" fill="#276749">33.621 expedientes</text>
-  <text x="375" y="755" text-anchor="middle" font-size="13" fill="#4a5568">21 variables (20 features + target) | 42 titulaciones | 5 ramas</text>
+  <text x="375" y="755" text-anchor="middle" font-size="13" fill="#4a5568">26 columnas (24 features + titulacion + target) | 40 titulaciones | 5 ramas</text>
 
   <!-- Badges abandono -->
   <rect x="175" y="775" width="180" height="28" class="badge-blue"/>

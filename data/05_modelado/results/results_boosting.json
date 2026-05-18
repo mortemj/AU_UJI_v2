@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-05-03T11:56:23.681178",
+  "fecha": "2026-05-18T13:31:34.342694",
   "familia": "boosting",
   "modelos": [
     "GradientBoosting",
@@ -61,5 +61,5 @@
     "LightGBM": null,
     "CatBoost": null
   },
-  "emisiones_co2_kg": 0.0003348194113484403
+  "emisiones_co2_kg": 0.00046485027816666824
 }
