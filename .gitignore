@@ -1,7 +1,7 @@
 # =============================================================================
 # .gitignore — TFM AU_UJI v2
 # Autora: María José Morte
-# Última actualización: 10/05/2026 (v3 — fusión con manual de inicio + DEMO)
+# Última actualización: 18/05/2026 (v4 — reorganización pre-entrega)
 #
 # Filosofía v3: REPRODUCIBILIDAD TOTAL + DEMO PÚBLICO
 # - Se suben TODOS los modelos (.pkl comprimidos con joblib compress=3)
@@ -87,25 +87,24 @@ anaconda_projects/
 
 
 # -----------------------------------------------------------------------------
-# OUTPUTS LOCALES DE INSPECCIÓN — no van al repo
+# ARCHIVOS Y CARPETAS DE TRABAJO INTERNO (no van al repo público)
 # -----------------------------------------------------------------------------
+# Todo lo que es de uso personal de la autora: backups, handoffs entre
+# sesiones de trabajo, listados generados para contexto, etc.
 
-# Output de `dir /S /B > tree_proyexto.txt` (uso local para chats de contexto)
+# Carpetas personales
+_archive/
+contexto/
+trazabilidad/
+
+# Listados de árbol (uso local)
 tree_proyexto.txt
-
-# Listados de árbol generados localmente (data.txt, tree.txt, estructura.txt...)
+contenido_v2.txt
+contenido_v2_*.txt
 data/data.txt
 data/*.txt
 
-# Carpeta de outputs para conversaciones con asistentes IA (no va al repo)
-output_para_claude/
-
-
-# -----------------------------------------------------------------------------
-# BACKUPS PERSONALES DE TRABAJO
-# -----------------------------------------------------------------------------
-
-# Backups personales de notebooks (no van al repo público)
+# Backups personales de notebooks
 *_BACKUP_*.ipynb
 *_backup_*.ipynb
 
