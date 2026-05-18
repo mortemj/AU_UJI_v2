@@ -1,6 +1,6 @@
-# 🎓 Predicción de Abandono Universitario · UJI
+# 🎓 AU_UJI_v2 · Predicción de Abandono Universitario · UJI
 
-[![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![LightGBM](https://img.shields.io/badge/Modelo-LightGBM-success?logo=leaflet)](https://lightgbm.readthedocs.io/)
 [![Streamlit](https://img.shields.io/badge/App-Streamlit-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Estado](https://img.shields.io/badge/Estado-V2%20Sistema%20Din%C3%A1mico-brightgreen)](https://github.com/mortemj/AU_UJI_v2)
@@ -8,7 +8,7 @@
 
 > **Trabajo Final de Máster (TFM)** — Universitat Oberta de Catalunya (UOC)
 > **Datos:** Universitat Jaume I (UJI) · Período 2010–2020
-> **Autora:** María José Morte · Tutor: Raúl Parada (UOC) · Supervisión UJI: Susana Pertegaz
+> **Autora:** María José Morte · Tutor: Raúl Parada (UOC) · Supervisión institucional: Servicio de Planificación de la UJI
 
 ---
 
@@ -47,8 +47,8 @@ Esta es la **versión 2** del proyecto, con mejoras sustanciales respecto a V1:
 | Recurso | URL | Estado |
 |---|---|---|
 | 📂 **Repositorio V2** (este) | [github.com/mortemj/AU_UJI_v2](https://github.com/mortemj/AU_UJI_v2) | ✅ Activo |
-| 🚀 **App Streamlit V2** | [tfm-abandono-dinamico.streamlit.app](https://tfm-abandono-dinamico.streamlit.app/) | 🔜 Despliegue pendiente |
-| 🌍 **GitHub Pages V2** | [mortemj.github.io/AU_UJI_v2](https://mortemj.github.io/AU_UJI_v2) | 🔜 Próximamente |
+| 🚀 **App Streamlit V2** | [tfm-abandono-dinamico.streamlit.app](https://tfm-abandono-dinamico.streamlit.app/) | ✅ Activo |
+| 🌍 **GitHub Pages V2** | [mortemj.github.io/AU_UJI_v2](https://mortemj.github.io/AU_UJI_v2) | ✅ Activo |
 | 📦 Repositorio V1 (legado) | [github.com/mortemj/AU_UJI](https://github.com/mortemj/AU_UJI) | 🟡 Archivado |
 | 🚀 App Streamlit V1 (legado) | [tfm-abandono.streamlit.app](https://tfm-abandono.streamlit.app/) | 🟡 No dinámica |
 | 🌍 GitHub Pages V1 (legado) | [mortemj.github.io/AU_UJI](https://mortemj.github.io/AU_UJI/) | 🟡 No actualizada |
@@ -131,7 +131,7 @@ AU_UJI_v2/
 
 ## 🛠️ Tecnologías
 
-**Lenguaje y entorno:** Python 3.13 · Anaconda · Jupyter · Conda env `tfm_abandono`
+**Lenguaje y entorno:** Python 3.11 · Anaconda · Jupyter · Conda env `tfm_abandono`
 
 **Machine Learning:** scikit-learn · LightGBM · XGBoost · CatBoost · InterpretML (EBM)
 
@@ -161,27 +161,78 @@ AU_UJI_v2/
 
 ---
 
-## 🚀 Uso rápido
+## 🚀 Reproducir el proyecto desde cero
 
-### Ejecutar la app Streamlit en local
+Esta sección está pensada para que **cualquier persona** (incluso sin experiencia en Python) pueda poner en marcha el proyecto en su ordenador. Sigue los pasos en orden.
+
+### 📥 Requisitos previos
+
+Antes de empezar, debes tener instalado:
+
+1. **Git** — para descargar el código del proyecto
+   👉 [Descargar Git](https://git-scm.com/downloads)
+
+2. **Anaconda** o **Miniconda** — para gestionar el entorno Python
+   👉 [Descargar Anaconda](https://www.anaconda.com/download) (recomendado para no técnicos)
+
+> 💡 **Si nunca has usado estas herramientas:** instálalas con las opciones por defecto. Tras instalar Anaconda, en Windows tendrás un programa llamado **"Anaconda Prompt"**, en macOS/Linux usarás el **Terminal**.
+
+### 📋 Pasos para reproducir (copiar y pegar uno a uno)
+
+Abre **Anaconda Prompt** (Windows) o **Terminal** (macOS/Linux) y ejecuta los siguientes comandos uno a uno (espera a que cada uno termine antes de lanzar el siguiente):
 
 ```bash
+# 1. Descargar el proyecto desde GitHub
+git clone https://github.com/mortemj/AU_UJI_v2.git
+
+# 2. Entrar en la carpeta del proyecto
+cd AU_UJI_v2
+
+# 3. Crear el entorno virtual (solo la primera vez, tarda ~1 minuto)
+conda create -n tfm_abandono python=3.11 -y
+
+# 4. Activar el entorno
 conda activate tfm_abandono
-cd app
-streamlit run main.py
+
+# 5. Instalar todas las dependencias (tarda ~5-10 minutos)
+pip install -r requirements_proyecto.txt
+
+# 6. Arrancar la aplicación web (Streamlit)
+streamlit run app/main.py
 ```
 
-O bien (Windows): doble clic en `tribunal/lanzar_app_windows.bat`
+Si todo va bien, se abrirá automáticamente una pestaña en tu navegador con la aplicación. Si no se abre sola, copia la URL que aparece en la terminal (algo como `http://localhost:8501`) y pégala en el navegador.
 
-### Ejecutar los tests
+> ✅ **Reproducibilidad verificada:** estos comandos se han probado en una máquina con Windows 11 + Python 3.11 + entorno conda limpio. Resultado: instalación correcta de las 170+ dependencias sin errores.
+
+### 📦 Archivos de dependencias (requirements)
+
+El proyecto incluye varios archivos `requirements*.txt`. Cada uno cubre un caso de uso:
+
+| Archivo | ¿Cuándo usarlo? |
+|---|---|
+| **`requirements_proyecto.txt`** | 🎯 **Para reproducir el TFM completo** (todas las fases + app). Es el archivo recomendado para el tribunal. |
+| `requirements.txt` | Solo si vas a desplegar la app Streamlit en producción (Streamlit Cloud). Dependencias mínimas. |
+| `requirements_fase1.txt` | Solo si quieres reproducir la **Fase 1** (limpieza y EDA) de forma aislada. |
+| `requirements_fase2.txt` | Solo si quieres reproducir la **Fase 2** (EDA inicial) de forma aislada. |
+| `requirements_fase3.txt` | Solo si quieres reproducir la **Fase 3** (feature engineering) de forma aislada. |
+| `requirements_fase4.txt` | Solo si quieres reproducir la **Fase 4** (EDA final) de forma aislada. |
+| `requirements_fase5.txt` | Solo si quieres reproducir la **Fase 5** (modelado, 69 modelos) de forma aislada. |
+| `requirements_fase6.txt` | Solo si quieres reproducir la **Fase 6** (interpretabilidad + fairness) de forma aislada. |
+
+> 💡 **Recomendación:** usar `requirements_proyecto.txt` salvo que sepas exactamente lo que estás haciendo.
+
+### 🧪 Ejecutar los tests automáticos
 
 ```bash
 pytest tests/ -v
 ```
 
-Resultado esperado: **42 passed**
+Resultado esperado: **42 passed**.
 
-### Regenerar las fases (orden)
+### 🔁 Regenerar las fases (orden recomendado)
+
+Si quieres regenerar todos los resultados desde cero, ejecuta los notebooks orquestadores de cada fase **en este orden**:
 
 1. `notebooks/fase0_configuracion/orquestador_maestro.ipynb`
 2. `notebooks/fase1_transformacion/f1_m00_ejecucion.ipynb`
@@ -190,6 +241,17 @@ Resultado esperado: **42 passed**
 5. `notebooks/fase4_eda/f4_m00_ejecucion.ipynb`
 6. `notebooks/fase5_modelado/f5_m00_ejecucion.ipynb`
 7. `notebooks/fase6_evaluacion/f6_m00_ejecucion.ipynb`
+
+> ⚠️ **Importante:** las fases 1–3 requieren los datos originales de la UJI (no incluidos en el repo). Las fases 4–6 pueden ejecutarse con los datos derivados que sí están en el repo.
+
+### 🖱️ Atajo: lanzadores automáticos
+
+Si prefieres no usar la terminal, dentro de la carpeta del proyecto encontrarás:
+
+- **Windows:** doble clic en `arrancar_proyecto.bat`
+- **macOS/Linux:** ejecutar `./arrancar_proyecto.sh` desde Terminal
+
+Ambos activan el entorno y lanzan Jupyter Notebook automáticamente.
 
 ---
 
@@ -202,7 +264,7 @@ Máster Universitario en Ciencia de Datos · Universitat Oberta de Catalunya (UO
 🐙 [github.com/mortemj](https://github.com/mortemj)
 
 **Tutor académico:** Raúl Parada · [rparada@uoc.edu](mailto:rparada@uoc.edu)
-**Supervisión institucional UJI:** Susana Pertegaz
+**Supervisión institucional:** Servicio de Planificación de la UJI
 
 ---
 
@@ -214,4 +276,4 @@ Uso restringido a fines de investigación y formación académica.
 
 ---
 
-<sub>Última actualización del README: 04/05/2026 · Versión 2 (sistema dinámico)</sub>
+<sub>Última actualización del README: 18/05/2026 · Versión 2 (sistema dinámico)</sub>
