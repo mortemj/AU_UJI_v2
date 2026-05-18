@@ -1,97 +1,108 @@
 # ============================================================================
-# REQUIREMENTS.TXT - DEPENDENCIAS DEL PROYECTO
+# REQUIREMENTS_PROYECTO.TXT - DEPENDENCIAS COMPLETAS DEL TFM
 # ============================================================================
-# TFM: Predicción de Abandono Universitario
-# Autora: María José Morte
+# TFM: Pronóstico del Éxito y del Abandono en los Títulos de Grado de la UJI
+# Autora: María José Morte (UOC)
+# Última actualización: 18/05/2026
+#
+# Este archivo cubre TODAS las fases del proyecto (F0 a F6 + AutoML + App).
+# Es el archivo recomendado para reproducir el TFM completo.
+#
+# Instalación:
+#   conda create -n tfm_abandono python=3.11 -y
+#   conda activate tfm_abandono
+#   pip install -r requirements_proyecto.txt
 # ============================================================================
-# Para instalar todas las dependencias ejecutar:
-#   pip install -r requirements.txt
-# ============================================================================
+
 
 # --- MANIPULACIÓN DE DATOS ---
-# pandas: DataFrames, lectura/escritura de archivos, análisis
 pandas>=2.0.0
-# numpy: operaciones numéricas, arrays, manejo de NaN
 numpy>=1.24.0
-# openpyxl: lectura/escritura de archivos Excel (.xlsx)
 openpyxl>=3.1.0
-# pyarrow: formato parquet (rápido, comprimido, con metadatos)
 pyarrow>=14.0.0
+scipy>=1.10.0
+joblib>=1.5.0
+
 
 # --- VALIDACIÓN DE DATOS ---
-# pandera: esquemas y validación automática de DataFrames
 pandera>=0.18.0
 
+
 # --- VISUALIZACIÓN ---
-# matplotlib: gráficos estáticos (base de seaborn)
 matplotlib>=3.7.0
-# seaborn: gráficos estadísticos elegantes
 seaborn>=0.13.0
-# plotly: gráficos interactivos para web/HTML
 plotly>=5.18.0
+altair>=5.0.0
+
 
 # --- ANÁLISIS EXPLORATORIO (EDA) ---
-# sweetviz: reportes automáticos de EDA en HTML
 sweetviz>=2.3.0
-# missingno: visualización de valores faltantes
 missingno>=0.5.0
 
-# --- MACHINE LEARNING ---
-# scikit-learn: modelos ML, métricas, preprocesamiento
-scikit-learn>=1.3.0
-# xgboost: gradient boosting de alto rendimiento
+
+# --- MACHINE LEARNING (Fase 5) ---
+scikit-learn==1.6.1
 xgboost>=2.0.0
-# lightgbm: gradient boosting rápido de Microsoft
 lightgbm>=4.0.0
-# catboost: gradient boosting para categóricas de Yandex
 catboost>=1.2.0
+imbalanced-learn>=0.11.0
+interpret>=0.4.0
+
 
 # --- AUTOML Y OPTIMIZACIÓN ---
-# pycaret: AutoML simplificado (incluye muchos modelos)
 pycaret>=3.2.0
-# optuna: optimización de hiperparámetros
 optuna>=3.5.0
 
-# --- EXPLICABILIDAD ---
-# shap: explicación de predicciones (SHAP values)
+
+# --- INTERPRETABILIDAD Y EQUIDAD (Fase 6) ---
 shap>=0.44.0
+lime>=0.2.0
+dice-ml>=0.11
+fairlearn>=0.9.0
+
+
+# --- SOSTENIBILIDAD (Fase 6) ---
+codecarbon>=3.0.0
+
 
 # --- REDUCCIÓN DIMENSIONALIDAD ---
-# umap-learn: UMAP para visualización de alta dimensión
 umap-learn>=0.5.0
 
+
 # --- DETECCIÓN DE OUTLIERS ---
-# pyod: algoritmos de detección de anomalías
 pyod>=1.1.0
 
+
 # --- APLICACIÓN WEB ---
-# streamlit: crear apps web interactivas fácilmente
-streamlit>=1.29.0
+streamlit>=1.30.0
+
 
 # --- UTILIDADES ---
-# tqdm: barras de progreso en bucles
 tqdm>=4.66.0
-# python-docx: crear documentos Word
 python-docx>=1.1.0
-# python-pptx: crear presentaciones PowerPoint
 python-pptx>=0.6.0
-# Jinja2: plantillas HTML
 Jinja2>=3.1.0
+python-dotenv>=1.0.0
+
 
 # ============================================================================
 # NOTAS DE INSTALACIÓN
 # ============================================================================
-# 
+#
 # Si hay problemas con alguna librería específica:
 #   pip install nombre_libreria --upgrade
 #
-# Para Google Colab (ya tiene muchas preinstaladas):
-#   !pip install -q pandera sweetviz missingno pycaret shap streamlit
+# Para entorno limpio (recomendado, usar Anaconda):
+#   conda create -n tfm_abandono python=3.11 -y
+#   conda activate tfm_abandono
+#   pip install -r requirements_proyecto.txt
 #
-# Para entorno limpio (recomendado usar entorno virtual):
-#   python -m venv venv
-#   source venv/bin/activate  (Linux/Mac)
-#   venv\Scripts\activate     (Windows)
-#   pip install -r requirements.txt
+# Para reproducir solo una fase específica, ver los archivos:
+#   requirements_fase1.txt → Fase 1 (limpieza + EDA inicial)
+#   requirements_fase2.txt → Fase 2 (EDA visual interactivo)
+#   requirements_fase3.txt → Fase 3 (Feature Engineering)
+#   requirements_fase4.txt → Fase 4 (EDA final)
+#   requirements_fase5.txt → Fase 5 (Modelado)
+#   requirements_fase6.txt → Fase 6 (Interpretabilidad + Equidad)
 #
 # ============================================================================

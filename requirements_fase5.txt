@@ -1,0 +1,38 @@
+# ============================================================================
+# TFM Abandono Universitario - Requirements Fase 5 (Modelado)
+# Autora: María José Morte
+# ============================================================================
+# Fase 5: entrenamiento y comparación de 69 modelos
+# (lineales, árboles, boosting, MLP, EBM, ensambles).
+# ============================================================================
+
+# Manipulación de datos
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=14.0.0
+scipy>=1.10.0
+
+# Modelado
+scikit-learn==1.6.1
+xgboost>=2.0.0
+lightgbm>=4.0.0
+catboost>=1.2.0
+imbalanced-learn>=0.11.0
+interpret>=0.4.0
+
+# Optimización de hiperparámetros
+optuna>=3.5.0
+
+# Persistencia de modelos
+joblib>=1.5.0
+
+# Visualización
+matplotlib>=3.7.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# Utilidades
+tqdm>=4.65.0
+
+# Plantillas HTML
+Jinja2>=3.1.0

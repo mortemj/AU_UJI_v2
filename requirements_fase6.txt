@@ -1,0 +1,44 @@
+# ============================================================================
+# TFM Abandono Universitario - Requirements Fase 6 (Interpretabilidad + Equidad)
+# Autora: María José Morte
+# ============================================================================
+# Fase 6: SHAP, LIME, DiCE, Fairness, calibración, sostenibilidad, robustez.
+# Requiere que la Fase 5 esté ejecutada (modelos .pkl disponibles).
+# ============================================================================
+
+# Manipulación de datos
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=14.0.0
+scipy>=1.10.0
+
+# Modelado (necesario para cargar los modelos de Fase 5)
+scikit-learn==1.6.1
+xgboost>=2.0.0
+lightgbm>=4.0.0
+catboost>=1.2.0
+imbalanced-learn>=0.11.0
+interpret>=0.4.0
+joblib>=1.5.0
+
+# Interpretabilidad
+shap>=0.44.0
+lime>=0.2.0
+dice-ml>=0.11
+
+# Equidad y fairness
+fairlearn>=0.9.0
+
+# Sostenibilidad (huella de carbono)
+codecarbon>=3.0.0
+
+# Visualización
+matplotlib>=3.7.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# Utilidades
+tqdm>=4.65.0
+
+# Plantillas HTML
+Jinja2>=3.1.0
