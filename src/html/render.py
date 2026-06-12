@@ -40,7 +40,7 @@ except ImportError:
     EMAIL_UOC = "mjmorteruiz@uoc.edu"
     EMAIL_UJI = "morte@uji.es"
     GITHUB_REPO = "https://github.com/mortemj/AU_UJI"
-    GITHUB_NOTEBOOKS = f"{GITHUB_REPO}/blob/main/notebooks"
+    GITHUB_NOTEBOOKS = f"{GITHUB_REPO}/blob/master/notebooks"
 
 from .navegacion import (
     extraer_titulo_de_fichero,

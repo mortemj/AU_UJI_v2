@@ -44,7 +44,7 @@ EMAIL_UJI = "morte@uji.es"
 # Las URLs de aquí abajo apuntan SIEMPRE a V2.
 
 GITHUB_REPO = "https://github.com/mortemj/AU_UJI_v2"
-GITHUB_NOTEBOOKS = f"{GITHUB_REPO}/blob/main/notebooks"
+GITHUB_NOTEBOOKS = f"{GITHUB_REPO}/blob/master/notebooks"
 GITHUB_PAGES = "https://mortemj.github.io/AU_UJI_v2/"
 
 URL_APP_STREAMLIT = "https://tfm-abandono-dinamico.streamlit.app/"
