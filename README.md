@@ -75,7 +75,7 @@ CatBoost AutoGluon BAG L2 (D_strict): AUC = 0.9365 · F1 = 0.797 · superado por
 
 ### Volumen de modelos evaluados
 
-**69 modelos** entrenados en Fase 5 (10 algoritmos × estrategias `none` / `balanced` / `smote`) + **168 modelos AutoML** en 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict).
+**69 modelos** entrenados en Fase 5 (23 algoritmos × estrategias `none` / `balanced` / `smote`) + **168 modelos AutoML** en 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict).
 
 ---
 
@@ -89,7 +89,7 @@ CatBoost AutoGluon BAG L2 (D_strict): AUC = 0.9365 · F1 = 0.797 · superado por
 | **F3** · Feature engineering | Dataset analítico por estudiante, definición del *target* `abandono` (33.621 × 25) | ✅ |
 | **AutoML** | Baseline con 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict) — 168 modelos | ✅ |
 | **F4** · EDA final | Distribuciones, anomalías, correlaciones, perfiles de riesgo | ✅ |
-| **F5** · Modelado | 69 modelos, 7 familias, comparación cruzada, selección por F1+recall | ✅ |
+| **F5** · Modelado | 69 modelos, 6 familias, comparación cruzada, selección por F1+recall | ✅ |
 | **F6** · Interpretabilidad y equidad | SHAP, LIME, DiCE, *fairness*, calibración, robustez, sostenibilidad | ✅ |
 | **F7** · App Streamlit | 7 páginas: institucional, titulación, prospecto, en curso, equidad, leyenda | ✅ |
 
@@ -153,7 +153,7 @@ AU_UJI_v2/
 
 - **Fuente:** Universitat Jaume I (UJI) — datos anonimizados bajo acuerdo de confidencialidad
 - **Período:** cursos académicos 2010–2020
-- **Universo:** ~30.872 estudiantes únicos · 42 titulaciones de grado
+- **Universo:** ~30.872 estudiantes únicos · 40 titulaciones de grado
 - **Tablas fuente:** 9 tablas Excel · ~37 columnas originales
 - **Dataset analítico:** 33.621 registros · 24 *features* + *target* `abandono`
 
