@@ -8,7 +8,7 @@
 
 > **Trabajo Final de Máster (TFM)** — Universitat Oberta de Catalunya (UOC)
 > **Datos:** Universitat Jaume I (UJI) · Período 2010–2020
-> **Autora:** María José Morte · Tutor: Raúl Parada (UOC) · Supervisión institucional: Servicio de Planificación de la UJI
+> **Autora:** María José Morte · Tutor: Raúl Parada Medina  (UOC) · Supervisión institucional: Servicio de Planificación de la UJI
 
 ---
 
@@ -263,7 +263,7 @@ Máster Universitario en Ciencia de Datos · Universitat Oberta de Catalunya (UO
 📧 [mjmorteruiz@uoc.edu](mailto:mjmorteruiz@uoc.edu) · [morte@uji.es](mailto:morte@uji.es)
 🐙 [github.com/mortemj](https://github.com/mortemj)
 
-**Tutor académico:** Raúl Parada · [rparada@uoc.edu](mailto:rparada@uoc.edu)
+**Tutor académico:** Raúl Parada Medina · [rparada@uoc.edu](mailto:rparada@uoc.edu)
 **Supervisión institucional:** Servicio de Planificación de la UJI
 
 ---

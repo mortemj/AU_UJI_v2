@@ -74,7 +74,8 @@ FASES: Dict[str, Dict[str, Any]] = {
             {'id': 'm05',    'nombre': 'Target y Export',  'archivo': 'm05_target_export.html',     'emoji': '🎯'},
             {'id': 'm06',    'nombre': 'Alerta Temprana',  'archivo': 'm06_alerta_temprana.html',   'emoji': '⚠️'},
             {'id': 'm07',    'nombre': 'Validación',       'archivo': 'm07_validacion.html',        'emoji': '✅'},
-            {'id': 'm08',    'nombre': 'Perfiles',         'archivo': 'm08_perfiles_riesgo.html',   'emoji': '👤'},
+            {'id': 'm08',    'nombre': 'Auditoría',        'archivo': 'm08_auditoria.html',         'emoji': '📋'},
+            {'id': 'm09',    'nombre': 'Perfiles',         'archivo': 'm09_perfiles_riesgo.html',   'emoji': '👤'},
         ]
     },
     'fase4': {
