@@ -66,17 +66,15 @@ def bloque_wilcoxon_html(root: Path, nombre_ganador: str) -> str:
             '</tr>'
         )
 
-    # Datos del ganador para la nota de estabilidad
-    ms = w.get('mean_std', {})
-    auc_std_lgb = ms.get('LightGBM', {}).get('auc_std')
-    auc_std_xgb = ms.get('XGBoost', {}).get('auc_std')
-    nota_estab = ''
-    if auc_std_lgb is not None and auc_std_xgb is not None and auc_std_xgb > 0:
-        reduccion = (auc_std_xgb - auc_std_lgb) / auc_std_xgb * 100
-        nota_estab = (
-            f' AUC std LightGBM = {auc_std_lgb:.4f} vs XGBoost = {auc_std_xgb:.4f} '
-            f'(variabilidad {reduccion:.0f}% menor en LightGBM).'
-        )
+    # Nota de desempate — criterio OFICIAL de la memoria: recall sobre test
+    # (TFM §3.9.1 y §4.4). Valores de recall_test verificados en
+    # data/05_modelado/results/resultados_maestro.json y metricas_modelo.json:
+    #   LightGBM__none = 0,8048  ·  XGBoost__none = 0,8007  ·  ∆ = 0,0041
+    nota_recall = (
+        f' Recall {nombre_ganador} = 0,8048 vs XGBoost = 0,8007 '
+        f'(∆ = 0,0041 → 8 personas estudiantes adicionales correctamente '
+        f'identificadas como en riesgo).'
+    )
 
     return (
         '<div style="margin:20px 0 28px;padding:16px 20px;background:#f7fafc;'
@@ -103,8 +101,10 @@ def bloque_wilcoxon_html(root: Path, nombre_ganador: str) -> str:
         '</tr></thead>'
         f'<tbody>{filas_w}</tbody></table>'
         f'<p style="margin:10px 0 0;color:#4a5568;line-height:1.5;font-size:12px">'
-        f'Al no existir diferencia significativa, se aplica criterio de '
-        f'<strong>estabilidad</strong> en validación cruzada.{nota_estab}'
+        f'Al no existir diferencia significativa en F1, se aplica el criterio '
+        f'oficial de desempate por <strong>recall</strong> sobre test '
+        f'(tolerancia 0,001), justificado por el coste asimétrico de los '
+        f'falsos negativos.{nota_recall}'
         f'</p>'
         '</div>'
     )
