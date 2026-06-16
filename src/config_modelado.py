@@ -15,14 +15,15 @@
 #   - Facilita la reproducibilidad: random_state siempre consistente.
 #
 # ¿Quién lo usa?
-#   - f5_m00_indice.ipynb    → lee MODULOS_FASE5, BASELINE_AUTOML
-#   - f5_m01_lineales.ipynb  → lee ALGORITMOS_LINEALES, CV_CONFIG, METRICAS
-#   - f5_m02_arboles.ipynb   → lee ALGORITMOS_ARBOLES, CV_CONFIG, METRICAS
-#   - f5_m03_boosting.ipynb  → lee ALGORITMOS_BOOSTING, CV_CONFIG, METRICAS
-#   - f5_m04_otros.ipynb     → lee ALGORITMOS_OTROS, CV_CONFIG, METRICAS
-#   - f5_m05_mlp_ebm.ipynb     → lee ALGORITMOS_MLP_EBM
-#   - f5_m06_ensambles.ipynb   → lee ALGORITMOS_ENSAMBLES
-#   - f5_m07_comparacion.ipynb → lee TODO para la tabla maestra
+#   - f5_m00_indice.ipynb  → lee TODOS_LOS_ALGORITMOS y MODULOS_FASE5 para
+#                            pintar el índice de Fase 5 (tarjetas + recuento 23/69).
+#   - f5_m07_comparacion.ipynb → lee cargar_baseline_automl() para el baseline.
+#
+# NOTA IMPORTANTE: las listas de algoritmos de este archivo SOLO alimentan el
+#   índice/tarjetas (display). El ENTRENAMIENTO real NO depende de ellas: cada
+#   notebook de familia (f5_m01b/c, f5_m02, f5_m03, f5_m04, f5_m05, f5_m06)
+#   instancia sus modelos directamente. La verdad congelada de los 69 modelos
+#   está en resultados_maestro.json. Editar estas listas no afecta al modelo.
 #
 # NOTA: Este archivo se importa a través de src.config_modelado.
 #   from src.config_modelado import CV_CONFIG, METRICAS_EVALUAR, ALGORITMOS_LINEALES
@@ -400,47 +401,65 @@ def descripcion_modelo(nombre: str) -> str:
 #   - Coherente con literatura de predicción de abandono universitario.
 #   - EBM (InterpretML) incluido en m04 como puente hacia Fase 6.
 
+# Familia Lineales (7): nombres reales sincronizados con resultados_maestro.json.
+# Estas tarjetas SOLO pintan el índice de Fase 5; el entrenamiento real vive en
+# los notebooks f5_m01b/f5_m01c (que definen los modelos directamente).
 ALGORITMOS_LINEALES: List[Dict[str, Any]] = [
-    # LogisticRegression: baseline interpretable por excelencia.
-    # Variantes L1/L2/ElasticNet cubren regularización y selección de features.
     {
-        'id': 'lr_l2',
-        'nombre': 'Logistic Regression (L2)',
-        'clase': 'LogisticRegression',
-        'params': {'penalty': 'l2', 'C': 1.0, 'solver': 'lbfgs',
-                   'max_iter': 1000, 'random_state': 42},
-        'descripcion': 'Regularización Ridge — penaliza pesos grandes, shrinkage suave',
-        'emoji': '📈',
+        'id': 'lda',
+        'nombre': 'LDA',
+        'clase': 'LinearDiscriminantAnalysis',
+        'descripcion': 'Análisis discriminante lineal — frontera lineal por covarianzas de clase',
+        'emoji': '📐',
         'color': '#3182ce',
     },
     {
-        'id': 'lr_l1',
-        'nombre': 'Logistic Regression (L1)',
+        'id': 'logreg',
+        'nombre': 'LogReg',
         'clase': 'LogisticRegression',
-        'params': {'penalty': 'l1', 'C': 1.0, 'solver': 'liblinear',
-                   'max_iter': 1000, 'random_state': 42},
-        'descripcion': 'Regularización Lasso — puede llevar coeficientes a cero (selección)',
+        'descripcion': 'Regresión logística (saga) — baseline lineal interpretable',
         'emoji': '📈',
         'color': '#2b6cb0',
     },
     {
-        'id': 'lr_elasticnet',
-        'nombre': 'Logistic Regression (ElasticNet)',
-        'clase': 'LogisticRegression',
-        'params': {'penalty': 'elasticnet', 'C': 1.0, 'solver': 'saga',
-                   'l1_ratio': 0.5, 'max_iter': 1000, 'random_state': 42},
-        'descripcion': 'Combinación L1+L2 — equilibrio entre shrinkage y selección',
-        'emoji': '📈',
+        'id': 'perceptron',
+        'nombre': 'Perceptron',
+        'clase': 'Perceptron',
+        'descripcion': 'Perceptrón lineal — clasificador lineal online clásico',
+        'emoji': '➗',
         'color': '#1a365d',
     },
     {
-        'id': 'ridge',
-        'nombre': 'Ridge Classifier',
-        'clase': 'RidgeClassifier',
-        'params': {'alpha': 1.0, 'random_state': 42},
-        'descripcion': 'Regresión Ridge adaptada a clasificación — muy rápido',
-        'emoji': '📏',
+        'id': 'sgd',
+        'nombre': 'SGD',
+        'clase': 'SGDClassifier',
+        'descripcion': 'Descenso de gradiente estocástico (modified_huber) — lineal escalable',
+        'emoji': '📉',
         'color': '#4299e1',
+    },
+    {
+        'id': 'sgd_elastic',
+        'nombre': 'SGDElasticNet',
+        'clase': 'SGDClassifier',
+        'descripcion': 'SGD con penalización ElasticNet (L1+L2) — selección y shrinkage',
+        'emoji': '🔗',
+        'color': '#2c5282',
+    },
+    {
+        'id': 'svm_rbf',
+        'nombre': 'SVM_RBF',
+        'clase': 'SVC',
+        'descripcion': 'SVM con kernel RBF — frontera no lineal, probability=True',
+        'emoji': '🌐',
+        'color': '#2a4365',
+    },
+    {
+        'id': 'svm_lineal',
+        'nombre': 'SVM_lineal',
+        'clase': 'SVC',
+        'descripcion': 'SVM con kernel lineal — margen máximo en espacio original',
+        'emoji': '📏',
+        'color': '#1e3a5f',
     },
 ]
 
@@ -514,6 +533,15 @@ ALGORITMOS_BOOSTING: List[Dict[str, Any]] = [
         'emoji': '🐱',
         'color': '#44337a',
     },
+    {
+        'id': 'gradientboosting',
+        'nombre': 'GradientBoosting',
+        'clase': 'GradientBoostingClassifier',
+        'modulo': 'sklearn.ensemble',
+        'descripcion': 'Gradient Boosting clásico de sklearn — referencia sin librería externa',
+        'emoji': '📊',
+        'color': '#6b46c1',
+    },
 ]
 
 ALGORITMOS_OTROS: List[Dict[str, Any]] = [
@@ -546,30 +574,6 @@ ALGORITMOS_OTROS: List[Dict[str, Any]] = [
         'descripcion': 'Variante para features binarias — complementa GaussianNB',
         'emoji': '🎯',
         'color': '#dd6b20',
-    },
-    {
-        'id': 'mlp',
-        'nombre': 'MLP Classifier',
-        'clase': 'MLPClassifier',
-        'modulo': 'sklearn.neural_network',
-        'params': {'hidden_layer_sizes': (100,), 'max_iter': 500,
-                   'random_state': 42, 'early_stopping': True},
-        'descripcion': 'Red neuronal densa — puente entre ML clásico y deep learning',
-        'emoji': '🧠',
-        'color': '#e53e3e',
-    },
-    {
-        'id': 'ebm',
-        'nombre': 'EBM (InterpretML)',
-        'clase': 'ExplainableBoostingClassifier',
-        'modulo': 'interpret.glassbox',
-        'params': {'random_state': 42},
-        'descripcion': (
-            'Explainable Boosting Machine — GAM moderno con interpretabilidad nativa. '
-            'Puente hacia Fase 6: el único modelo "caja de cristal" del conjunto.'
-        ),
-        'emoji': '🔬',
-        'color': '#319795',
     },
 ]
 
@@ -808,7 +812,7 @@ def get_algoritmo_por_id(alg_id: str) -> Dict[str, Any]:
     Parameters
     ----------
     alg_id : str
-        Identificador del algoritmo (ej: 'xgboost', 'lr_l2')
+        Identificador del algoritmo (ej: 'xgboost', 'logreg')
 
     Returns
     -------

@@ -223,18 +223,18 @@
     </div>
     
     <div class="kpi">
-        <div class="value" style="color:#e53e3e">29.2%</div>
+        <div class="value" style="color:#e53e3e">29,25%</div>
         <div class="label">Abandono</div>
     </div>
     
     <div class="kpi">
-        <div class="value" style="color:#ed8936">21</div>
+        <div class="value" style="color:#ed8936">23</div>
         <div class="label">Algoritmos</div>
     </div>
     </div>
     <section class="seccion">
         <h2>Contexto del Proyecto</h2>
-        <div style="background:#f0f4f8;padding:20px;border-radius:10px;border-left:4px solid #3182ce;"><p><strong>Contexto:</strong> El screening AutoML identificó el mejor candidato como referencia (<strong>TabPFN v2</strong>: F1=0.8496, AUC=0.9644). La Fase 4 EDA confirmó las features más relevantes.</p><p><strong>Objetivo Fase 5:</strong> Entrenamiento manual y controlado de 21 algoritmos sobre 33.621 expedientes. Métrica principal: <strong>F1 (clase abandono)</strong>. Selección del top-3 para Fase 6 (interpretabilidad + fairness).</p></div>
+        <div style="background:#f0f4f8;padding:20px;border-radius:10px;border-left:4px solid #3182ce;"><p><strong>Contexto:</strong> El screening AutoML identificó el mejor candidato como referencia (<strong>TabPFN v2</strong>: F1=0,8496, AUC=0,9644), empleado solo como referencia de screening por su elevado coste de inferencia. El modelo finalmente seleccionado, <strong>LightGBM</strong>, ofrece un rendimiento muy próximo con un coste de inferencia mínimo y fácil despliegue. La Fase 4 EDA confirmó las features más relevantes.</p><p><strong>Objetivo Fase 5:</strong> Entrenamiento manual y controlado de 23 algoritmos sobre 33.621 expedientes. Métrica principal: <strong>F1 (clase abandono)</strong>. Selección del top-3 para Fase 6 (interpretabilidad + fairness).</p></div>
     </section>
     
     <section class="seccion">
@@ -243,7 +243,7 @@
 
         <a href="m01_lineales.html" class="tarjeta" style="border-left-color: #3182ce">
             <h3 style="color: #3182ce">📈 M01: Modelos Lineales</h3>
-            <p>4 modelos: Logistic Regression (L2), Logistic Regression (L1), Logistic Regression (ElasticNet), Ridge Classifier. Baseline interpretable y referencia para modelos complejos.</p>
+            <p>7 modelos: LDA, LogReg, Perceptron, SGD, SGDElasticNet, SVM_RBF, SVM_lineal. Baseline interpretable y referencia para modelos complejos.</p>
             <div class="link" style="color: #3182ce">Ver módulo</div>
         </a>
         
@@ -255,13 +255,13 @@
         
         <a href="m03_boosting.html" class="tarjeta" style="border-left-color: #805ad5">
             <h3 style="color: #805ad5">🚀 M03: Gradient Boosting</h3>
-            <p>3 modelos: XGBoost, LightGBM, CatBoost. Familia ganadora del AutoML. Baseline a superar: ver cargar_baseline_automl().</p>
+            <p>4 modelos: XGBoost, LightGBM, CatBoost, GradientBoosting. Familia ganadora del AutoML. Baseline a superar: ver cargar_baseline_automl().</p>
             <div class="link" style="color: #805ad5">Ver módulo</div>
         </a>
         
         <a href="m04_otros.html" class="tarjeta" style="border-left-color: #ed8936">
             <h3 style="color: #ed8936">🧪 M04: Otros Algoritmos</h3>
-            <p>5 modelos: K-Nearest Neighbors, Gaussian Naive Bayes, Bernoulli Naive Bayes, MLP Classifier, EBM (InterpretML). Cobertura completa del espacio de algoritmos clásicos.</p>
+            <p>3 modelos: K-Nearest Neighbors, Gaussian Naive Bayes, Bernoulli Naive Bayes. Cobertura completa del espacio de algoritmos clásicos.</p>
             <div class="link" style="color: #ed8936">Ver módulo</div>
         </a>
         
@@ -279,7 +279,7 @@
         
         <a href="m07_comparacion.html" class="tarjeta" style="border-left-color: #e53e3e">
             <h3 style="color: #e53e3e">🏆 M07: Comparativa Final</h3>
-            <p>Tabla maestra de 21 modelos. Curvas ROC comparativas. Ranking final. Selección del top-3 para Fase 6 (interpretabilidad + fairness).</p>
+            <p>Tabla maestra de 23 modelos. Curvas ROC comparativas. Ranking final. Selección del top-3 para Fase 6 (interpretabilidad + fairness).</p>
             <div class="link" style="color: #e53e3e">Ver módulo</div>
         </a>
         </div>
@@ -297,7 +297,7 @@
         <a href="mailto:mjmorteruiz@uoc.edu">mjmorteruiz@uoc.edu</a> (UOC) |
         <a href="mailto:morte@uji.es">morte@uji.es</a> (UJI)
         
-        &nbsp;·&nbsp; Generado: 18/05/2026
+        &nbsp;·&nbsp; Generado: 16/06/2026
     </footer>
 
     
