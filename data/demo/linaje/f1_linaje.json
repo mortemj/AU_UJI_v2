@@ -1,0 +1,1514 @@
+{
+  "_schema": "OpenLineage-compatible (extendido con facet 'diff')",
+  "fase": "fase1",
+  "generado": "2026-06-15T18:54:26.605959+00:00",
+  "niveles": {
+    "notebook": [
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "f1_union",
+          "facets": {
+            "nivel": "notebook",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge / drop_duplicates",
+            "operacion": "merge + dedup"
+          }
+        },
+        "inputs": [
+          {
+            "name": "expedientes",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "nombre",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso"
+                ],
+                "count": 15
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\expedientes.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "becas",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "id_beca",
+                  "nombre_beca",
+                  "mat_curso_aca"
+                ],
+                "count": 4
+              },
+              "stats": {
+                "rowCount": 70524
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\becas.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "demograficos",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre"
+                ],
+                "count": 5
+              },
+              "stats": {
+                "rowCount": 30873
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\demograficos.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "domicilios",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "poblacion",
+                  "provincia",
+                  "pais",
+                  "curso_aca",
+                  "tipo_domicilio"
+                ],
+                "count": 6
+              },
+              "stats": {
+                "rowCount": 210911
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\domicilios.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "notas",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "curso_aca",
+                  "exp_tit_id",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno"
+                ],
+                "count": 5
+              },
+              "stats": {
+                "rowCount": 107908
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\notas.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "recibos",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "curso_aca",
+                  "nombre_recibos",
+                  "forma_de_pago",
+                  "numero_pagos"
+                ],
+                "count": 5
+              },
+              "stats": {
+                "rowCount": 114454
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\recibos.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "titulaciones",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "exp_tit_id",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "tipo",
+                  "tipo_estudio"
+                ],
+                "count": 6
+              },
+              "stats": {
+                "rowCount": 45
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\titulaciones.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "trabajo",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "nombre_trabajo",
+                  "mat_curso_aca"
+                ],
+                "count": 4
+              },
+              "stats": {
+                "rowCount": 195524
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\trabajo.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno_base",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "nombre",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos"
+                ],
+                "count": 33
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno_base.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": 0,
+            "motivoFilas": "m04a: left join de las tablas sobre la espina (expedientes) por clave; drop_duplicates elimina duplicados exactos.",
+            "colsAnadidas": [
+              "pais_domicilio",
+              "vive_fuera",
+              "tiene_beca"
+            ],
+            "colsEliminadas": [
+              "id_beca",
+              "mat_curso_aca",
+              "pais",
+              "tipo_domicilio",
+              "nombre_recibos",
+              "tipo",
+              "tipo_estudio"
+            ],
+            "motivoCols": ""
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "f1_resto",
+          "facets": {
+            "nivel": "notebook",
+            "notebook": "f1_m04b–d",
+            "funcion": "pd.merge / loc",
+            "operacion": "merge + corrección"
+          }
+        },
+        "inputs": [
+          {
+            "name": "df_alumno_base",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "nombre",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos"
+                ],
+                "count": 33
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno_base.parquet",
+                "origen": "literal"
+              }
+            }
+          },
+          {
+            "name": "preinscripcion",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "ano",
+                  "universidad",
+                  "municipio",
+                  "cp",
+                  "orden_titulacion",
+                  "cupo",
+                  "nom_cupo",
+                  "estado",
+                  "nota_txt",
+                  "solicitud_id",
+                  "cod_estudios",
+                  "via_estudios",
+                  "convocatoria",
+                  "nota_1",
+                  "nota_2",
+                  "ano_1",
+                  "con_1",
+                  "titulacion_centro",
+                  "estado_titulacion",
+                  "uni_id",
+                  "nombre_universidad",
+                  "estudio",
+                  "per_id_ficticio",
+                  "matriculado"
+                ],
+                "count": 24
+              },
+              "stats": {
+                "rowCount": 210986
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\preinscripcion.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": 0,
+            "motivoFilas": "m04b: añade preinscripción (left join). m04c/m04d: corrección de notas y vía de acceso sobre df_alumno.",
+            "colsAnadidas": [
+              "via_acceso_exp",
+              "via_acceso",
+              "orden_preferencia",
+              "universidad_origen"
+            ],
+            "colsEliminadas": [
+              "nombre",
+              "ano",
+              "universidad",
+              "municipio",
+              "cp",
+              "orden_titulacion",
+              "nom_cupo",
+              "estado",
+              "nota_txt",
+              "solicitud_id",
+              "cod_estudios",
+              "via_estudios",
+              "convocatoria",
+              "nota_1",
+              "nota_2",
+              "ano_1",
+              "con_1",
+              "titulacion_centro",
+              "estado_titulacion",
+              "uni_id",
+              "nombre_universidad",
+              "estudio",
+              "matriculado"
+            ],
+            "motivoCols": ""
+          }
+        }
+      }
+    ],
+    "funcion": [
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_becas",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "becas",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "id_beca",
+                  "nombre_beca",
+                  "mat_curso_aca"
+                ],
+                "count": 4
+              },
+              "stats": {
+                "rowCount": 70524
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\becas.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "nombre_beca"
+            ],
+            "colsEliminadas": [
+              "id_beca",
+              "mat_curso_aca"
+            ],
+            "motivoCols": "Columnas de 'becas' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_demograficos",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "demograficos",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre"
+                ],
+                "count": 5
+              },
+              "stats": {
+                "rowCount": 30873
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\demograficos.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "sexo",
+              "fecha_nacimiento",
+              "id_pais",
+              "pais_nombre"
+            ],
+            "colsEliminadas": [],
+            "motivoCols": "Columnas de 'demograficos' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_domicilios",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "domicilios",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "poblacion",
+                  "provincia",
+                  "pais",
+                  "curso_aca",
+                  "tipo_domicilio"
+                ],
+                "count": 6
+              },
+              "stats": {
+                "rowCount": 210911
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\domicilios.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "poblacion",
+              "provincia",
+              "curso_aca"
+            ],
+            "colsEliminadas": [
+              "pais",
+              "tipo_domicilio"
+            ],
+            "motivoCols": "Columnas de 'domicilios' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_expedientes",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "expedientes",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "nombre",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso"
+                ],
+                "count": 15
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\expedientes.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "exp_tit_id",
+              "curso_aca_ini",
+              "curso_aca",
+              "curso_aca_fin",
+              "nota",
+              "seguro",
+              "nota_selectividad",
+              "nota_acceso",
+              "cred_matriculados",
+              "cred_superados",
+              "egresado",
+              "nuevo",
+              "media_curso"
+            ],
+            "colsEliminadas": [
+              "nombre"
+            ],
+            "motivoCols": "Columnas de 'expedientes' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_notas",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "notas",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "curso_aca",
+                  "exp_tit_id",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno"
+                ],
+                "count": 5
+              },
+              "stats": {
+                "rowCount": 107908
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\notas.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "curso_aca",
+              "exp_tit_id",
+              "media_titulacion_curso",
+              "media_titulacion_alumno"
+            ],
+            "colsEliminadas": [],
+            "motivoCols": "Columnas de 'notas' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_preinscripcion",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "preinscripcion",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "ano",
+                  "universidad",
+                  "municipio",
+                  "cp",
+                  "orden_titulacion",
+                  "cupo",
+                  "nom_cupo",
+                  "estado",
+                  "nota_txt",
+                  "solicitud_id",
+                  "cod_estudios",
+                  "via_estudios",
+                  "convocatoria",
+                  "nota_1",
+                  "nota_2",
+                  "ano_1",
+                  "con_1",
+                  "titulacion_centro",
+                  "estado_titulacion",
+                  "uni_id",
+                  "nombre_universidad",
+                  "estudio",
+                  "per_id_ficticio",
+                  "matriculado"
+                ],
+                "count": 24
+              },
+              "stats": {
+                "rowCount": 210986
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\preinscripcion.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "cupo"
+            ],
+            "colsEliminadas": [
+              "ano",
+              "universidad",
+              "municipio",
+              "cp",
+              "orden_titulacion",
+              "nom_cupo",
+              "estado",
+              "nota_txt",
+              "solicitud_id",
+              "cod_estudios",
+              "via_estudios",
+              "convocatoria",
+              "nota_1",
+              "nota_2",
+              "ano_1",
+              "con_1",
+              "titulacion_centro",
+              "estado_titulacion",
+              "uni_id",
+              "nombre_universidad",
+              "estudio",
+              "matriculado"
+            ],
+            "motivoCols": "Columnas de 'preinscripcion' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_recibos",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "recibos",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "curso_aca",
+                  "nombre_recibos",
+                  "forma_de_pago",
+                  "numero_pagos"
+                ],
+                "count": 5
+              },
+              "stats": {
+                "rowCount": 114454
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\recibos.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "curso_aca",
+              "forma_de_pago",
+              "numero_pagos"
+            ],
+            "colsEliminadas": [
+              "nombre_recibos"
+            ],
+            "motivoCols": "Columnas de 'recibos' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_titulaciones",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "titulaciones",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "exp_tit_id",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "tipo",
+                  "tipo_estudio"
+                ],
+                "count": 6
+              },
+              "stats": {
+                "rowCount": 45
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\titulaciones.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "exp_tit_id",
+              "titulacion",
+              "rama",
+              "cred_titulacion"
+            ],
+            "colsEliminadas": [
+              "tipo",
+              "tipo_estudio"
+            ],
+            "motivoCols": "Columnas de 'titulaciones' que persisten en df_alumno."
+          }
+        }
+      },
+      {
+        "eventType": "COMPLETE",
+        "job": {
+          "namespace": "tfm.fase1",
+          "name": "aporta_trabajo",
+          "facets": {
+            "nivel": "funcion",
+            "notebook": "f1_m04a_union_tablas",
+            "funcion": "pd.merge(how='left')",
+            "operacion": "aporte de columnas"
+          }
+        },
+        "inputs": [
+          {
+            "name": "trabajo",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "nombre_trabajo",
+                  "mat_curso_aca"
+                ],
+                "count": 4
+              },
+              "stats": {
+                "rowCount": 195524
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\01_interim\\trabajo.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "df_alumno",
+            "facets": {
+              "schema": {
+                "fields": [
+                  "per_id_ficticio",
+                  "exp_tit_id",
+                  "curso_aca_ini",
+                  "curso_aca",
+                  "curso_aca_fin",
+                  "nota",
+                  "via_acceso_exp",
+                  "seguro",
+                  "nota_selectividad",
+                  "nota_acceso",
+                  "cred_matriculados",
+                  "cred_superados",
+                  "egresado",
+                  "nuevo",
+                  "media_curso",
+                  "titulacion",
+                  "rama",
+                  "cred_titulacion",
+                  "sexo",
+                  "fecha_nacimiento",
+                  "id_pais",
+                  "pais_nombre",
+                  "poblacion",
+                  "provincia",
+                  "pais_domicilio",
+                  "vive_fuera",
+                  "nombre_beca",
+                  "tiene_beca",
+                  "nombre_trabajo",
+                  "media_titulacion_curso",
+                  "media_titulacion_alumno",
+                  "forma_de_pago",
+                  "numero_pagos",
+                  "via_acceso",
+                  "orden_preferencia",
+                  "cupo",
+                  "universidad_origen"
+                ],
+                "count": 37
+              },
+              "stats": {
+                "rowCount": 109568
+              },
+              "source": {
+                "file": "C:\\FF\\AU_UJI_v2\\data\\02_processed\\df_alumno.parquet",
+                "origen": "literal"
+              }
+            }
+          }
+        ],
+        "facets": {
+          "diff": {
+            "deltaFilas": null,
+            "motivoFilas": "",
+            "colsAnadidas": [
+              "exp_tit_id",
+              "nombre_trabajo"
+            ],
+            "colsEliminadas": [
+              "mat_curso_aca"
+            ],
+            "motivoCols": "Columnas de 'trabajo' que persisten en df_alumno."
+          }
+        }
+      }
+    ]
+  }
+}
