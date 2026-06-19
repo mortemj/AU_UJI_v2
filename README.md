@@ -71,7 +71,7 @@ Esta es la **versión 2** del proyecto, con mejoras sustanciales respecto a V1:
 
 ### Comparación con baseline AutoML
 
-CatBoost AutoGluon BAG L2 (D_strict): AUC = 0.9365 · F1 = 0.797 · superado por el modelo final.
+TabPFN v2: AUC = 0,9644 · F1 = 0,8496 · excluido de producción por inviabilidad de despliegue (~7,3 h de inferencia).
 
 ### Volumen de modelos evaluados
 
