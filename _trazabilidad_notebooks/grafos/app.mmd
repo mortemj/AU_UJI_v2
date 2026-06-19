@@ -1,0 +1,35 @@
+%% Trazabilidad APP (Fase 7) - Streamlit
+%% NOTA: la app NO contiene notebooks (.ipynb); son modulos .py.
+%% Se incluye para mostrar que consume los artefactos de la Fase 6.
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef py fill:#FDECEA,stroke:#C5221F,color:#7A1A16;
+
+    APPPQ[("data/06_evaluacion/meta_test_app.parquet<br/>(de Fase 6 m00b/m00c)")]:::art
+    MJSON[("data/06_evaluacion/metricas_modelo.json<br/>(de Fase 6 m00_preparacion)")]:::art
+    MODEL[("data/05_modelado/models/LightGBM__none.pkl<br/>(de Fase 5 m03)")]:::art
+
+    LOAD["app/utils/loaders.py"]:::py
+    MAIN["app/main.py"]:::py
+    PRON["app/utils/pronostico_shared.py"]:::py
+    P00["pages/p00_inicio"]:::py
+    P01["pages/p01_institucional"]:::py
+    P02["pages/p02_titulacion"]:::py
+    P03["pages/p03_prospecto"]:::py
+    P04["pages/p04_en_curso"]:::py
+    P05["pages/p05_equidad"]:::py
+    P06["pages/p06_leyenda"]:::py
+
+    APPPQ --> LOAD
+    MJSON --> LOAD
+    MODEL --> PRON
+    LOAD --> MAIN
+    PRON --> MAIN
+    MAIN --> P00
+    MAIN --> P01
+    MAIN --> P02
+    MAIN --> P03
+    MAIN --> P04
+    MAIN --> P05
+    MAIN --> P06

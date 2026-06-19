@@ -1,0 +1,62 @@
+%% Trazabilidad FASE 3 - Features y target (df_alumno -> dataset_final_tfm / df_eda_final)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef puente fill:#E6F4EA,stroke:#188038,color:#0B5A28,stroke-width:2px;
+    classDef orf fill:#F2F2F2,stroke:#999,color:#666,stroke-dasharray:4 3;
+
+    DFAL[("df_alumno.parquet<br/>(viene de Fase 1)")]:::art
+    M01["f3_m01_validacion"]:::nb
+    LIMP[("df_alumno_limpio.parquet")]:::art
+    M02["f3_m02_agregacion"]:::nb
+    EXPB[("df_expediente_base.parquet")]:::art
+    M03["f3_m03_features"]:::nb
+    FEAT[("df_expediente_features.parquet")]:::art
+    M04A["f3_m04a_automl_target"]:::nb
+    M04B["f3_m04b_eda_target"]:::nb
+    EAU[("df_exp_automl_target.parquet")]:::art
+    EEDA[("df_exp_target_eda.parquet")]:::art
+    M04I["f3_m04_index"]:::nb
+    M05["f3_m05_target_export (PUENTE)"]:::puente
+    DSTRICT[("data/automl/dataset_final_tfm.parquet (D_strict)")]:::art
+    DD[("df_exp_automl_D.parquet (D)")]:::art
+    EDACT[("df_eda_con_target.parquet")]:::art
+    M06["f3_m06_alerta_temprana"]:::nb
+    M07["f3_m07_validacion"]:::nb
+    M08["f3_m08_auditoria (PUENTE)"]:::puente
+    EDAF[("data/04_eda/df_eda_final.parquet")]:::art
+    M09["f3_m09_perfiles_riesgo"]:::nb
+    IDX["f3_m00_indice"]:::nb
+    EJE["f3_m00_ejecucion (orquesta fase)"]:::nb
+    PLANT["plantilla_fX_m0Y"]:::orf
+
+    DFAL --> M01 --> LIMP
+    M01 -. "df_longitudinal_trayectoria" .-> M01
+    LIMP --> M02 --> EXPB
+    EXPB --> M03
+    LIMP --> M03
+    M03 --> FEAT
+    FEAT --> M04A --> EAU
+    FEAT --> M04B --> EEDA
+    EAU --> M04I
+    EEDA --> M04I
+    EAU --> M05
+    EEDA --> M05
+    M05 --> DSTRICT
+    M05 --> DD
+    M05 --> EDACT
+    DD --> M06
+    DSTRICT --> M06
+    DSTRICT --> M07
+    DD --> M08
+    DSTRICT --> M08
+    EDACT --> M08
+    EXPB --> M08
+    M08 --> EDAF
+    EDAF --> M09
+    FEAT --> IDX
+    DSTRICT --> IDX
+
+    DSTRICT -. "PUENTE a Fase AutoML y Fase 5" .-> OUT1(["-> fase_automl / fase5"]):::puente
+    EDAF -. "PUENTE a Fase 4" .-> OUT2(["-> fase4"]):::puente

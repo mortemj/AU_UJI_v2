@@ -1,0 +1,27 @@
+%% Trazabilidad FASE 0 - Configuracion / Setup
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef orf fill:#F2F2F2,stroke:#999,color:#666,stroke-dasharray:4 3;
+
+    GEN["f0_generar_excel_prueba"]:::nb
+    SETUP["f0_setup_demo"]:::nb
+    CONF["00_configuracion_proyecto"]:::nb
+    VAL["f0_validar_excel"]:::nb
+    ORQ["orquestador_maestro"]:::nb
+    RES["f0_actualizar_resumen"]:::orf
+
+    DEMO[("Excel DEMO ejemplo/")]:::art
+    ZIP[("data/demo/demo_excel.zip")]:::art
+    RAW[("data/00_raw/*.xlsx")]:::art
+
+    GEN --> DEMO
+    DEMO -. "empaquetado (verificar)" .-> ZIP
+    ZIP --> SETUP
+    SETUP --> RAW
+    RAW --> CONF
+    RAW --> VAL
+    ORQ -. "lanza F1..F6" .-> CONF
+
+    %% RES regenera HTML leyendo estado del disco (no encadenado)

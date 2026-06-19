@@ -1,0 +1,75 @@
+%% Trazabilidad FASE 6 - Evaluacion / interpretabilidad (-> metricas_modelo.json + meta_test_app)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef puente fill:#E6F4EA,stroke:#188038,color:#0B5A28,stroke-width:2px;
+    classDef orf fill:#F2F2F2,stroke:#999,color:#666,stroke-dasharray:4 3;
+
+    IN[("de Fase 5: models/*.pkl, X/y *_prep, resultados_maestro<br/>de Fase 3: df_eda_final, df_exp_*")]:::art
+    M00P["f6_m00_preparacion (PUENTE)"]:::puente
+    META[("meta_test.parquet")]:::art
+    MJSON[("metricas_modelo.json<br/>(FUENTE UNICA DE METRICAS)")]:::art
+    M00B["f6_m00b_preparacion_app (PUENTE app)"]:::puente
+    APPPQ[("meta_test_app.parquet")]:::art
+    M00C["f6_m00c_export_probs (PUENTE app)"]:::puente
+
+    M01A["f6_m01a_shap_global"]:::nb
+    SHAPG[("shap_global_ganador.pkl + shap_importancia_comparativa.parquet")]:::art
+    M01B["f6_m01b_shap_local"]:::nb
+    PERF[("perfiles_locales.parquet")]:::art
+    M01C["f6_m01c_shap_cohortes"]:::nb
+    M01D["f6_m01d_shapash"]:::nb
+    M02A["f6_m02a_lime"]:::nb
+    M02B["f6_m02b_dice"]:::nb
+    M03A["f6_m03a_fairness"]:::nb
+    M03B["f6_m03b_errores_fpfn"]:::nb
+    M04A["f6_m04a_stress"]:::nb
+    M04B["f6_m04b_calibracion"]:::nb
+    M04C["f6_m04c_sostenibilidad"]:::nb
+    M04D["f6_m04d_robustez_temporal"]:::nb
+    M05["f6_m05_robustez_calibracion (duplicado de m04d? verificar)"]:::orf
+    M06["f6_m06_informe_final"]:::nb
+
+    IDXS["f6_m01_shap_indice"]:::nb
+    IDXI["f6_m02_interp_indice"]:::nb
+    IDXF["f6_m03_fairness_indice"]:::nb
+    IDXR["f6_m04_robustez_indice"]:::nb
+    IDX0["f6_m00_indice"]:::nb
+    EJE["f6_m00_ejecucion (orquesta fase)"]:::nb
+    UMOD["modelos (utils)"]:::orf
+    USHAP["shap_importancia_comparativa (utils)"]:::orf
+    UVER["verificacion_pre_m01a (utils)"]:::orf
+
+    IN --> M00P
+    M00P --> META
+    M00P --> MJSON
+    META --> M00B
+    M00B --> APPPQ
+    APPPQ --> M00C --> APPPQ
+    MJSON --> M00C
+    MJSON --> M00B
+
+    MJSON --> M01A --> SHAPG
+    SHAPG --> M01B --> PERF
+    SHAPG --> M01C
+    SHAPG --> M01D
+    SHAPG --> M02A
+    PERF --> M02A
+    MJSON --> M02B
+    MJSON --> M03A
+    MJSON --> M03B
+    SHAPG --> M04A
+    MJSON --> M04B
+    MJSON --> M04C
+    META --> M04D
+    M04D --> MJSON
+    M05 -. "tambien actualiza (verificar vigencia)" .-> MJSON
+
+    PERF --> M06
+    SHAPG --> M06
+    MJSON --> M06
+    MJSON --> IDX0
+
+    APPPQ -. "PUENTE a la app (Fase 7)" .-> OUT(["-> app Streamlit"]):::puente
+    MJSON -. "PUENTE a la app (Fase 7)" .-> OUT

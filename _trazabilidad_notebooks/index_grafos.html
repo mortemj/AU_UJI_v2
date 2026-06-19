@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trazabilidad de notebooks — AU_UJI_v2</title>
+<style>
+  :root {
+    --azul: rgba(30, 77, 140, 1);
+    --azul-claro: rgba(232, 240, 254, 1);
+    --verde: rgba(24, 128, 56, 1);
+    --gris: rgba(74, 85, 104, 1);
+    --borde: rgba(203, 213, 224, 1);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: rgba(45, 55, 72, 1); background: rgba(247, 250, 252, 1); line-height: 1.5;
+  }
+  header {
+    background: var(--azul); color: white; padding: 22px 28px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; font-size: 13px; opacity: 0.9; }
+  nav {
+    position: sticky; top: 0; z-index: 10; background: white;
+    border-bottom: 1px solid var(--borde); padding: 10px 28px;
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  nav button {
+    border: 1px solid var(--borde); background: white; color: var(--gris);
+    padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  nav button:hover { background: var(--azul-claro); }
+  nav button.activo { background: var(--azul); color: white; border-color: var(--azul); }
+  main { padding: 24px 28px 60px; max-width: 1200px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.activo { display: block; }
+  .panel h2 { color: var(--azul); font-size: 18px; margin: 0 0 6px; }
+  .panel .desc {
+    font-size: 13px; color: var(--gris); margin: 0 0 16px;
+    background: var(--azul-claro); border-left: 4px solid var(--azul);
+    padding: 10px 14px; border-radius: 6px;
+  }
+  .puente { border-left-color: var(--verde); }
+  .grafo {
+    border: 1px solid var(--borde); border-radius: 8px; background: white;
+    padding: 16px; overflow: auto; text-align: center;
+  }
+  .grafo img { max-width: 100%; height: auto; }
+  .links { margin-top: 10px; font-size: 12px; color: var(--gris); }
+  .links a { color: var(--azul); text-decoration: none; margin-right: 14px; }
+  .links a:hover { text-decoration: underline; }
+  footer { padding: 18px 28px; font-size: 12px; color: var(--gris); border-top: 1px solid var(--borde); }
+  code { background: rgba(237, 242, 247, 1); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Trazabilidad de notebooks — AU_UJI_v2</h1>
+  <p>Grafos de relación entre notebooks por fase y grafo maestro entre fases. Generado en modo solo lectura.</p>
+</header>
+
+<nav id="nav"></nav>
+
+<main id="main"></main>
+
+<footer>
+  Flecha sólida = el origen genera un artefacto que el destino consume · discontinua = dependencia opcional / orquestación / a verificar.
+  Inventario completo y matriz de aristas en <code>inventario_notebooks.xlsx</code>. Fuentes <code>.mmd</code> en <code>grafos/</code>.
+</footer>
+
+<script>
+const GRAFOS = [
+  ["maestro_fases", "Grafo MAESTRO entre fases",
+   "Relación entre fases con el NOTEBOOK PUENTE etiquetado en cada arista (el que genera lo que la fase siguiente consume).", true],
+  ["fase0", "Fase 0 · Configuración / Setup",
+   "Preparación del entorno y datos. Puente hacia Fase 1: f0_setup_demo → data/00_raw/*.xlsx.", false],
+  ["fase1", "Fase 1 · Transformación",
+   "Datos originales → df_alumno.parquet. Puente: f1_m04d_correccion_via_acceso.", false],
+  ["fase2", "Fase 2 · EDA descriptivo",
+   "Análisis exploratorio sobre df_alumno. Rama de análisis: no alimenta el modelado.", false],
+  ["fase3", "Fase 3 · Features + target",
+   "Puentes: f3_m05_target_export → dataset_final_tfm.parquet; f3_m08_auditoria → df_eda_final.parquet.", false],
+  ["fase_automl", "Fase AutoML · Benchmark de frameworks",
+   "Benchmark sobre dataset_final_tfm. Puente: fautoml_m07_comparativa → automl_top_modelos.parquet.", false],
+  ["fase4", "Fase 4 · EDA features/target",
+   "EDA sobre df_eda_final. Rama de análisis; produce ranking_final_fase4.parquet.", false],
+  ["fase5", "Fase 5 · Modelado / benchmark",
+   "Puentes: f5_m01a (datos preparados), f5_m03 (modelos .pkl, ganador LightGBM), f5_m07 (maestro + top3).", false],
+  ["fase6", "Fase 6 · Evaluación / interpretabilidad",
+   "Puentes a la app: f6_m00_preparacion (metricas_modelo.json), f6_m00b/m00c (meta_test_app.parquet).", false],
+  ["app", "App (Fase 7) · Streamlit",
+   "La app NO tiene notebooks (módulos .py). Consume los artefactos de la Fase 6 y el modelo de la Fase 5.", false],
+];
+
+const nav = document.getElementById("nav");
+const main = document.getElementById("main");
+
+GRAFOS.forEach(([id, titulo, desc, puente], i) => {
+  const btn = document.createElement("button");
+  btn.textContent = titulo.split(" · ")[0];
+  btn.dataset.id = id;
+  if (i === 0) btn.classList.add("activo");
+  btn.onclick = () => activar(id);
+  nav.appendChild(btn);
+
+  const panel = document.createElement("section");
+  panel.className = "panel" + (i === 0 ? " activo" : "");
+  panel.id = "panel-" + id;
+  panel.innerHTML =
+    '<h2>' + titulo + '</h2>' +
+    '<p class="desc' + (puente ? ' puente' : '') + '">' + desc + '</p>' +
+    '<div class="grafo"><img src="grafos/' + id + '.svg" alt="' + titulo + '"></div>' +
+    '<p class="links">Descargar: ' +
+      '<a href="grafos/' + id + '.svg" target="_blank">SVG</a>' +
+      '<a href="grafos/' + id + '.png" target="_blank">PNG</a>' +
+      '<a href="grafos/' + id + '.mmd" target="_blank">fuente .mmd</a>' +
+    '</p>';
+  main.appendChild(panel);
+});
+
+function activar(id) {
+  document.querySelectorAll("nav button").forEach(b =>
+    b.classList.toggle("activo", b.dataset.id === id));
+  document.querySelectorAll(".panel").forEach(p =>
+    p.classList.toggle("activo", p.id === "panel-" + id));
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+</body>
+</html>

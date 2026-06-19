@@ -275,7 +275,7 @@ def cargar_baseline_automl(ruta_json=None) -> Dict[str, Any] | None:
         'precision':   round(float(mejor['precision']), 4),
         'recall':      round(float(mejor['recall']), 4),
         'descripcion': (
-            f'Mejor modelo del screening AutoML (168 modelos, 4 frameworks). '
+            f'Mejor modelo del screening AutoML (83 modelos, 4 frameworks). '
             f'Caso {mejor["caso"]} — selección por F1 binario clase abandono. '
             f'Fase 5 parte de este baseline como referencia mínima.'
         ),

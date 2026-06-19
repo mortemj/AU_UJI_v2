@@ -1,0 +1,42 @@
+%% Trazabilidad FASE 4 - EDA sobre features/target (df_eda_final)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef ext fill:#EFE6FA,stroke:#6A1B9A,color:#4A148C;
+
+    EDAF[("df_eda_final.parquet<br/>(viene de Fase 3 m08)")]:::art
+    DSTRICT[("dataset_final_tfm.parquet<br/>(Fase 3 m05)")]:::art
+    TOP[("automl_top_modelos.parquet<br/>(Fase AutoML m07)")]:::ext
+
+    EJE["f4_m00_ejecucion (orquesta fase)"]:::nb
+    IDX["f4_m00_indice"]:::nb
+    M01["f4_m01_inspeccion"]:::nb
+    M02["f4_m02_target"]:::nb
+    M03["f4_m03_distribuciones_num"]:::nb
+    M04["f4_m04_distribuciones_cat"]:::nb
+    M05["f4_m05_bivariante"]:::nb
+    BIV[("resultados_bivariante_*.csv")]:::art
+    M06["f4_m06_correlaciones"]:::nb
+    CORR[("f4_m06_correlaciones_tabla.parquet")]:::art
+    M07["f4_m07_seleccion_features"]:::nb
+    SELF[("f4_m07_features_seleccionadas.parquet")]:::art
+    M08["f4_m08_perfiles_riesgo"]:::nb
+    M09["f4_m09_conclusiones_eda"]:::nb
+    RANK[("ranking_final_fase4.parquet")]:::art
+
+    EDAF --> IDX
+    EDAF --> M01
+    EDAF --> M02
+    EDAF --> M03
+    EDAF --> M04
+    EDAF --> M05 --> BIV
+    EDAF --> M06 --> CORR
+    CORR -. "ranking (m06)" .-> M07
+    TOP -. "importancias (opcional)" .-> M07
+    M07 --> SELF
+    EDAF --> M08
+    CORR --> M08
+    DSTRICT --> M09
+    CORR -. "fallback ranking m06 (opcional)" .-> M09
+    M09 --> RANK

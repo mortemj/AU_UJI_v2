@@ -1,0 +1,108 @@
+%% =====================================================================
+%% DIAGRAMA DE DETALLE — Flujo de predicción de la app (p03 / p04)
+%% TFM Predicción de Abandono Universitario (UJI)
+%% Vista de runtime: cómo una página de pronóstico carga modelo+pipeline+datos
+%% y produce la probabilidad de abandono de un perfil concreto.
+%% Generado en modo solo lectura a partir del código real:
+%%   app/pages/p03_prospecto.py · p04_en_curso.py
+%%   app/utils/pronostico_shared.py  (show_pronostico, _calcular_probabilidad)
+%%   app/utils/loaders.py
+%% Para exportar a imagen: pegar en https://mermaid.live
+%% =====================================================================
+flowchart TB
+
+  %% ------------------------------------------------------------------
+  %% ENTRADA — páginas wrapper
+  %% ------------------------------------------------------------------
+  subgraph UI["🖥️ Páginas de pronóstico (wrappers finos)"]
+    direction LR
+    P03["p03_prospecto.py<br/>modo = 'prospecto'<br/>(antes de matricularse)"]
+    P04["p04_en_curso.py<br/>modo = 'en_curso'<br/>(ya matriculado)"]
+  end
+  P03 --> SHOW
+  P04 --> SHOW
+  SHOW["show_pronostico(modo)<br/>pronostico_shared.py"]
+
+  %% ------------------------------------------------------------------
+  %% CARGA DE RECURSOS (cacheada)
+  %% ------------------------------------------------------------------
+  subgraph LOAD["📦 Carga de recursos · utils/loaders.py (caché Streamlit)"]
+    direction TB
+    L1["cargar_modelo()<br/>ruta resuelta dinámicamente<br/>desde metricas_modelo.json"]
+    L2["cargar_pipeline()<br/>pipeline_preprocesamiento.pkl"]
+    L3["cargar_meta_test_app()<br/>meta_test_app.parquet → df_ref<br/>(titulaciones fusionadas)"]
+    L4["X_test_prep.parquet → df_features<br/>(medias reales para imputar)"]
+  end
+
+  subgraph DISK["💾 Artefactos en disco"]
+    direction TB
+    JSON["metricas_modelo.json<br/>modelo_pkl = LightGBM__none.pkl"]
+    PKL["LightGBM__none.pkl<br/>(modelo ganador)"]
+    PIPE["pipeline_preprocesamiento.pkl<br/>imputer + encoder + scaler"]
+    MTA["meta_test_app.parquet"]
+    XTP["X_test_prep.parquet"]
+  end
+
+  JSON -->|"modelo_pkl"| L1
+  PKL --> L1
+  PIPE --> L2
+  MTA --> L3
+  XTP --> L4
+
+  SHOW --> L1
+  SHOW --> L2
+  SHOW --> L3
+  SHOW --> L4
+
+  %% ------------------------------------------------------------------
+  %% PASO 1 y 2 — contexto + formulario
+  %% ------------------------------------------------------------------
+  SHOW --> CTX["1️⃣ _selector_contexto()<br/>titulación / rama / todas / comparativa<br/>→ df_ctx (subconjunto de df_ref)"]
+  SHOW --> FORM["2️⃣ _formulario_perfil()<br/>perfil = dict de features<br/>(básicas + avanzadas según modo)"]
+
+  CTX --> CALC
+  FORM --> CALC
+
+  %% ------------------------------------------------------------------
+  %% PASO 3 — cálculo de probabilidad (núcleo)
+  %% ------------------------------------------------------------------
+  subgraph CALC["3️⃣ _calcular_probabilidad(perfil, modelo, pipeline, df_ctx)"]
+    direction TB
+    C1["a) _traducir_perfil_a_codigos()<br/>strings UI → códigos numéricos<br/>(SEXO_MAP, VIA_ACCESO_MAP, RAMA_MAP…)"]
+    C2["b) cols = pipeline.feature_names_in_<br/>(fuente de verdad de columnas)"]
+    C3["c) Imputación por prioridad:<br/>1·usuario → 2·media df_ctx →<br/>3·media scaler (training) → 4·cero"]
+    C4["d) X_usuario (1 fila) → fillna(0)<br/>→ pipeline.transform() → X_prep (numpy)"]
+    C5["e) modelo.predict_proba(X_prep)[0,1]<br/>→ prob ∈ [0,1]"]
+    C1 --> C2 --> C3 --> C4 --> C5
+  end
+
+  CALC --> ADJ["_ajustar_prob_por_titulacion()<br/>ajuste post-hoc en espacio LOGIT<br/>logit(p)+log(tasa_tit/tasa_rama)<br/>⚠️ NO forma parte del modelo entrenado"]
+
+  %% ------------------------------------------------------------------
+  %% PASO 4 — visualización del resultado
+  %% ------------------------------------------------------------------
+  subgraph VIS["4️⃣ Visualización (prob final)"]
+    direction LR
+    V1["Velocímetro<br/>de riesgo"]
+    V2["Radar perfil<br/>vs éxito/abandono"]
+    V3["Cascada de contribuciones<br/>SHAP TreeExplainer en vivo<br/>o proxy de medias"]
+    V4["Percentil histórico"]
+    V5["Recomendaciones<br/>personalizadas"]
+  end
+
+  ADJ --> VIS
+
+  %% ------------------------------------------------------------------
+  %% Estilos
+  %% ------------------------------------------------------------------
+  classDef ui fill:#fce4ec,stroke:#dc2626,color:#5a0d18;
+  classDef load fill:#e3f2fd,stroke:#1e4d8c,color:#0d2b50;
+  classDef disk fill:#eceff1,stroke:#607d8b,color:#263238;
+  classDef calc fill:#e8f5e9,stroke:#10b981,color:#06402a;
+  classDef adj fill:#fff8e1,stroke:#f59e0b,color:#5a3d00;
+
+  class P03,P04,SHOW,CTX,FORM,V1,V2,V3,V4,V5 ui;
+  class L1,L2,L3,L4 load;
+  class JSON,PKL,PIPE,MTA,XTP disk;
+  class C1,C2,C3,C4,C5 calc;
+  class ADJ adj;

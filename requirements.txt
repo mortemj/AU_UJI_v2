@@ -1,6 +1,7 @@
 # ============================================================
 # requirements.txt — APP Streamlit (Streamlit Cloud)
 # Solo dependencias necesarias para ejecutar la app.
+# Modelo ganador: LightGBM__none.pkl
 # ============================================================
 
 # Core
@@ -23,8 +24,10 @@ plotly>=5.14.0
 matplotlib>=3.6.0
 seaborn>=0.12.0
 
-# Modelo (necesarios para deserializar Stacking__balanced.pkl)
+# Modelo (necesarios para deserializar LightGBM__none.pkl y ensembles)
 scikit-learn==1.6.1
+lightgbm>=4.0.0
+xgboost>=2.0.0
 catboost>=1.2
 imbalanced-learn>=0.11
 interpret>=0.4

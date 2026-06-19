@@ -1,0 +1,52 @@
+%% Trazabilidad FASE 1 - Transformacion (datos originales -> df_alumno)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef puente fill:#E6F4EA,stroke:#188038,color:#0B5A28,stroke-width:2px;
+    classDef orf fill:#F2F2F2,stroke:#999,color:#666,stroke-dasharray:4 3;
+
+    RAW[("data/00_raw/*.xlsx")]:::art
+    M01["f1_m01_reportes_raw"]:::nb
+    M02["f1_m02_limpieza"]:::nb
+    INTERIM[("data/01_interim/*.parquet")]:::art
+    M03["f1_m03_reportes_clean"]:::nb
+    M04["f1_m04_dataset_final (orquesta a/b/c/d)"]:::nb
+    M04A["f1_m04a_union_tablas"]:::nb
+    BASE[("df_alumno_base.parquet")]:::art
+    M04B["f1_m04b_union_preinscripcion"]:::nb
+    M04C["f1_m04c_correccion_notas"]:::nb
+    M04D["f1_m04d_correccion_via_acceso (PUENTE)"]:::puente
+    DFAL[("data/02_processed/df_alumno.parquet")]:::art
+
+    M05["f1_m05_dashboard"]:::nb
+    TRZ["f1_m05_m06_trazabilidad"]:::nb
+    G06["f1_m06_grafo"]:::nb
+    G06P["f1_m06_grafo_pyvis"]:::nb
+    IDX["f1_m00_indice"]:::nb
+    EJE["f1_m00_ejecucion (orquesta fase)"]:::nb
+
+    RAW --> M01
+    RAW --> M02
+    M02 --> INTERIM
+    INTERIM --> M03
+    INTERIM --> M04A
+    M04A --> BASE
+    BASE --> M04B
+    INTERIM -. "preinscripcion.parquet" .-> M04B
+    M04B --> DFAL
+    DFAL --> M04C --> DFAL
+    DFAL --> M04D --> DFAL
+    M04 -. "%run" .-> M04A
+    M04 -. "%run" .-> M04D
+
+    DFAL --> IDX
+    DFAL --> M05
+    INTERIM --> TRZ
+    DFAL --> TRZ
+    INTERIM --> G06
+    DFAL --> G06
+    INTERIM --> G06P
+    DFAL --> G06P
+
+    DFAL -. "PUENTE a Fase 2 y Fase 3" .-> FUERA(["-> fase2 / fase3"]):::puente

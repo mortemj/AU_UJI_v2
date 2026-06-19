@@ -2,16 +2,24 @@
 =============================================================================
 comprimir_modelo_app.py
 
-Comprime data/05_modelado/models/Stacking__balanced.pkl usando joblib
-con compress=3 para reducir su tamaño de ~80 MB a ~23 MB.
+Comprime con joblib (compress=3) el modelo GANADOR del proyecto, el unico
+que necesita la app Streamlit, para reducir su tamano antes de subirlo a
+GitHub.
 
-Es el modelo ganador del TFM y el unico que necesita la app Streamlit.
+El nombre del modelo ganador NO esta escrito a mano: se lee dinamicamente de
+data/06_evaluacion/metricas_modelo.json (campo "modelo_pkl"), igual que hace
+la app. Asi, si en el futuro el modelo ganador cambia (otro dataset, otro
+algoritmo), este script comprime automaticamente el correcto sin tocar codigo.
+
+Nota: si el modelo ganador ya pesa poco (p. ej. LightGBM__none.pkl, <1 MB),
+el script avisa y no hace nada, porque no necesita compresion.
 
 Llamado por comprimir_modelo_app.bat. Tambien puede ejecutarse directo:
     python comprimir_modelo_app.py
 =============================================================================
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -36,16 +44,39 @@ def encontrar_root() -> Path:
 
 
 # -----------------------------------------------------------------------------
+# Leer el nombre del modelo ganador desde la fuente de verdad (el JSON)
+# -----------------------------------------------------------------------------
+
+def obtener_nombre_modelo_ganador(root: Path) -> str:
+    """Lee modelo_pkl de data/06_evaluacion/metricas_modelo.json."""
+    ruta_json = root / "data" / "06_evaluacion" / "metricas_modelo.json"
+    if not ruta_json.exists():
+        raise FileNotFoundError(
+            f"No se encontro la fuente de verdad: {ruta_json}\n"
+            "Ejecuta antes la Fase 6 para generar metricas_modelo.json."
+        )
+    with open(ruta_json, encoding="utf-8") as f:
+        meta = json.load(f)
+    nombre_pkl = meta.get("modelo_pkl")
+    if not nombre_pkl:
+        raise KeyError(
+            "El JSON metricas_modelo.json no contiene el campo 'modelo_pkl'."
+        )
+    return nombre_pkl
+
+
+# -----------------------------------------------------------------------------
 # Funcion principal
 # -----------------------------------------------------------------------------
 
 def main() -> int:
     root = encontrar_root()
-    ruta_pkl = root / "data" / "05_modelado" / "models" / "Stacking__balanced.pkl"
+    nombre_modelo = obtener_nombre_modelo_ganador(root)
+    ruta_pkl = root / "data" / "05_modelado" / "models" / nombre_modelo
     ruta_backup = ruta_pkl.with_suffix(".pkl.bak")
 
     print("=" * 70)
-    print(" Compresion de Stacking__balanced.pkl")
+    print(f" Compresion del modelo ganador: {nombre_modelo}")
     print("=" * 70)
 
     # 1) Verificar que existe
@@ -58,10 +89,10 @@ def main() -> int:
     print(f"\nFichero: {ruta_pkl}")
     print(f"Tamano actual: {tam_original_mb:.2f} MB")
 
-    # 2) Si ya esta comprimido (< 30 MB), avisar y salir
+    # 2) Si ya esta comprimido o es pequeno (< 30 MB), avisar y salir
     if tam_original_mb < 30:
-        print(f"\n[AVISO] El fichero ya pesa menos de 30 MB.")
-        print(f"        Probablemente ya esta comprimido. No se hace nada.")
+        print(f"\n[AVISO] El fichero pesa menos de 30 MB.")
+        print(f"        No necesita compresion (o ya esta comprimido). No se hace nada.")
         return 0
 
     # 3) Hacer backup

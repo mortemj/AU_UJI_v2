@@ -1,0 +1,69 @@
+%% Trazabilidad FASE 5 - Modelado / benchmark (dataset_final_tfm -> modelos + maestro)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef puente fill:#E6F4EA,stroke:#188038,color:#0B5A28,stroke-width:2px;
+    classDef orf fill:#F2F2F2,stroke:#999,color:#666,stroke-dasharray:4 3;
+
+    DS[("dataset_final_tfm.parquet<br/>(de Fase 3; verificar ruta 03_features vs automl)")]:::art
+    M01A["f5_m01a_preparacion (PUENTE interno)"]:::puente
+    PREP[("X/y train-test + *_prep.parquet<br/>pipeline_preprocesamiento.pkl")]:::art
+    M01B["f5_m01b_lineales_basico"]:::nb
+    M01C["f5_m01c_lineales_ext"]:::nb
+    M01D["f5_m01d_lineales"]:::nb
+    M02["f5_m02_arboles"]:::nb
+    M03["f5_m03_boosting (genera LightGBM ganador)"]:::nb
+    M04["f5_m04_otros"]:::nb
+    M05["f5_m05_mlp_ebm"]:::nb
+    M06["f5_m06_ensambles"]:::nb
+    RLB[("results_lineales_basico.parquet")]:::art
+    RLE[("results_lineales_ext.parquet")]:::art
+    RLC[("results_lineales_completo.parquet")]:::art
+    RAR[("results_arboles.parquet")]:::art
+    RBO[("results_boosting.parquet")]:::art
+    ROT[("results_otros.parquet")]:::art
+    RME[("results_mlp_ebm.parquet")]:::art
+    REN[("results_ensambles.parquet")]:::art
+    MODELS[("models/*.pkl<br/>(incl. LightGBM__none.pkl)")]:::art
+    M07["f5_m07_comparacion (PUENTE)"]:::puente
+    MAESTRO[("resultados_maestro.parquet + top3_fase6.json")]:::art
+    WT["f5_wilcoxon_top3"]:::nb
+    WX["f5_wilcoxon_xgb_vs_lgb"]:::nb
+    IDX["f5_m00_indice"]:::nb
+    EJE["f5_m00_ejecucion (orquesta fase)"]:::nb
+    MAE["f5_m01_maestro (verificar)"]:::orf
+    COL["columnas_parquet"]:::orf
+
+    DS --> M01A --> PREP
+    DS --> IDX
+    PREP --> M01B --> RLB
+    PREP --> M01C --> RLE
+    RLB --> M01D
+    RLE --> M01D
+    M01D --> RLC
+    PREP --> M02 --> RAR
+    PREP --> M03 --> RBO
+    PREP --> M04 --> ROT
+    PREP --> M05 --> RME
+    PREP --> M06 --> REN
+    M01B --> MODELS
+    M02 --> MODELS
+    M03 --> MODELS
+    M04 --> MODELS
+    M05 --> MODELS
+    M06 --> MODELS
+    MODELS -. "modelos base" .-> M06
+    RLC --> M07
+    RAR --> M07
+    RBO --> M07
+    ROT --> M07
+    RME --> M07
+    REN --> M07
+    M07 --> MAESTRO
+    MODELS --> WT
+    MODELS --> WX
+
+    MAESTRO -. "PUENTE a Fase 6" .-> OUT(["-> fase6 (modelos + maestro + *_prep)"]):::puente
+    MODELS -. "PUENTE a Fase 6" .-> OUT
+    PREP -. "PUENTE a Fase 6" .-> OUT

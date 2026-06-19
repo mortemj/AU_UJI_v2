@@ -1,0 +1,33 @@
+%% Trazabilidad FASE 2 - EDA descriptivo (sobre df_alumno)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef ext fill:#EFE6FA,stroke:#6A1B9A,color:#4A148C;
+
+    DFAL[("data/02_processed/df_alumno.parquet<br/>(viene de Fase 1)")]:::art
+    EJE["f2_m00_ejecucion (orquesta fase)"]:::nb
+    IDX["f2_m00_indice"]:::nb
+    M01["f2_m01_inspeccion"]:::nb
+    M02["f2_m02_calidad"]:::nb
+    M03["f2_m03_nulos"]:::nb
+    M04["f2_m04_univariante_num"]:::nb
+    M05["f2_m05_univariante_cat"]:::nb
+    M06["f2_m06_evolucion"]:::nb
+    M06B["f2_m06b_temporal"]:::nb
+    M07["f2_m07_conclusiones"]:::nb
+    MET[("metricas_modelo.json<br/>(generado en Fase 6)")]:::ext
+
+    DFAL --> IDX
+    DFAL --> M01
+    DFAL --> M02
+    DFAL --> M03
+    DFAL --> M04
+    DFAL --> M05
+    DFAL --> M06
+    DFAL --> M06B
+    DFAL --> M07
+    MET -. "n_features (lectura)" .-> M07
+
+    %% Todos los modulos producen HTML en docs/html/fase2/.
+    %% No hay encadenamiento interno de datos: fase de analisis en paralelo.

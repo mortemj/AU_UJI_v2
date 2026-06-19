@@ -1,0 +1,48 @@
+%% Trazabilidad FASE AUTOML - benchmarking de frameworks (sobre dataset_final_tfm)
+%% Flecha = el origen genera algo que el destino consume
+graph TD
+    classDef nb fill:#E8F0FE,stroke:#1F4E78,color:#1F4E78;
+    classDef art fill:#FFF4E5,stroke:#B36B00,color:#7A4A00;
+    classDef puente fill:#E6F4EA,stroke:#188038,color:#0B5A28,stroke-width:2px;
+    classDef orf fill:#F2F2F2,stroke:#999,color:#666,stroke-dasharray:4 3;
+
+    DS[("dataset_final_tfm.parquet<br/>(viene de Fase 3 m05)")]:::art
+    M01["fautoml_m01_baselines"]:::nb
+    M02["fautoml_m02_lazypredict"]:::nb
+    M03["fautoml_m03_pycaret"]:::nb
+    M04["fautoml_m04_h2o"]:::nb
+    M05["fautoml_m05_autogluon"]:::nb
+    M06["fautoml_m06_tabpfn"]:::nb
+    RB[("results_baselines.parquet")]:::art
+    RL[("results_lazypredict.parquet")]:::art
+    RP[("results_pycaret.parquet")]:::art
+    RH[("results_h2o.parquet")]:::art
+    RA[("results_autogluon.parquet")]:::art
+    RT[("results_tabpfn.parquet")]:::art
+    M07["fautoml_m07_comparativa (PUENTE)"]:::puente
+    TOP[("automl_top_modelos.parquet")]:::art
+    IDX["fautoml_m00_indice"]:::nb
+    EJE["fautoml_m00_ejecucion (orquesta; m06 aparte)"]:::nb
+
+    SETUP["fautoml_setup_entornos"]:::orf
+    VER["ver_entornos"]:::orf
+    C1["comproba_parquet_2"]:::orf
+    C2["comprobar_existe_parquet"]:::orf
+
+    DS --> M01 --> RB
+    DS --> M02 --> RL
+    DS --> M03 --> RP
+    DS --> M04 --> RH
+    DS --> M05 --> RA
+    DS --> M06 --> RT
+    RB --> M07
+    RL --> M07
+    RP --> M07
+    RH --> M07
+    RA --> M07
+    RT --> M07
+    M07 --> TOP
+    TOP --> IDX
+    DS --> IDX
+
+    TOP -. "PUENTE a Fase 4 (m07/m09)" .-> OUT(["-> fase4"]):::puente

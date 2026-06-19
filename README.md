@@ -75,7 +75,7 @@ CatBoost AutoGluon BAG L2 (D_strict): AUC = 0.9365 · F1 = 0.797 · superado por
 
 ### Volumen de modelos evaluados
 
-**69 modelos** entrenados en Fase 5 (23 algoritmos × estrategias `none` / `balanced` / `smote`) + **168 modelos AutoML** en 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict).
+**69 modelos** entrenados en Fase 5 (23 algoritmos × estrategias `none` / `balanced` / `smote`) + **83 modelos AutoML** en 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict).
 
 ---
 
@@ -87,7 +87,7 @@ CatBoost AutoGluon BAG L2 (D_strict): AUC = 0.9365 · F1 = 0.797 · superado por
 | **F1** · Ingesta y limpieza | Carga de 9 tablas fuente, auditoría, limpieza, trazabilidad (109.568 × 37) | ✅ |
 | **F2** · EDA inicial | Análisis exploratorio univariante, bivariante y temporal con Plotly | ✅ |
 | **F3** · Feature engineering | Dataset analítico por estudiante, definición del *target* `abandono` (33.621 × 25) | ✅ |
-| **AutoML** | Baseline con 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict) — 168 modelos | ✅ |
+| **AutoML** | Baseline con 4 frameworks (AutoGluon, PyCaret, H2O, LazyPredict) — 83 modelos | ✅ |
 | **F4** · EDA final | Distribuciones, anomalías, correlaciones, perfiles de riesgo | ✅ |
 | **F5** · Modelado | 69 modelos, 6 familias, comparación cruzada, selección por F1+recall | ✅ |
 | **F6** · Interpretabilidad y equidad | SHAP, LIME, DiCE, *fairness*, calibración, robustez, sostenibilidad | ✅ |

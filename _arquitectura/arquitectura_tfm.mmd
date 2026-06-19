@@ -1,0 +1,149 @@
+%% =====================================================================
+%% DIAGRAMA DE ARQUITECTURA — TFM Predicción de Abandono Universitario (UJI)
+%% Vista por capas: Datos -> Núcleo -> Notebooks -> Modelo -> App -> Resultados
+%% Generado en modo solo lectura a partir de la estructura real del repo.
+%% Para exportar a imagen: pegar en https://mermaid.live  o  mmdc -i arquitectura_tfm.mmd -o arquitectura_tfm.png
+%% =====================================================================
+flowchart TB
+
+  %% ------------------------------------------------------------------
+  %% CAPA 1 — DATOS (Excel originales -> parquets por fase)
+  %% ------------------------------------------------------------------
+  subgraph DATOS["📂 CAPA 1 · DATOS (data/)"]
+    direction TB
+    EXCEL["Excel originales<br/>Servicio de Planificación UJI<br/>(00_raw/)"]
+    D00["00_raw"]
+    D01["01_interim"]
+    D02["02_processed<br/>df_alumno.parquet"]
+    D03["03_features"]
+    D04["04_eda"]
+    DAUTOML["automl/<br/>(autogluon, h2o…)"]
+    D05["05_modelado<br/>models/*.pkl · X_test*.parquet<br/>pipeline_preprocesamiento.pkl"]
+    D06["06_evaluacion<br/>metricas_modelo.json<br/>meta_test(_app).parquet"]
+    D06I["06_interpretacion<br/>(robustez)"]
+    D07["07_aplicacion"]
+    EXCEL --> D00 --> D01 --> D02 --> D03 --> D04 --> D05 --> D06
+    D03 --> DAUTOML --> D05
+    D06 --> D06I
+    D06 --> D07
+  end
+
+  %% ------------------------------------------------------------------
+  %% CAPA 2 — NÚCLEO REUTILIZABLE (src/)
+  %% ------------------------------------------------------------------
+  subgraph NUCLEO["🧩 CAPA 2 · NÚCLEO REUTILIZABLE (src/)"]
+    direction TB
+    CFG["config / config.py<br/>config_entorno · config_datos<br/>config_proyecto · config_modelado<br/>(rutas, mapas, constantes)"]
+    VAL["validacion/<br/>validador_excel · contrato_excel<br/>generar_html_validacion"]
+    LIN["linaje/<br/>core · exporters · inventario<br/>(trazabilidad del dato)"]
+    HTML["html/<br/>render (Jinja2) · navegacion<br/>components · estado_proyecto"]
+    UTILS["utils/<br/>graficos · formatters · files<br/>log · orquestador · progress"]
+    MET["metricas · schemas · display<br/>index_generator · dependencias"]
+  end
+
+  %% ------------------------------------------------------------------
+  %% CAPA 3 — NOTEBOOKS DE PROCESAMIENTO (notebooks/ por fases)
+  %% ------------------------------------------------------------------
+  subgraph NB["📓 CAPA 3 · NOTEBOOKS DE PROCESAMIENTO (notebooks/)"]
+    direction TB
+    F0["fase0_configuracion<br/>setup · validar Excel · orquestador"]
+    F1["fase1_transformacion<br/>limpieza · unión tablas · dataset final"]
+    F2["fase2_eda<br/>inspección · calidad · nulos"]
+    F3["fase3_features<br/>features · target · alerta temprana"]
+    F4["fase4_eda<br/>distribuciones · selección features"]
+    FA["fase_automl<br/>baselines · pycaret · h2o · autogluon · tabpfn"]
+    F5["fase5_modelado<br/>lineales · árboles · boosting · maestro"]
+    F6["fase6_evaluacion<br/>SHAP · LIME/DiCE · robustez<br/>calibración · sostenibilidad · fairness"]
+    F0 --> F1 --> F2 --> F3 --> F4 --> FA --> F5 --> F6
+  end
+
+  %% ------------------------------------------------------------------
+  %% CAPA 4 — MODELO GANADOR
+  %% ------------------------------------------------------------------
+  subgraph MODELO["🏆 CAPA 4 · MODELO GANADOR"]
+    direction TB
+    JSON["metricas_modelo.json<br/>modelo_pkl = LightGBM__none.pkl<br/>F1=0,8334 · AUC=0,9564<br/>criterio F1 &gt; Recall &gt; AUC &gt; Tiempo"]
+    PKL["LightGBM__none.pkl<br/>(data/05_modelado/models/)"]
+    PIPE["pipeline_preprocesamiento.pkl"]
+    JSON -->|"selección dinámica<br/>del ganador"| PKL
+  end
+
+  %% ------------------------------------------------------------------
+  %% CAPA 5 — APLICACIÓN STREAMLIT (app/)
+  %% ------------------------------------------------------------------
+  subgraph APP["🖥️ CAPA 5 · APLICACIÓN STREAMLIT (app/)"]
+    direction TB
+    MAIN["main.py<br/>navegación por pestañas<br/>verifica ficheros críticos"]
+    CFGAPP["config_app.py<br/>RUTAS · COLORES · PESTANAS<br/>(importa de src.config)"]
+    LOAD["utils/loaders.py<br/>cargar_modelo · cargar_pipeline<br/>cargar_meta_test_app · shap · fairness<br/>(caché st.cache_resource/_data)"]
+    UIH["utils/ui_helpers · pronostico_shared"]
+    subgraph PAGES["pages/"]
+      direction LR
+      P00["p00 inicio"]
+      P01["p01 institucional"]
+      P02["p02 titulación"]
+      P03["p03 prospecto"]
+      P04["p04 en curso"]
+      P05["p05 equidad"]
+      P06["p06 leyenda"]
+    end
+    MAIN --> CFGAPP
+    MAIN --> PAGES
+    PAGES --> LOAD
+    PAGES --> UIH
+    CFGAPP --> LOAD
+  end
+
+  %% ------------------------------------------------------------------
+  %% CAPA 6 — RESULTADOS / SALIDAS
+  %% ------------------------------------------------------------------
+  subgraph RES["📊 CAPA 6 · RESULTADOS (results/ · docs/html/)"]
+    direction TB
+    HTMLDOCS["docs/html/<br/>páginas por fase (render_pagina)"]
+    RFASE5["results/fase5"]
+    RFASE6["results/fase6<br/>SHAP · sostenibilidad · sankey · shapash"]
+    RMET["results/metricas · tablas · exports"]
+  end
+
+  %% ==================================================================
+  %% RELACIONES ENTRE CAPAS
+  %% ==================================================================
+  NUCLEO -->|"importado por"| NB
+  NB -->|"leen / escriben"| DATOS
+  D05 --> MODELO
+  D06 --> MODELO
+  F6 --> JSON
+  F5 --> PKL
+  F5 --> PIPE
+
+  MODELO -->|"cargado en runtime"| LOAD
+  D06 -->|"meta_test_app · metricas"| LOAD
+  PIPE --> LOAD
+  CFG -->|"src.config"| CFGAPP
+
+  NB -->|"render_pagina()"| RES
+  HTML -->|"genera"| HTMLDOCS
+  F6 --> RFASE6
+  F5 --> RFASE5
+
+  %% Scripts auxiliares (transversal)
+  SCRIPTS["🛠️ scripts/<br/>comprimir_modelo · diagnostico_modelo<br/>verificar_coherencia · trazabilidad"]
+  SCRIPTS -.->|"mantenimiento"| MODELO
+  SCRIPTS -.-> DATOS
+
+  %% ------------------------------------------------------------------
+  %% Estilos por capa
+  %% ------------------------------------------------------------------
+  classDef datos fill:#e3f2fd,stroke:#1e4d8c,color:#0d2b50;
+  classDef nucleo fill:#ede7f6,stroke:#5e35b1,color:#2a1457;
+  classDef nb fill:#fff8e1,stroke:#f59e0b,color:#5a3d00;
+  classDef modelo fill:#e8f5e9,stroke:#10b981,color:#06402a;
+  classDef app fill:#fce4ec,stroke:#dc2626,color:#5a0d18;
+  classDef res fill:#eceff1,stroke:#607d8b,color:#263238;
+
+  class EXCEL,D00,D01,D02,D03,D04,D05,D06,D06I,D07,DAUTOML datos;
+  class CFG,VAL,LIN,HTML,UTILS,MET nucleo;
+  class F0,F1,F2,F3,F4,FA,F5,F6 nb;
+  class JSON,PKL,PIPE modelo;
+  class MAIN,CFGAPP,LOAD,UIH,P00,P01,P02,P03,P04,P05,P06 app;
+  class HTMLDOCS,RFASE5,RFASE6,RMET res;

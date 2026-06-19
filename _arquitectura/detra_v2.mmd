@@ -1,0 +1,130 @@
+%%{init: {'theme':'neutral', 'flowchart':{'curve':'basis'}}}%%
+%% =====================================================================
+%% DIAGRAMA DE ARQUITECTURA (v2) — TFM Predicción de Abandono Universitario (UJI)
+%% Vista por capas: Datos -> Procesamiento -> Núcleo -> Modelo -> App -> Resultados
+%% Generado en modo solo lectura a partir de la estructura real del repo.
+%% Números leídos de data/06_evaluacion/metricas_modelo.json (no inventados).
+%% Exportar a imagen: pegar en https://mermaid.live
+%% =====================================================================
+flowchart TB
+
+    %% ----------- ① DATOS ORIGINALES -----------
+    subgraph L1["① DATOS ORIGINALES (Servicio de Planificación UJI)"]
+        direction LR
+        XLS["Excel originales<br/>data/00_raw/*.xlsx<br/>data/01_raw/titulaciones_inventario.xlsx"]
+    end
+
+    %% ----------- ② CAPA DE DATOS POR FASE -----------
+    subgraph L2["② CAPA DE DATOS POR FASE (parquet / json)"]
+        direction LR
+        D02["02_processed<br/>df_alumno.parquet"]
+        D03["03_features<br/>dataset_final_tfm.parquet<br/>df_expediente_features.parquet"]
+        D05["05_modelado<br/>X_train/X_test (+ _prep)<br/>pipeline_preprocesamiento.pkl<br/>models/*.pkl (23 algoritmos)"]
+        D06["06_evaluacion<br/>metricas_modelo.json<br/>meta_test_app.parquet"]
+        D02 --> D03 --> D05 --> D06
+    end
+
+    %% ----------- ③ NÚCLEO REUTILIZABLE src/ -----------
+    subgraph L3["③ NÚCLEO REUTILIZABLE  (src/)"]
+        direction LR
+        SCFG["config*<br/>config_proyecto / datos /<br/>modelado / entorno"]
+        SVAL["validacion/<br/>validador_excel<br/>contrato_excel"]
+        SLIN["linaje/<br/>core · inventario · exporters"]
+        SHTML["html/<br/>render · navegacion ·<br/>components · templates"]
+        SUTIL["utils/<br/>files · formatters ·<br/>graficos · orquestador"]
+        SMISC["metricas · schemas ·<br/>index_generator · constantes"]
+    end
+
+    %% ----------- ④ NOTEBOOKS DE PROCESAMIENTO -----------
+    subgraph L4["④ NOTEBOOKS DE PROCESAMIENTO (por fases)"]
+        direction LR
+        F0["fase0<br/>configuración"]
+        F1["fase1<br/>transformación"]
+        F2["fase2<br/>EDA"]
+        F3["fase3<br/>features + target"]
+        F4["fase4<br/>EDA modelado"]
+        F5["fase5<br/>modelado (23 algos)"]
+        F6["fase6<br/>evaluación + interp."]
+        FAML["fase_automl<br/>baselines · pycaret · h2o ·<br/>autogluon · tabpfn"]
+        F0 --> F1 --> F2 --> F3 --> F4 --> F5 --> F6
+    end
+
+    %% ----------- ⑤ MODELO GANADOR -----------
+    subgraph L5["⑤ MODELO GANADOR"]
+        direction LR
+        MJSON["metricas_modelo.json<br/>F1=0,8334 · AUC=0,9564<br/>Recall=0,8048 · tasa=0,2925"]
+        MPKL["LightGBM__none.pkl"]
+        MPIPE["pipeline_preprocesamiento.pkl"]
+        MJSON -->|resuelve modelo_pkl| MPKL
+    end
+
+    %% ----------- ⑥ APLICACIÓN STREAMLIT -----------
+    subgraph L6["⑥ APLICACIÓN STREAMLIT (app/)"]
+        direction LR
+        AMAIN["main.py<br/>+ config_app.py (RUTAS)"]
+        APAGES["pages/<br/>p00 inicio · p01 institucional<br/>p02 titulación · p03 prospecto<br/>p04 en curso · p05 equidad · p06 leyenda"]
+        AUTILS["utils/<br/>loaders · pronostico_shared · ui_helpers"]
+        AMAIN --> APAGES
+        APAGES --> AUTILS
+    end
+
+    %% ----------- ⑦ RESULTADOS / SALIDAS -----------
+    subgraph L7["⑦ RESULTADOS Y SALIDAS"]
+        direction LR
+        RHTML["docs/html/<br/>fase0..fase7 · index.html<br/>(web del TFM)"]
+        RF6["results/fase6/<br/>SHAP · fairness · sostenibilidad"]
+        RMET["results/metricas · tablas · exports"]
+    end
+
+    %% ===================== RELACIONES ENTRE CAPAS =====================
+    XLS -->|validación de entrada| SVAL
+    XLS --> F1
+    F1 --> D02
+    F3 --> D03
+    F5 --> D05
+    F6 --> D06
+
+    F1 -.usa.-> L3
+    F3 -.usa.-> L3
+    F5 -.usa.-> L3
+    F6 -.usa.-> L3
+
+    D02 --> F3
+    D03 --> F5
+    D05 --> F6
+
+    F5 --> MPKL
+    F5 --> MPIPE
+    F6 --> MJSON
+
+    MJSON -->|app resuelve modelo dinámicamente| AMAIN
+    MPKL --> AUTILS
+    MPIPE --> AUTILS
+    D06 --> AUTILS
+    D05 --> AUTILS
+    RF6 -->|SHAP / fairness| AUTILS
+
+    F6 --> RF6
+    SHTML -->|render_pagina| RHTML
+    L4 -->|render_pagina| RHTML
+    F6 --> RMET
+
+    %% Scripts auxiliares (transversal)
+    SCRIPTS["scripts/<br/>comprimir_modelo · diagnostico_modelo<br/>verificar_coherencia · trazabilidad"]
+    SCRIPTS -.mantenimiento.-> L5
+    SCRIPTS -.-> L2
+
+    %% ===================== ESTILOS =====================
+    classDef datos    fill:#e8f1fb,stroke:#2c6fbb,color:#0d2b4e;
+    classDef nucleo   fill:#eef7ee,stroke:#3a8a3a,color:#173d17;
+    classDef nb       fill:#fff6e6,stroke:#c98a16,color:#5a3d05;
+    classDef modelo   fill:#fde9ee,stroke:#c0395c,color:#4e0f20;
+    classDef app      fill:#eee9fb,stroke:#6a45c0,color:#28114e;
+    classDef result   fill:#e9f6f6,stroke:#2c9b9b,color:#0d3b3b;
+
+    class XLS,D02,D03,D05,D06 datos;
+    class SCFG,SVAL,SLIN,SHTML,SUTIL,SMISC nucleo;
+    class F0,F1,F2,F3,F4,F5,F6,FAML nb;
+    class MJSON,MPKL,MPIPE modelo;
+    class AMAIN,APAGES,AUTILS app;
+    class RHTML,RF6,RMET result;
